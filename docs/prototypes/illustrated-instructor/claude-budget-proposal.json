@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "as_of": "2026-11-02",
+  "author": "Claude Code independent review",
+  "supersedes": null,
+  "historical_quotes_file": "higgsfield-budget.json",
+  "generation_authorized_by_this_document": false,
+  "quotes_reverified_in_this_review": false,
+  "unit_prices_credits_per_attempt": {
+    "seedance_2_0_mini_720p_8s": 8,
+    "kling3_0_std_8s": 12,
+    "seedance_2_0_fast_720p_5s": 12.5,
+    "seedance_2_0_fast_720p_8s": 20,
+    "seedance_2_5_omni_720p_8s": 56
+  },
+  "offer": {
+    "currency": "USD",
+    "tax_included": false,
+    "checkout_confirmed": false,
+    "starter": { "monthly_price": 15, "monthly_credits": 200 },
+    "plus": { "monthly_price": 49, "monthly_credits": 1000 },
+    "conflicting_third_party_offer": "Krea article: Starter 19/270, Plus 59/1200",
+    "api": { "billing": "separate prepaid USD balance", "seedance_2_0_usd_per_second_from": 0.9332, "kling_3_0_usd_per_second_from": 0.112 }
+  },
+  "recommendation": {
+    "plan": "Starter",
+    "billing": "monthly",
+    "channel": "MCP or web (same credit cost for Seedance 2.0 on Starter)",
+    "auto_refill": false,
+    "round_1": "Each pilot once on Mini 8s and once on Fast 8s (720p, 1:1, no audio, count=1)",
+    "model_rule": "Cheapest model that passes the README validation rubric",
+    "max_credits_per_attempt": 20,
+    "pilot_hard_cap_credits": 160,
+    "upgrade_to_plus_when": "Pilot passed AND inventory fixed AND (clips x 3 x quote) exceeds what Starter covers in the desired timeline, OR Start & End Frame / Kling proven necessary"
+  },
+  "pilot": {
+    "clips": ["shoulder-rolls", "seated-twist"],
+    "round_1_credits": 56,
+    "max_extra_attempts_per_clip_after_round_1": 2,
+    "fast_path": { "expected_credits": 96, "max_credits": 136 },
+    "mini_path": { "expected_credits": 72, "max_credits": 88 },
+    "stop_after_two_similar_failures": true
+  },
+  "inventory": {
+    "generated_clips_with_mirroring": 11,
+    "generated_clips_without_mirroring": 14,
+    "v1_core": ["shoulder-rolls", "seated-twist", "neck-tilt", "shrug", "cat-cow", "reach-up"],
+    "later": ["nod-yes", "nod-no", "chest-opener", "side-reach", "march (needs standing reference)"],
+    "mirrored": ["seated-twist", "neck-tilt", "side-reach"]
+  },
+  "scenarios_credits_by_attempts_1_2_3_4": {
+    "pilot_2": { "mini_8s": [16, 32, 48, 64], "kling_std_8s": [24, 48, 72, 96], "fast_5s": [25, 50, 75, 100], "fast_8s": [40, 80, 120, 160] },
+    "core_6": { "mini_8s": [48, 96, 144, 192], "kling_std_8s": [72, 144, 216, 288], "fast_5s": [75, 150, 225, 300], "fast_8s": [120, 240, 360, 480] },
+    "full_11": { "mini_8s": [88, 176, 264, 352], "kling_std_8s": [132, 264, 396, 528], "fast_5s": [137.5, 275, 412.5, 550], "fast_8s": [220, 440, 660, 880] },
+    "full_14": { "mini_8s": [112, 224, 336, 448], "kling_std_8s": [168, 336, 504, 672], "fast_5s": [175, 350, 525, 700], "fast_8s": [280, 560, 840, 1120] }
+  },
+  "per_user_runtime_cost": 0,
+  "distribution": "Bundle clips in app; no CDN or backend for v1"
+}
