@@ -75,9 +75,13 @@ enum DeskSceneRenderer {
         let glow = Geo.polyline([CGPoint(x: 164, y: deskTop - 16), CGPoint(x: 154, y: deskTop - 53)])
         ctx.line(glow, Palette.mint, width: 2)
 
+        // Kip's floor cushion
+        ctx.outlined(Geo.roundRect(214, floorY - 16, 112, 22, 11), Palette.butter, width: 2.5)
+        ctx.line(Geo.polyline([CGPoint(x: 226, y: floorY - 6), CGPoint(x: 314, y: floorY - 6)]), Palette.woodDeep.opacity(0.5), width: 2)
+
         // Kip
         var shrimp = ctx
-        shrimp.translateBy(x: 172, y: 26)
+        shrimp.translateBy(x: 172, y: 14)
         shrimp.scaleBy(x: 0.82, y: 0.82)
         ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp)
     }

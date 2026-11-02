@@ -74,8 +74,12 @@ final class FullPathUITests: XCTestCase {
 
         sleep(1)
         snap("07-reminders")
-        tapButton("Turn on reminders")
-        allowNotificationsIfAsked()
+        // Permission may already be decided if the app was installed before.
+        let turnOn = app.buttons["Turn on reminders"]
+        if turnOn.waitForExistence(timeout: 2) {
+            turnOn.tap()
+            allowNotificationsIfAsked()
+        }
         sleep(1)
         snap("07b-reminders-on")
         tapButton("Continue")
