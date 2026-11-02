@@ -43,15 +43,29 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: app.unshrimp.prototype.uitests
         TEST_TARGET_NAME: Unshrimp
         CODE_SIGN_STYLE: Automatic
+  UnshrimpTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: UnshrimpTests
+    dependencies:
+      - target: Unshrimp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: app.unshrimp.prototype.tests
+        CODE_SIGN_STYLE: Automatic
 schemes:
   Unshrimp:
     build:
       targets:
         Unshrimp: all
         UnshrimpUITests: [test]
+        UnshrimpTests: [test]
     run:
       config: Debug
     test:
       config: Debug
       targets:
         - UnshrimpUITests
+        - UnshrimpTests

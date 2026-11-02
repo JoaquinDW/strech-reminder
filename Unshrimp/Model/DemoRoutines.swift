@@ -17,7 +17,13 @@ struct Routine: Hashable {
     var minutes: Int
     var focus: Set<FocusArea>
 
-    var totalSeconds: Int { moves.count * secondsPerMove }
+    var totalSeconds: Int { minutes > 0 ? minutes * 60 : moves.count * secondsPerMove }
+
+    /// Distribute remainder seconds rather than silently shortening a five-minute break.
+    func seconds(for index: Int) -> Int {
+        guard !moves.isEmpty else { return 0 }
+        return totalSeconds / moves.count + (index < totalSeconds % moves.count ? 1 : 0)
+    }
 }
 
 enum DemoLibrary {
@@ -59,7 +65,9 @@ enum DemoLibrary {
     static func move(_ id: String) -> Move { moves.first { $0.id == id } ?? moves[0] }
 
     /// The single move used in the onboarding demo.
-    static var demoMove: Move { move("shoulder-roll") }
+    static var demoMove: Move { move("shrug") }
+
+    static var availableMoves: [Move] { moves.filter { $0.media != nil } }
 
     /// Builds a routine that favors the chosen areas and varies by day.
     static func routine(length: BreakLength, focus: Set<FocusArea>, seed: Int = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 0) -> Routine {
@@ -70,16 +78,12 @@ enum DemoLibrary {
         case .five: count = 8
         }
         let areas = focus.isEmpty ? Set(FocusArea.allCases) : focus
-        let preferred = moves.filter { !$0.focus.isDisjoint(with: areas) }
-        let others = moves.filter { $0.focus.isDisjoint(with: areas) }
+        let preferred = availableMoves.filter { !$0.focus.isDisjoint(with: areas) }
+        let others = availableMoves.filter { $0.focus.isDisjoint(with: areas) }
         let rotation = preferred.isEmpty ? 0 : seed % preferred.count
-        var ordered = Array(preferred[rotation...] + preferred[..<rotation]) + others
-        // Finish on something that gets you out of the chair when time allows.
-        if count >= 6, let march = ordered.firstIndex(where: { $0.pose == .march }) {
-            let m = ordered.remove(at: march)
-            ordered.insert(m, at: min(count - 1, ordered.count))
-        }
-        let picked = Array(ordered.prefix(count))
+        let ordered = Array(preferred[rotation...] + preferred[..<rotation]) + others
+        // Longer breaks revisit selected moves instead of exposing unfinished demonstrations.
+        let picked = (0..<count).map { ordered[$0 % ordered.count] }
         return Routine(moves: picked, secondsPerMove: length.minutes * 60 / count, minutes: length.minutes, focus: areas)
     }
 }

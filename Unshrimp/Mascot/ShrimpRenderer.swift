@@ -83,7 +83,7 @@ enum ShrimpRenderer {
         antenna(base, up: 60, fwd: 10, sway: -pose.antennaSway * 0.7 + 4, curlDir: -1)
 
         // Arms
-        let shoulder = Geo.mid(pts[2], pts[3]) + Geo.dir((hs[2] + hs[3]) / 2 + 90) * (rs[2] * 0.82)
+        let shoulder = Geo.mid(pts[2], pts[3]) + Geo.dir((hs[2] + hs[3]) / 2 + 90) * (rs[2] * 0.82 * CGFloat(1 - pose.shoulderShift))
         func arm(_ sh: CGPoint, angle: Double, color: Color) {
             let a = 180 + angle + pose.lean
             let el = sh + Geo.dir(a) * CGFloat(19 * pose.armLength)

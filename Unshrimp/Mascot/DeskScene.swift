@@ -81,7 +81,7 @@ enum DeskSceneRenderer {
 
         // Kip
         var shrimp = ctx
-        shrimp.translateBy(x: 172, y: 14)
+        shrimp.translateBy(x: 164, y: 14)
         shrimp.scaleBy(x: 0.82, y: 0.82)
         ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp)
     }
@@ -282,6 +282,7 @@ struct DeskSceneView: View {
         }
         .aspectRatio(DeskSceneRenderer.size.width / DeskSceneRenderer.size.height, contentMode: .fit)
         .onChange(of: state) { old, _ in blender.didChange(from: old) }
+        .pokeable(blender)
         .accessibilityElement()
         .accessibilityLabel(Text(sceneLabel))
         .accessibilityAddTraits(.isImage)

@@ -236,10 +236,12 @@ private struct FocusStep: View {
 
 private struct DemoStep: View {
     var next: () -> Void
-    @State private var timer = MoveTimer(duration: 20)
-    @State private var finished = false
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var session = ExerciseSession(routine: Routine(
+        moves: [DemoLibrary.demoMove], secondsPerMove: 20, minutes: 0, focus: DemoLibrary.demoMove.focus))
 
-    private let move = DemoLibrary.demoMove
+    private var move: Move { session.move }
+    private var finished: Bool { session.isComplete }
 
     var body: some View {
         OnboardingPage(title: finished ? String(localized: "Nice. That's the whole idea.") : String(localized: "Try a 20-second break"),
@@ -247,18 +249,31 @@ private struct DemoStep: View {
                         ? String(localized: "Short, guided, done. Then back to work feeling a little looser.")
                         : String(localized: "One move with \(Brand.mascotName). You can skip this.")) {
             ZStack(alignment: .topTrailing) {
-                ShrimpStage(state: finished ? .celebrating : (timer.isRunning ? .exercise(move.pose) : .inviting), prop: .mat)
-                if finished { ConfettiBurst(trigger: 1) }
+                if finished {
+                    ShrimpStage(state: .celebrating, prop: .mat)
+                    ConfettiBurst(trigger: 1)
+                } else {
+                    ExerciseDemonstration(move: move, isRunning: session.isRunning,
+                                          isPreparing: session.isPreparing,
+                                          revision: session.playbackRevision, showsReplay: false)
+                        .padding(.horizontal, Space.l)
+                    ShrimpView(state: session.isRunning ? .stretching : .resting)
+                        .frame(width: 64, height: 64)
+                        .accessibilityHidden(true)
+                }
             }
         } content: {
             if !finished {
                 HStack(spacing: Space.l) {
-                    TimerRing(progress: timer.progress, label: "\(timer.secondsLeft)")
+                    TimerRing(progress: session.progress, label: "\(session.hasBegun ? session.secondsLeft : 20)")
                         .frame(width: 76, height: 76)
                     VStack(alignment: .leading, spacing: 4) {
                         Text(move.name).font(.uHeadline).foregroundStyle(Palette.petrol)
                         Text(move.cue).font(.uCallout).foregroundStyle(Palette.petrolSoft)
                             .fixedSize(horizontal: false, vertical: true)
+                        if session.hasBegun {
+                            Text(session.phaseTitle).font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -267,20 +282,19 @@ private struct DemoStep: View {
         } actions: {
             if finished {
                 Button("Continue", action: next).buttonStyle(.chunky)
-            } else if timer.hasStarted {
-                Button(timer.isRunning ? LocalizedStringKey("Pause") : LocalizedStringKey("Resume")) { timer.toggle() }.buttonStyle(.chunky(.secondary))
+            } else if session.hasBegun {
+                Button(session.isRunning ? LocalizedStringKey("Pause") : LocalizedStringKey("Resume")) { session.toggle() }.buttonStyle(.chunky(.secondary))
                 Button("Skip the demo", action: next).buttonStyle(.chunky(.quiet))
             } else {
-                Button("Start the demo") { timer.start() }.buttonStyle(.chunky)
+                Button("Start the demo") { session.start() }.buttonStyle(.chunky)
                 Button("Skip the demo", action: next).buttonStyle(.chunky(.quiet))
             }
         }
-        .onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
-            timer.tick()
-            if timer.isComplete && !finished {
-                withAnimation(Motion.gentle) { finished = true }
-            }
+        .onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in session.tick() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active { session.pause() }
         }
+        .onDisappear { session.pause() }
         .sensoryFeedback(.success, trigger: finished)
     }
 }
@@ -320,7 +334,7 @@ private struct RhythmStep: View {
         switch length {
         case .two: String(localized: "A quick reset: four moves.")
         case .three: String(localized: "\(Brand.mascotName)'s pick: six moves, nothing rushed.")
-        case .five: String(localized: "A proper unshrimp: eight moves, including standing.")
+        case .five: String(localized: "A proper unshrimp: eight moves at your own pace.")
         }
     }
 }

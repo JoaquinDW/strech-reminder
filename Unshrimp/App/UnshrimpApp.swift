@@ -11,6 +11,12 @@ struct UnshrimpApp: App {
         WindowGroup {
             RootView()
                 .environment(model)
+                .environment(\.exerciseMotionOverride, testReducedMotion)
+                .transformEnvironment(\.dynamicTypeSize) { value in
+                    #if DEBUG
+                    if ProcessInfo.processInfo.arguments.contains("-testLargeType") { value = .accessibility3 }
+                    #endif
+                }
                 .preferredColorScheme(.light)
                 .tint(Palette.coral)
         }
@@ -22,6 +28,14 @@ struct UnshrimpApp: App {
             }
         }
     }
+
+    private var testReducedMotion: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-testReduceMotion")
+        #else
+        false
+        #endif
+    }
 }
 
 struct RootView: View {
@@ -29,7 +43,9 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
-            if model.data.hasOnboarded {
+            if trainingPreview {
+                BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: [.wholeBody], seed: 0))
+            } else if model.data.hasOnboarded {
                 HomeView().transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
                 OnboardingFlow().transition(.opacity)
@@ -37,6 +53,14 @@ struct RootView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: model.data.hasOnboarded)
         .fontDesign(.rounded)
+    }
+
+    private var trainingPreview: Bool {
+        #if DEBUG
+        ProcessInfo.processInfo.arguments.contains("-testTraining")
+        #else
+        false
+        #endif
     }
 }
 

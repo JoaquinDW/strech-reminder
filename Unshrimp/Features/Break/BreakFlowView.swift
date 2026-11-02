@@ -1,50 +1,12 @@
 import SwiftUI
 
-/// Wall-clock based countdown that survives pauses and view refreshes.
-struct MoveTimer {
-    var duration: Double
-    private(set) var hasStarted = false
-    private var banked: Double = 0
-    private var runningSince: Date?
-    private var now = Date()
-
-    init(duration: Double) { self.duration = duration }
-
-    var isRunning: Bool { runningSince != nil }
-    var elapsed: Double { min(duration, banked + (runningSince.map { now.timeIntervalSince($0) } ?? 0)) }
-    var progress: Double { duration > 0 ? elapsed / duration : 1 }
-    var secondsLeft: Int { Int(ceil(max(0, duration - elapsed))) }
-    var isComplete: Bool { elapsed >= duration }
-
-    mutating func start() {
-        hasStarted = true
-        now = Date()
-        runningSince = now
-    }
-
-    mutating func pause() {
-        now = Date()
-        banked = elapsed
-        runningSince = nil
-    }
-
-    mutating func toggle() { isRunning ? pause() : start() }
-
-    mutating func tick() {
-        now = Date()
-        if isRunning && isComplete { banked = duration; runningSince = nil }
-    }
-
-    mutating func restart(duration: Double) {
-        self = MoveTimer(duration: duration)
-        start()
-    }
-}
-
 struct TimerRing: View {
     var progress: Double
     var label: String
     var lineWidth: CGFloat = 8
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.exerciseMotionOverride) private var motionOverride
+    private var reduceMotion: Bool { systemReduceMotion || motionOverride }
 
     var body: some View {
         ZStack {
@@ -54,15 +16,15 @@ struct TimerRing: View {
                 .trim(from: 0, to: progress)
                 .stroke(Palette.coral, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-                .animation(.linear(duration: 0.1), value: progress)
+                .animation(reduceMotion ? nil : .linear(duration: 0.1), value: progress)
             Circle().strokeBorder(Palette.petrol, lineWidth: 2).padding(-lineWidth / 2 - 1)
             Text(label)
                 .font(.system(.title, design: .rounded, weight: .heavy))
                 .monospacedDigit()
                 .foregroundStyle(Palette.petrol)
                 .minimumScaleFactor(0.5)
-                .contentTransition(.numericText(countsDown: true))
-                .animation(.snappy, value: label)
+                .contentTransition(reduceMotion ? .identity : .numericText(countsDown: true))
+                .animation(reduceMotion ? nil : .snappy, value: label)
         }
         .padding(lineWidth / 2 + 1)
         .accessibilityElement()
@@ -74,23 +36,27 @@ struct TimerRing: View {
 struct BreakFlowView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.exerciseMotionOverride) private var motionOverride
+    private var reduceMotion: Bool { systemReduceMotion || motionOverride }
 
     let routine: Routine
 
     enum Stage: Equatable { case intro, moving, confirm, reward(BreakResult), notThisTime }
 
     @State private var stage: Stage = .intro
-    @State private var index = 0
-    @State private var timer: MoveTimer
+    @State private var session: ExerciseSession
     @State private var showEndDialog = false
-    @State private var advanceTick = 0
+    @State private var resumeAfterDialog = false
 
     init(routine: Routine) {
         self.routine = routine
-        _timer = State(initialValue: MoveTimer(duration: Double(routine.secondsPerMove)))
+        _session = State(initialValue: ExerciseSession(routine: routine))
     }
 
-    private var move: Move { routine.moves[min(index, routine.moves.count - 1)] }
+    private var move: Move { session.move }
 
     var body: some View {
         ZStack {
@@ -104,19 +70,28 @@ struct BreakFlowView: View {
                 case .notThisTime: notThisTime
                 }
             }
-            .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
+            .transition(reduceMotion ? .opacity : .asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
         }
-        .animation(.spring(response: 0.45, dampingFraction: 0.85), value: stage)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: stage)
         .onReceive(Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()) { _ in
             guard stage == .moving else { return }
-            timer.tick()
-            if timer.isComplete { advance() }
+            session.tick()
+            if session.isComplete { stage = .confirm }
         }
-        .sensoryFeedback(.impact(weight: .medium), trigger: advanceTick)
-        .confirmationDialog("End this break?", isPresented: $showEndDialog, titleVisibility: .visible) {
+        .sensoryFeedback(.impact(weight: .medium), trigger: session.index)
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active { session.pause() }
+        }
+        .onDisappear { session.pause() }
+        .alert("End this break?", isPresented: $showEndDialog) {
             Button("I moved enough, finish") { withAnimation { stage = .confirm } }
             Button("End without saving", role: .destructive) { dismiss() }
-            Button("Keep going", role: .cancel) {}
+            Button("Keep going", role: .cancel) {
+                if resumeAfterDialog { session.resume() }
+                resumeAfterDialog = false
+            }
+        } message: {
+            Text("Your session is paused while you decide.")
         }
     }
 
@@ -141,16 +116,21 @@ struct BreakFlowView: View {
                         Text("Focus: \(FocusArea.summary(routine.focus))").font(.uBody).foregroundStyle(Palette.petrolSoft)
                     }
                     VStack(spacing: 0) {
-                        ForEach(Array(routine.moves.enumerated()), id: \.element.id) { i, m in
+                        ForEach(Array(routine.moves.enumerated()), id: \.offset) { i, m in
                             HStack(spacing: Space.m) {
                                 Text("\(i + 1)")
                                     .font(.uCaption)
                                     .foregroundStyle(Palette.petrol)
                                     .frame(width: 28, height: 28)
                                     .background(Circle().fill(Palette.butterSoft))
-                                Text(m.name).font(.uCallout.weight(.semibold)).foregroundStyle(Palette.petrol)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(m.name).font(.uCallout.weight(.semibold)).foregroundStyle(Palette.petrol)
+                                    if routine.moves.prefix(i).contains(where: { $0.id == m.id }) {
+                                        Text("Another round").font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                                    }
+                                }
                                 Spacer()
-                                Text("\(routine.secondsPerMove)s").font(.uCaption).foregroundStyle(Palette.petrolSoft).monospacedDigit()
+                                Text("\(routine.seconds(for: i))s").font(.uCaption).foregroundStyle(Palette.petrolSoft).monospacedDigit()
                             }
                             .padding(.vertical, 6)
                         }
@@ -165,8 +145,7 @@ struct BreakFlowView: View {
                 .padding(.bottom, Space.l)
             }
             Button("Let's move") {
-                index = 0
-                timer.restart(duration: Double(routine.secondsPerMove))
+                session.start()
                 stage = .moving
             }
             .buttonStyle(.chunky)
@@ -178,96 +157,110 @@ struct BreakFlowView: View {
     // MARK: Moving
 
     private var moving: some View {
-        VStack(spacing: Space.m) {
-            HStack(spacing: Space.m) {
-                CircleIconButton(systemName: "xmark", label: "End break") {
-                    timer.pause()
-                    showEndDialog = true
-                }
-                VStack(spacing: 6) {
-                    Text("Move \(index + 1) of \(routine.moves.count)")
-                        .font(.uCaption).foregroundStyle(Palette.petrolSoft)
-                    HStack(spacing: 4) {
-                        ForEach(0..<routine.moves.count, id: \.self) { i in
-                            GeometryReader { geo in
-                                ZStack(alignment: .leading) {
-                                    Capsule().fill(Palette.ivoryDeep)
-                                    Capsule().fill(Palette.coral)
-                                        .frame(width: geo.size.width * (i < index ? 1 : (i == index ? timer.progress : 0)))
+        GeometryReader { geometry in
+            let demonstrationSize = max(180, min(geometry.size.width - Space.page * 2, geometry.size.height * 0.42))
+            VStack(spacing: Space.s) {
+                HStack(spacing: Space.m) {
+                    CircleIconButton(systemName: "xmark", label: "End break") {
+                        resumeAfterDialog = session.isRunning
+                        session.pause()
+                        showEndDialog = true
+                    }
+                    VStack(spacing: 6) {
+                        Text("Move \(session.index + 1) of \(routine.moves.count)")
+                            .font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                        HStack(spacing: 4) {
+                            ForEach(0..<routine.moves.count, id: \.self) { i in
+                                GeometryReader { geo in
+                                    ZStack(alignment: .leading) {
+                                        Capsule().fill(Palette.ivoryDeep)
+                                        Capsule().fill(Palette.coral)
+                                            .frame(width: geo.size.width * (i < session.index ? 1 : (i == session.index ? session.progress : 0)))
+                                    }
                                 }
+                                .frame(height: 6)
                             }
-                            .frame(height: 6)
+                        }
+                        .accessibilityHidden(true)
+                    }
+                    Color.clear.frame(width: 44, height: 1).accessibilityHidden(true)
+                }
+                .padding(.horizontal, Space.page)
+                .padding(.top, Space.s)
+
+                TrainingBuddy(comment: move.companionComment(occurrence: session.occurrence),
+                              showsComment: session.showsComment, showsBubble: !dynamicTypeSize.isAccessibilitySize)
+                    .padding(.horizontal, Space.page)
+
+                ScrollView {
+                    VStack(spacing: Space.s) {
+                        ExerciseDemonstration(move: move, isRunning: session.isRunning,
+                                              isPreparing: session.isPreparing, mirrored: session.isMirrored,
+                                              revision: session.playbackRevision, isObscured: showEndDialog)
+                            .frame(width: demonstrationSize)
+                            .id(session.index)
+                        VStack(spacing: Space.xs) {
+                            Text(move.name)
+                                .font(.uTitle).foregroundStyle(Palette.petrol)
+                                .accessibilityAddTraits(.isHeader)
+                            Text(move.cue)
+                                .font(.uBody).foregroundStyle(Palette.petrolSoft)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, Space.page)
+                        if dynamicTypeSize.isAccessibilitySize {
+                            Text(move.companionComment(occurrence: session.occurrence))
+                                .font(.uCallout).foregroundStyle(Palette.petrolSoft)
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.horizontal, Space.page)
+                                .opacity(session.showsComment ? 1 : 0)
+                                .accessibilityHidden(!session.showsComment)
                         }
                     }
-                    .accessibilityHidden(true)
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, Space.s)
                 }
-                DemoBadge()
-            }
-            .padding(.horizontal, Space.page)
-            .padding(.top, Space.s)
+                .scrollBounceBehavior(.basedOnSize)
 
-            ShrimpStage(state: timer.isRunning ? .exercise(move.pose) : .resting, prop: .mat)
-                .frame(maxHeight: .infinity)
-                .layoutPriority(-1)
-                .id(move.id)
-                .transition(.opacity)
+                VStack(spacing: Space.xs) {
+                    Text(session.isRunning ? session.phaseTitle : String(localized: "Paused"))
+                        .font(.uCallout.weight(.semibold)).foregroundStyle(Palette.petrol)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("exercise-phase")
+                    HStack(spacing: Space.l) {
+                        Button { session.toggle() } label: {
+                            Image(systemName: session.isRunning ? "pause.fill" : "play.fill")
+                                .font(.system(size: 22, weight: .heavy))
+                                .frame(width: 30, height: 30)
+                        }
+                        .buttonStyle(.chunky(.secondary, compact: true))
+                        .accessibilityLabel(session.isRunning ? Text("Pause") : Text("Resume"))
 
-            VStack(spacing: Space.s) {
-                Text(move.name)
-                    .font(.uTitle)
-                    .foregroundStyle(Palette.petrol)
-                    .multilineTextAlignment(.center)
-                    .accessibilityAddTraits(.isHeader)
-                Text(move.cue)
-                    .font(.uBody)
-                    .foregroundStyle(Palette.petrolSoft)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(.horizontal, Space.page)
-            .id("text-\(move.id)")
+                        TimerRing(progress: session.progress, label: "\(session.secondsLeft)")
+                            .frame(width: 88, height: 88)
+                            .accessibilityIdentifier("exercise-countdown")
 
-            HStack(spacing: Space.l) {
-                Button {
-                    timer.toggle()
-                } label: {
-                    Image(systemName: timer.isRunning ? "pause.fill" : "play.fill")
-                        .font(.system(size: 22, weight: .heavy))
-                        .frame(width: 30, height: 30)
+                        Button { advance() } label: {
+                            Image(systemName: session.index == routine.moves.count - 1 ? "checkmark" : "forward.fill")
+                                .font(.system(size: 22, weight: .heavy))
+                                .frame(width: 30, height: 30)
+                        }
+                        .buttonStyle(.chunky(.primary, compact: true))
+                        .accessibilityLabel(session.index == routine.moves.count - 1 ? Text("Finish") : Text("Next move"))
+                    }
                 }
-                .buttonStyle(.chunky(.secondary, compact: true))
-                .accessibilityLabel(timer.isRunning ? Text("Pause") : Text("Resume"))
-
-                TimerRing(progress: timer.progress, label: "\(timer.secondsLeft)")
-                    .frame(width: 96, height: 96)
-
-                Button {
-                    advance()
-                } label: {
-                    Image(systemName: index == routine.moves.count - 1 ? "checkmark" : "forward.fill")
-                        .font(.system(size: 22, weight: .heavy))
-                        .frame(width: 30, height: 30)
-                }
-                .buttonStyle(.chunky(.primary, compact: true))
-                .accessibilityLabel(index == routine.moves.count - 1 ? Text("Finish") : Text("Next move"))
+                .padding(.horizontal, Space.page)
+                .padding(.bottom, Space.s)
             }
-            if !timer.isRunning {
-                Text("Paused. Take your time.")
-                    .font(.uCaption)
-                    .foregroundStyle(Palette.petrolSoft)
-            }
-            Spacer(minLength: Space.s)
         }
     }
 
     private func advance() {
-        advanceTick += 1
-        if index >= routine.moves.count - 1 {
-            withAnimation { stage = .confirm }
-        } else {
-            withAnimation(Motion.gentle) { index += 1 }
-            timer.restart(duration: Double(routine.secondsPerMove))
-        }
+        session.advance()
+        if session.isComplete { stage = .confirm }
     }
 
     // MARK: Confirm

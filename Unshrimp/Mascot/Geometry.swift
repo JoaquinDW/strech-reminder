@@ -47,6 +47,12 @@ enum Geo {
         return t * t * (3 - 2 * t)
     }
 
+    /// Ease-out that overshoots a little and settles, for lively pose changes.
+    static func backOut(_ x: Double, overshoot s: Double = 1.5) -> Double {
+        let t = min(max(x, 0), 1) - 1
+        return t * t * ((s + 1) * t + s) + 1
+    }
+
     static func lerp(_ a: Double, _ b: Double, _ t: Double) -> Double { a + (b - a) * t }
 }
 

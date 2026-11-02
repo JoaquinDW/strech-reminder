@@ -23,6 +23,8 @@ Useful launch arguments (Edit Scheme → Run → Arguments):
 
 - `-resetData` starts fresh (onboarding again).
 - `-seedWeek` fills earlier days of the current week with sample breaks.
+- Debug-only media previews: `-testTraining`, optionally `-testReduceMotion` or
+  `-testLargeType`. These open a deterministic routine without resetting saved data.
 
 ## Structure
 
@@ -43,6 +45,22 @@ mouth, antenna sway…), and `ShrimpMotion` maps each `ShrimpState`
 time to a pose. State changes blend smoothly. Animation runs in a `TimelineView` that
 pauses offscreen, in the background, and when Reduce Motion is on (Kip then holds a
 calm key pose).
+
+### Exercise demonstrations
+
+Six selected illustrated instructor clips play locally during onboarding and guided
+breaks. Kip stays beside the instructor and offers occasional comments. Preparation
+and side changes have separate countdowns; pausing or backgrounding freezes both the
+session and the video. Reduce Motion replaces playback with three selectable poses.
+
+The 2/3/5-minute routines use four/six/eight steps from the selected media. Longer
+routines revisit two moves, explicitly marked in the overview. Movement time matches
+the chosen duration; preparation adds a few seconds. The four unfinished exercises
+are excluded from automatic routines.
+
+See [media integration notes](docs/exercise-media-integration.md) for asset choices,
+remaining content limitations, and simulator verification. Session unit tests are in
+`UnshrimpTests`; media and full-path UI tests are in `UnshrimpUITests`.
 
 ### Rewards
 

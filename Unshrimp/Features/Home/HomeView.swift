@@ -70,9 +70,9 @@ struct HomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(Palette.petrol, lineWidth: 2.5))
             SpeechBubble(text: model.speech(now))
-                .frame(maxWidth: 210, alignment: .leading)
+                .frame(maxWidth: 180, alignment: .leading)
                 .padding(Space.m)
-                .padding(.leading, 110)
+                .padding(.leading, 80)
                 .animation(Motion.gentle, value: model.speech(now))
         }
     }

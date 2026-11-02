@@ -53,6 +53,7 @@ struct ShrimpStage: View {
             }
         }
         .onChange(of: state) { old, _ in blender.didChange(from: old) }
+        .pokeable(blender)
         .accessibilityElement()
         .accessibilityLabel(Text(state.accessibilityLabel))
         .accessibilityAddTraits(.isImage)

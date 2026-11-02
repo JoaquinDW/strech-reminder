@@ -28,20 +28,68 @@ struct LiveCanvas: View {
 final class PoseBlender {
     var previous: ShrimpState?
     var changedAt: Double = 0
-    static let duration: Double = 0.6
+    var pokedAt: Double = -10
+    static let duration: Double = 0.75
+    /// How far behind the head the antennae trail, for follow-through.
+    private static let lag: Double = 0.14
 
     func pose(for state: ShrimpState, t: Double, animated: Bool) -> ShrimpPose {
+        var p = blended(state, t: t, animated: animated)
+        guard animated else { return p }
+        // Follow-through: antennae swing against the head's and body's motion.
+        let behind = blended(state, t: t - Self.lag, animated: true)
+        let headSwing: Double = (p.headTilt - behind.headTilt) * 1.4
+        let leanSwing: Double = (p.lean - behind.lean) * 1.2
+        let hopSwing: Double = (p.bounce - behind.bounce) * 1.6
+        p.antennaSway += headSwing + leanSwing - hopSwing
+        applyPoke(&p, t: t)
+        return p
+    }
+
+    private func blended(_ state: ShrimpState, t: Double, animated: Bool) -> ShrimpPose {
         let target = ShrimpMotion.pose(state, t: t, animated: animated)
         guard animated, let previous, previous != state else { return target }
         let p = (t - changedAt) / Self.duration
         if p >= 1 { return target }
+        if p <= 0 { return ShrimpMotion.pose(previous, t: t, animated: animated) }
         let from = ShrimpMotion.pose(previous, t: t, animated: animated)
-        return ShrimpPose.lerp(from, target, Geo.smoothstep(p))
+        var out = ShrimpPose.lerp(from, target, Geo.backOut(p))
+        // Anticipation: a small dip and squint before the new pose lands.
+        let dip = sin(min(p / 0.35, 1) * .pi)
+        out.bounce -= dip * 3
+        out.eyeOpen = min(out.eyeOpen, 1 - dip * 0.6)
+        return out
+    }
+
+    /// A happy wiggle when the user taps Kip.
+    private func applyPoke(_ p: inout ShrimpPose, t: Double) {
+        let e = t - pokedAt
+        guard e >= 0, e < 0.9 else { return }
+        let decay = exp(-4 * e)
+        p.bounce += abs(sin(e * 14)) * 7 * decay
+        p.lean += sin(e * 18) * 5 * decay
+        p.antennaPerk = 1
+        p.eye = .happy
+        p.mouth = .open
+        p.blush = 1
     }
 
     func didChange(from old: ShrimpState) {
         previous = old
         changedAt = Date().timeIntervalSinceReferenceDate
+    }
+
+    func poke() {
+        pokedAt = Date().timeIntervalSinceReferenceDate
+    }
+}
+
+extension View {
+    /// Lets the user tap the mascot for a little reaction.
+    func pokeable(_ blender: PoseBlender) -> some View {
+        contentShape(Rectangle())
+            .onTapGesture { blender.poke() }
+            .sensoryFeedback(.impact(weight: .light), trigger: blender.pokedAt)
     }
 }
 
@@ -57,6 +105,7 @@ struct ShrimpView: View {
         }
         .aspectRatio(1, contentMode: .fit)
         .onChange(of: state) { old, _ in blender.didChange(from: old) }
+        .pokeable(blender)
         .accessibilityElement()
         .accessibilityLabel(Text(state.accessibilityLabel))
         .accessibilityAddTraits(.isImage)

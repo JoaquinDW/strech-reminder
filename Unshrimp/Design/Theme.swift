@@ -1,5 +1,17 @@
 import SwiftUI
 
+private struct ExerciseMotionOverrideKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// Deterministic UI-test override; the system's Reduce Motion setting always wins.
+    var exerciseMotionOverride: Bool {
+        get { self[ExerciseMotionOverrideKey.self] }
+        set { self[ExerciseMotionOverrideKey.self] = newValue }
+    }
+}
+
 extension Color {
     init(hex: UInt32, opacity: Double = 1) {
         self.init(

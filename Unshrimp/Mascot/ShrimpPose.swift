@@ -43,6 +43,8 @@ struct ShrimpPose {
     var armBack: Double = -20
     var armBend: Double = -30
     var armLength: Double = 1
+    /// Slides the shoulders from the belly (0) toward the spine (1), so raised arms clear the face.
+    var shoulderShift: Double = 0
     var bounce: Double = 0
     var lean: Double = 0
     var eye: Eye = .dot
@@ -65,6 +67,7 @@ struct ShrimpPose {
         p.armBack = l(a.armBack, b.armBack)
         p.armBend = l(a.armBend, b.armBend)
         p.armLength = l(a.armLength, b.armLength)
+        p.shoulderShift = l(a.shoulderShift, b.shoulderShift)
         p.bounce = l(a.bounce, b.bounce)
         p.lean = l(a.lean, b.lean)
         p.eye = t < 0.5 ? a.eye : b.eye
@@ -92,28 +95,36 @@ enum ShrimpMotion {
 
         switch state {
         case .working:
-            p.heading = 8; p.curl = 205; p.headTilt = -8 + sin(t * 0.7) * 2 * k
-            p.armFront = -10 + sin(t * 13) * 7 * k
-            p.armBack = -20 + sin(t * 13 + 1.7) * 7 * k
-            p.armBend = -30
+            // Types in bursts, pausing now and then to read the screen.
+            let typing = Geo.smoothstep((sin(t * 0.8) + 0.25) / 0.5) * k
+            p.heading = 8; p.curl = 205
+            p.headTilt = -8 + sin(t * 0.7) * 2 * k + (1 - typing) * 5 * k
+            // Arms reach all the way to the keys.
+            p.armFront = 2 + max(0, sin(t * 11)) * 7 * typing
+            p.armBack = -4 + max(0, sin(t * 11 + 2.1)) * 7 * typing
+            p.armBend = -18; p.armLength = 1.45
             p.mouth = .flat
         case .inviting:
-            p.heading = 14; p.curl = 195; p.headTilt = 18 + sin(t * 2) * 3 * k
-            p.armFront = -8; p.armBend = 85 + sin(t * 7) * 22 * k
-            p.armBack = -25; p.armLength = 1.1
+            // Front arm raised past the body so the hand waves clear of the silhouette.
+            p.heading = 18; p.curl = 188; p.headTilt = 28 + sin(t * 1.6) * 3 * k
+            p.armFront = 168 + sin(t * 3) * 4 * k; p.armBend = -75 + sin(t * 6.5) * 28 * k
+            p.armBack = -60; p.armLength = 1.9; p.shoulderShift = 1
             p.eye = .wide; p.mouth = .open
             p.antennaPerk = 1; p.antennaSway = 6 + sin(t * 2.4) * 9 * k
             p.bounce = abs(sin(t * 2.2)) * 2 * k
         case .stretching:
             let s = sin(t * 1.1) * k
-            p.heading = 70 - s * 6; p.curl = 100 + s * 18; p.headTilt = 25 + s * 6
-            p.armFront = 22 + s * 8; p.armBack = 38 + s * 8; p.armBend = 20; p.armLength = 1.1
+            // Fully upright, both arms straight overhead.
+            p.heading = 80 - s * 4; p.curl = 85 + s * 14; p.headTilt = 30 + s * 6
+            p.armFront = 104 + s * 5; p.armBack = 72 + s * 5; p.armBend = -4; p.armLength = 3.0; p.shoulderShift = 1
             p.eye = .closed; p.mouth = .smile
         case .celebrating:
-            p.heading = 40; p.curl = 155; p.headTilt = 15
-            p.armFront = -5 + sin(t * 9) * 10 * k; p.armBack = 10 + sin(t * 9 + 1) * 10 * k
-            p.armBend = 80; p.armLength = 1.1
-            p.bounce = abs(sin(t * 5)) * 9 * k
+            // Arms up in a V, hopping with hang time; the body straightens in the air.
+            let hop = pow(abs(sin(t * 3.6)), 0.6) * k
+            p.heading = 50 + hop * 15; p.curl = 160 - hop * 45; p.headTilt = 15 + hop * 8
+            p.armFront = 150 + sin(t * 9) * 8 * k; p.armBack = 62 + sin(t * 9 + 1) * 8 * k
+            p.armBend = -25; p.armLength = 2.1; p.shoulderShift = 1
+            p.bounce = hop * 18
             p.eye = .happy; p.mouth = .open
             p.antennaPerk = 1; p.antennaSway = sin(t * 5) * 12 * k
             p.legWiggle = 12 * k; p.legPhase = t * 10
