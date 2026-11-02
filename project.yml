@@ -30,3 +30,28 @@ targets:
         SWIFT_EMIT_LOC_STRINGS: YES
         LOCALIZATION_PREFERS_STRING_CATALOGS: YES
         CODE_SIGN_STYLE: Automatic
+  UnshrimpUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UnshrimpUITests
+    dependencies:
+      - target: Unshrimp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: app.unshrimp.prototype.uitests
+        TEST_TARGET_NAME: Unshrimp
+        CODE_SIGN_STYLE: Automatic
+schemes:
+  Unshrimp:
+    build:
+      targets:
+        Unshrimp: all
+        UnshrimpUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - UnshrimpUITests

@@ -109,6 +109,8 @@ struct OptionCard<Leading: View>: View {
         }
         .buttonStyle(PressableStyle())
         .sensoryFeedback(.selection, trigger: isSelected)
+        .accessibilityLabel(Text(title))
+        .accessibilityHint(Text(subtitle ?? ""))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

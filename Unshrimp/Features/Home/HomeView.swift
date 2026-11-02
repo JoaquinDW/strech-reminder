@@ -158,6 +158,7 @@ struct HomeView: View {
                 .font(.system(.title3, design: .rounded, weight: .heavy))
             }
             .buttonStyle(.chunky)
+            .accessibilityLabel(Text("Start a break"))
             .accessibilityHint(Text("\(model.prefs.breakLength.minutes) minutes, focused on \(FocusArea.summary(model.prefs.focusAreas))"))
 
             VStack(alignment: .leading, spacing: Space.s) {
