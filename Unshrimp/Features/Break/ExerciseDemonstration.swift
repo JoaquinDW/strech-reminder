@@ -263,11 +263,34 @@ struct TrainingBuddy: View {
                 .accessibilityHidden(!showsComment)
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: showsComment)
             }
-            ShrimpView(state: showsComment ? .inviting : .resting)
-                .frame(width: 76, height: 76)
+            BuddyWindow(state: showsComment ? .inviting : .resting)
+                .accessibilityElement()
                 .accessibilityLabel(Text("\(Brand.mascotName) is here with you"))
         }
-        .frame(minHeight: 76)
+        .frame(minHeight: 84)
         .accessibilityIdentifier("training-buddy")
+    }
+}
+
+/// Kip peeks in through a small window, half hidden behind its sill, instead of floating loose over the screen.
+private struct BuddyWindow: View {
+    let state: ShrimpState
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: Radius.tile, style: .continuous)
+        ZStack(alignment: .bottom) {
+            LinearGradient(colors: [Palette.mintSoft, Palette.wall], startPoint: .top, endPoint: .bottom)
+            ShrimpView(state: state)
+                .frame(width: 92, height: 92)
+                .offset(y: 8)
+            Rectangle().fill(Palette.wood)
+                .frame(height: 18)
+                .overlay(alignment: .top) { Rectangle().fill(Palette.woodDeep).frame(height: 2.5) }
+        }
+        .frame(width: 80, height: 80)
+        .clipShape(shape)
+        .overlay(shape.strokeBorder(Palette.petrol, lineWidth: 2.5))
+        .background(shape.fill(Palette.petrol).offset(y: 4))
+        .padding(.bottom, 4)
     }
 }
