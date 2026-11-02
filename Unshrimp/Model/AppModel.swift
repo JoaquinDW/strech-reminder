@@ -250,12 +250,16 @@ final class AppModel {
         guard data.breaks.isEmpty else { return }
         data.hasOnboarded = true
         let now = Date()
-        for day in weekDates where day < calendar.startOfDay(for: now) {
+        let pastDays = (1...6).compactMap { calendar.date(byAdding: .day, value: -$0, to: calendar.startOfDay(for: now)) }.reversed()
+        for day in pastDays {
             let n = [2, 3, 3, 1, 3][calendar.component(.weekday, from: day) % 5]
             for i in 0..<n {
                 let d = calendar.date(bySettingHour: 10 + i * 2, minute: 15, second: 0, of: day) ?? day
                 recordBreak(minutes: 3, focus: [.neck, .shoulders], at: d)
             }
+        }
+        if let morning = calendar.date(bySettingHour: 9, minute: 40, second: 0, of: now), morning < now {
+            recordBreak(minutes: 3, focus: [.neck, .shoulders], at: morning)
         }
         celebrateItem = nil
     }

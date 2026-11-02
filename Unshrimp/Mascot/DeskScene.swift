@@ -58,26 +58,26 @@ enum DeskSceneRenderer {
 
         item(.plant, at: CGPoint(x: 44, y: deskTop - 6))
         item(.lamp, at: CGPoint(x: 82, y: deskTop - 6))
-        item(.mug, at: CGPoint(x: 116, y: deskTop - 6))
+        item(.mug, at: CGPoint(x: 124, y: deskTop - 6))
 
         // Laptop: base on the desk, lid facing Kip
         let base = Geo.polyline([
-            CGPoint(x: 144, y: deskTop - 6), CGPoint(x: 196, y: deskTop - 6),
-            CGPoint(x: 192, y: deskTop - 12), CGPoint(x: 150, y: deskTop - 12)
+            CGPoint(x: 156, y: deskTop - 6), CGPoint(x: 208, y: deskTop - 6),
+            CGPoint(x: 204, y: deskTop - 12), CGPoint(x: 162, y: deskTop - 12)
         ], closed: true)
         ctx.outlined(base, Palette.laptop, width: 2.5)
         let lid = Geo.polyline([
-            CGPoint(x: 147, y: deskTop - 10), CGPoint(x: 135, y: deskTop - 56),
-            CGPoint(x: 142, y: deskTop - 58), CGPoint(x: 154, y: deskTop - 11)
+            CGPoint(x: 159, y: deskTop - 10), CGPoint(x: 147, y: deskTop - 56),
+            CGPoint(x: 154, y: deskTop - 58), CGPoint(x: 166, y: deskTop - 11)
         ], closed: true)
         ctx.outlined(lid, Palette.laptopLid, width: 2.5)
         // tiny glow on the screen side
-        let glow = Geo.polyline([CGPoint(x: 152, y: deskTop - 16), CGPoint(x: 142, y: deskTop - 53)])
+        let glow = Geo.polyline([CGPoint(x: 164, y: deskTop - 16), CGPoint(x: 154, y: deskTop - 53)])
         ctx.line(glow, Palette.mint, width: 2)
 
         // Kip
         var shrimp = ctx
-        shrimp.translateBy(x: 180, y: 26)
+        shrimp.translateBy(x: 172, y: 26)
         shrimp.scaleBy(x: 0.82, y: 0.82)
         ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp)
     }

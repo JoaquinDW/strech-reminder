@@ -83,7 +83,7 @@ enum ShrimpRenderer {
         antenna(base, up: 60, fwd: 10, sway: -pose.antennaSway * 0.7 + 4, curlDir: -1)
 
         // Arms
-        let shoulder = pts[2] + Geo.dir(hs[2] + 90) * (rs[2] * 0.8)
+        let shoulder = Geo.mid(pts[2], pts[3]) + Geo.dir((hs[2] + hs[3]) / 2 + 90) * (rs[2] * 0.82)
         func arm(_ sh: CGPoint, angle: Double, color: Color) {
             let a = 180 + angle + pose.lean
             let el = sh + Geo.dir(a) * CGFloat(19 * pose.armLength)
@@ -92,7 +92,7 @@ enum ShrimpRenderer {
             ctx.stroke(path, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 6 + ow * 2, lineCap: .round, lineJoin: .round))
             ctx.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
         }
-        arm(shoulder + Geo.dir(hs[2]) * 8, angle: pose.armBack, color: Palette.shrimpDeep)
+        arm(shoulder + Geo.dir(hs[3]) * 9, angle: pose.armBack, color: Palette.shrimpDeep)
 
         // Little legs on the belly
         for i in 3...7 {

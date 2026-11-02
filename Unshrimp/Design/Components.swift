@@ -164,7 +164,8 @@ struct Chip: View {
             }
             .foregroundStyle(Palette.petrol)
             .lineLimit(1)
-            .padding(.horizontal, 14)
+            .minimumScaleFactor(0.75)
+            .padding(.horizontal, stretch ? 8 : 14)
             .frame(maxWidth: stretch ? .infinity : nil, minHeight: 44)
             .background(Capsule().fill(isSelected ? Palette.coralSoft : Palette.paper))
             .overlay(Capsule().strokeBorder(isSelected ? Palette.petrol : Palette.line, lineWidth: isSelected ? 2 : 1.5))

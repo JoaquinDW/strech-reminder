@@ -169,8 +169,8 @@ struct HomeView: View {
                         }
                     }
                 }
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: Space.s) {
+                FlowLayout(spacing: Space.s) {
+                    Group {
                         ForEach(FocusArea.allCases) { area in
                             Chip(title: area.title, systemImage: area.symbol, isSelected: model.prefs.focusAreas.contains(area)) {
                                 model.updatePrefs { p in
@@ -183,9 +183,7 @@ struct HomeView: View {
                             }
                         }
                     }
-                    .padding(.vertical, 2)
                 }
-                .scrollClipDisabled()
             }
         }
     }
