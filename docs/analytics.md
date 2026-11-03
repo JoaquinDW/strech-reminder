@@ -37,6 +37,8 @@ The SDK supplies normal device/app metadata and queues offline events.
 | `break_completed` | User confirms “Yes, I moved”; `routine_reached_end`, `is_first_break`, `breaks_today` |
 | `break_abandoned` | Started break dismissed or declined; `reason`: `dismissed` / `not_confirmed` |
 | `daily_goal_reached` | A confirmed break first reaches today's goal; `daily_goal` |
+| `weekly_recap_viewed` | Weekly recap sheet opens; `minutes`, `breaks`, `is_current_week` |
+| `weekly_recap_share_tapped` | Share button on the recap; `minutes`, `breaks` (not whether it was sent) |
 | `app_error` | Persistence failure; operation, error domain/code only |
 
 All three break events share `break_id`, `duration_minutes` (planned duration, not

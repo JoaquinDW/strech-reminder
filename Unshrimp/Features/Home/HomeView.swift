@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var breakSource: BreakSource = .app
     @State private var showSettings = false
     @State private var showCollection = false
+    @State private var showRecap = false
     @State private var now = Date()
     @State private var popItem: DeskItem?
     @State private var popStart: Double = 0
@@ -36,6 +37,9 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showSettings) { SettingsView() }
         .sheet(isPresented: $showCollection) { CollectionView() }
+        .sheet(isPresented: $showRecap) {
+            if let summary = model.weeklySummary(now) { WeeklyRecapView(summary: summary) }
+        }
         .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { now = $0 }
         .onChange(of: model.breakRequestedFromNotification, initial: true) { _, requested in
             guard requested else { return }
@@ -44,9 +48,10 @@ struct HomeView: View {
             model.skipBreakIntro = false
             // A break already on screen wins; otherwise close any sheet and go.
             guard activeRoutine == nil else { return }
-            let hadSheet = showSettings || showCollection
+            let hadSheet = showSettings || showCollection || showRecap
             showSettings = false
             showCollection = false
+            showRecap = false
             if hadSheet {
                 Task { try? await Task.sleep(for: .milliseconds(450)); startBreak(skippingIntro: skip, source: .reminder) }
             } else {
@@ -55,7 +60,11 @@ struct HomeView: View {
         }
         .task { await model.refreshNotificationStatus() }
         #if DEBUG
-        .onAppear { if ProcessInfo.processInfo.arguments.contains("-testCollection") { showCollection = true } }
+        .onAppear {
+            let args = ProcessInfo.processInfo.arguments
+            if args.contains("-testCollection") { showCollection = true }
+            if args.contains("-testWeeklyRecap") { showRecap = true }
+        }
         #endif
     }
 
@@ -248,8 +257,40 @@ struct HomeView: View {
                     .font(.uCaption.weight(.medium))
                     .foregroundStyle(Palette.petrolSoft)
             }
+            if let summary = model.weeklySummary(now) {
+                Divider().overlay(Palette.line)
+                recapRow(summary)
+            }
         }
         .card()
+    }
+
+    private func recapRow(_ summary: WeeklySummary) -> some View {
+        Button { showRecap = true } label: {
+            HStack(spacing: Space.m) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundStyle(Palette.petrol)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(Palette.butter))
+                    .overlay(Circle().strokeBorder(Palette.petrol, lineWidth: 2))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(summary.isCurrent
+                         ? String(localized: "This week you moved \(summary.minutes) min")
+                         : String(localized: "Last week you moved \(summary.minutes) min"))
+                        .font(.uCallout.weight(.bold))
+                        .foregroundStyle(Palette.petrol)
+                    Text("See and share your week with \(Brand.mascotName)")
+                        .font(.uCaption)
+                        .foregroundStyle(Palette.petrolSoft)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.uHeadline).foregroundStyle(Palette.petrolSoft)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: Kip's growth
