@@ -46,6 +46,8 @@ final class AppModel {
     var notificationStatus: UNAuthorizationStatus = .notDetermined
     /// Set when the user taps a reminder; Home opens a break.
     var breakRequestedFromNotification = false
+    /// The reminder's "Start" button skips the overview and goes straight into the first move.
+    var skipBreakIntro = false
     /// Item to pop into the desk scene when Home appears after an unlock.
     var celebrateItem: DeskItem?
     var celebrateStart: Double = 0
@@ -58,6 +60,14 @@ final class AppModel {
         if args.contains("-resetData") { store.delete() }
         data = store.load() ?? AppData()
         if args.contains("-seedWeek") { seedWeek() }
+        #if DEBUG
+        if let i = args.firstIndex(of: "-seedGrowth"), args.indices.contains(i + 1), let n = Int(args[i + 1]) { seedGrowth(n) }
+        if args.contains("-testReminder") { Task { await sendTestReminder() } }
+        if args.contains("-testStartFromNotification") {
+            breakRequestedFromNotification = true
+            skipBreakIntro = true
+        }
+        #endif
     }
 
     // MARK: Preferences
@@ -94,6 +104,16 @@ final class AppModel {
     // MARK: Derived state
 
     var unlocked: Set<DeskItem> { Set(data.unlocked) }
+    var growth: KipGrowth { KipGrowth(breaks: data.breaks.count) }
+    var look: KipLook { KipLook(uncurl: growth.uncurl, wearable: data.outfit) }
+
+    /// Puts on (or takes off, with nil) one of the wearables Kip has earned.
+    func wear(_ wearable: Wearable?) {
+        guard wearable == nil || growth.wearables.contains(wearable!) else { return }
+        data.outfit = wearable
+        save()
+        Task { await rescheduleReminders() }
+    }
     var nextItem: DeskItem? { DeskItem.allCases.first { !unlocked.contains($0) } }
     var lastBreak: Date? { data.breaks.map(\.date).max() }
     var isFirstDay: Bool { data.breaks.isEmpty }
@@ -188,12 +208,16 @@ final class AppModel {
         let before = data.energy
         let todayBefore = breaksToday(date)
         let stopsBefore = adventureStops(date)
+        let stageBefore = growth.stageIndex
         let lines = EnergyRules.award(at: date, history: data.breaks, breaksTodayBefore: todayBefore, goal: prefs.dailyGoal)
         let earned = lines.reduce(0) { $0 + $1.amount }
         data.breaks.append(BreakRecord(date: date, minutes: minutes, focus: FocusArea.allCases.filter { focus.contains($0) }, energy: earned))
         data.energy += earned
         let newItems = DeskItem.allCases.filter { !data.unlocked.contains($0) && $0.cost <= data.energy }
         data.unlocked.append(contentsOf: newItems)
+        let stageAfter = growth.stageIndex
+        let newWearable = stageAfter > stageBefore ? KipGrowth.stages[stageAfter].wearable : nil
+        if let newWearable { data.outfit = newWearable }
         save()
         if let first = newItems.first {
             celebrateItem = first
@@ -204,7 +228,9 @@ final class AppModel {
             lines: lines, energyBefore: before, energyAfter: data.energy, newlyUnlocked: newItems,
             breaksToday: todayBefore + 1, goal: prefs.dailyGoal,
             reachedGoalNow: todayBefore + 1 == prefs.dailyGoal,
-            adventureStop: stopsAfter > stopsBefore ? stopsAfter : 0
+            adventureStop: stopsAfter > stopsBefore ? stopsAfter : 0,
+            newStage: stageAfter > stageBefore ? stageAfter : nil,
+            newWearable: newWearable
         )
     }
 
@@ -230,20 +256,39 @@ final class AppModel {
     }
 
     func rescheduleReminders() async {
-        await NotificationManager.reschedule(preferences: prefs, lastBreak: lastBreak)
+        await NotificationManager.reschedule(preferences: prefs, lastBreak: lastBreak, context: voiceContext)
     }
 
     func snooze() async {
-        await NotificationManager.scheduleOneOff(after: 15 * 60, minutes: prefs.breakLength.minutes)
+        await NotificationManager.scheduleOneOff(after: NotificationManager.snoozeMinutes * 60, kind: .snoozed, context: voiceContext)
     }
 
     func sendTestReminder() async {
-        await NotificationManager.scheduleOneOff(after: 5, minutes: prefs.breakLength.minutes)
+        await NotificationManager.scheduleOneOff(after: 5, kind: .test, context: voiceContext)
+    }
+
+    private var voiceContext: KipVoice.Context {
+        KipVoice.Context(minutes: prefs.breakLength.minutes, focus: prefs.focusAreas, look: look,
+                         stage: growth.stageIndex, breaksToday: breaksToday(), goal: prefs.dailyGoal)
     }
 
     // MARK: Private
 
     private func save() { store.save(data) }
+
+    /// Debug: adds `count` breaks spread over the past weeks so Kip's growth can be previewed.
+    private func seedGrowth(_ count: Int) {
+        data.hasOnboarded = true
+        let now = Date()
+        for i in 0..<max(0, count) {
+            let day = calendar.date(byAdding: .day, value: -(count - i) / 3 - 1, to: now) ?? now
+            let d = calendar.date(bySettingHour: 10 + (i % 3) * 2, minute: 30, second: 0, of: day) ?? day
+            recordBreak(minutes: 3, focus: [.neck, .shoulders], at: d)
+        }
+        // One just now, so Home shows Kip back at work.
+        if count > 0 { recordBreak(minutes: 3, focus: [.neck], at: now.addingTimeInterval(-600)) }
+        celebrateItem = nil
+    }
 
     /// Debug: fills earlier days of this week with sample breaks (launch argument -seedWeek).
     private func seedWeek() {

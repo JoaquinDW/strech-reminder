@@ -11,6 +11,7 @@ struct UnshrimpApp: App {
         WindowGroup {
             RootView()
                 .environment(model)
+                .environment(\.kipLook, model.look)
                 .environment(\.exerciseMotionOverride, testReducedMotion)
                 .transformEnvironment(\.dynamicTypeSize) { value in
                     #if DEBUG
@@ -40,10 +41,14 @@ struct UnshrimpApp: App {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @State private var rewardPreview = RootView.rewardPreviewOnce
 
     var body: some View {
         ZStack {
-            if trainingPreview {
+            if let result = rewardPreview {
+                RewardView(result: result) { rewardPreview = nil }
+                    .background(Palette.ivory.ignoresSafeArea())
+            } else if trainingPreview {
                 BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: [.wholeBody], seed: 0))
             } else if model.data.hasOnboarded {
                 HomeView().transition(.opacity.combined(with: .scale(scale: 0.98)))
@@ -53,6 +58,19 @@ struct RootView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: model.data.hasOnboarded)
         .fontDesign(.rounded)
+    }
+
+    /// Debug: -testReward records one break and opens its reward screen, to check unlock moments.
+    // Static so it runs once, not on every RootView init.
+    private static let rewardPreviewOnce = makeRewardPreview()
+
+    private static func makeRewardPreview() -> BreakResult? {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-testReward") {
+            return AppModel.shared.recordBreak(minutes: 3, focus: [.neck, .shoulders])
+        }
+        #endif
+        return nil
     }
 
     private var trainingPreview: Bool {
@@ -83,7 +101,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
             switch action {
             case NotificationManager.snoozeActionID:
                 Task { await model.snooze() }
-            case NotificationManager.startActionID, UNNotificationDefaultActionIdentifier:
+            case NotificationManager.startActionID:
+                // "Stretch with Kip now" goes straight into the first move.
+                guard model.data.hasOnboarded else { break }
+                model.skipBreakIntro = true
+                model.breakRequestedFromNotification = true
+            case UNNotificationDefaultActionIdentifier:
                 if model.data.hasOnboarded { model.breakRequestedFromNotification = true }
             default:
                 break

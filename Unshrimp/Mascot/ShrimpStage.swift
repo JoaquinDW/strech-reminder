@@ -15,6 +15,7 @@ struct ShrimpStage: View {
     var state: ShrimpState
     var prop: StageProp = .none
     var backdrop: Color = Palette.mintSoft
+    @Environment(\.kipLook) private var look
     @State private var blender = PoseBlender()
 
     var body: some View {
@@ -43,10 +44,10 @@ struct ShrimpStage: View {
             default: break
             }
 
-            let pose = blender.pose(for: state, t: t, animated: animated)
+            let pose = blender.pose(for: state, t: t, animated: animated, growth: look.uncurl)
             var shrimp = ctx
             shrimp.translateBy(x: shrimpX, y: 0)
-            ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp)
+            ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp, look: look, t: t, animated: animated)
 
             if case .focus(let areas) = prop {
                 drawFocus(shrimp, pose: pose, areas: areas, t: t, animated: animated)

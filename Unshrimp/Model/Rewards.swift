@@ -2,7 +2,7 @@ import Foundation
 
 /// Cosmetic unlocks for Kip's desk. Costs are cumulative energy totals.
 enum DeskItem: String, Codable, CaseIterable, Identifiable, Hashable {
-    case plant, mug, lamp, poster, lights, snail
+    case plant, mug, lamp, poster, lights, snail, cat, rug
     var id: String { rawValue }
 
     var cost: Int {
@@ -13,6 +13,8 @@ enum DeskItem: String, Codable, CaseIterable, Identifiable, Hashable {
         case .poster: 170
         case .lights: 240
         case .snail: 320
+        case .cat: 410
+        case .rug: 520
         }
     }
 
@@ -24,6 +26,8 @@ enum DeskItem: String, Codable, CaseIterable, Identifiable, Hashable {
         case .poster: String(localized: "Wave poster")
         case .lights: String(localized: "Fairy lights")
         case .snail: String(localized: "Desk snail")
+        case .cat: String(localized: "Napping cat")
+        case .rug: String(localized: "Stripy rug")
         }
     }
 
@@ -35,6 +39,8 @@ enum DeskItem: String, Codable, CaseIterable, Identifiable, Hashable {
         case .poster: String(localized: "A reminder that the ocean is still out there.")
         case .lights: String(localized: "Twinkly. Obviously.")
         case .snail: String(localized: "A very slow coworker. Extremely supportive.")
+        case .cat: String(localized: "Naps on the rug. Stretches more than anyone here.")
+        case .rug: String(localized: "Somewhere soft to land after a big reach.")
         }
     }
 }
@@ -56,6 +62,9 @@ struct BreakResult: Equatable {
     var goal: Int
     var reachedGoalNow: Bool
     var adventureStop: Int
+    /// Set when this break moved Kip to a new growth stage.
+    var newStage: Int? = nil
+    var newWearable: Wearable? = nil
 
     var earned: Int { energyAfter - energyBefore }
 }
@@ -99,4 +108,95 @@ enum Adventure {
         String(localized: "Coral Arch"),
         String(localized: "The Big Shell")
     ]
+}
+
+/// Things Kip can wear. Each one arrives with a growth stage, so they come from showing up
+/// over time rather than from energy.
+enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
+    case sweatband, specs, beanie, flower, crown
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .sweatband: String(localized: "Sweatband")
+        case .specs: String(localized: "Little specs")
+        case .beanie: String(localized: "Bobble beanie")
+        case .flower: String(localized: "Antenna flower")
+        case .crown: String(localized: "Tiny crown")
+        }
+    }
+
+    var blurb: String {
+        switch self {
+        case .sweatband: String(localized: "\(Brand.mascotName) insists it's for style, not sweat.")
+        case .specs: String(localized: "For reading the screen without leaning in.")
+        case .beanie: String(localized: "Cozy, slightly too big, very bouncy.")
+        case .flower: String(localized: "Grows a little every time \(Brand.mascotName) reaches up.")
+        case .crown: String(localized: "Royalty of the uncurled. Earned, not given.")
+        }
+    }
+}
+
+/// Kip's long-term growth: every completed break loosens the curl a little,
+/// and each stage brings something new to wear.
+struct KipGrowth: Equatable {
+    struct Stage: Equatable {
+        let breaks: Int
+        let wearable: Wearable?
+    }
+
+    static let stages: [Stage] = [
+        Stage(breaks: 0, wearable: nil),
+        Stage(breaks: 3, wearable: .sweatband),
+        Stage(breaks: 8, wearable: .specs),
+        Stage(breaks: 15, wearable: .beanie),
+        Stage(breaks: 25, wearable: .flower),
+        Stage(breaks: 40, wearable: .crown)
+    ]
+
+    static func title(_ index: Int) -> String {
+        switch index {
+        case 0: String(localized: "Tightly curled")
+        case 1: String(localized: "Loosening up")
+        case 2: String(localized: "Unfurling")
+        case 3: String(localized: "Stretchy")
+        case 4: String(localized: "Limber")
+        default: String(localized: "Fully unshrimped")
+        }
+    }
+
+    let breaks: Int
+
+    var stageIndex: Int { Self.stages.lastIndex { breaks >= $0.breaks } ?? 0 }
+    var title: String { Self.title(stageIndex) }
+    var nextStage: Stage? { Self.stages.indices.contains(stageIndex + 1) ? Self.stages[stageIndex + 1] : nil }
+
+    /// 0 = a tight desk shrimp, 1 = as upright as Kip gets. Moves a little with every break.
+    var uncurl: Double {
+        let full = Double(Self.stages.last?.breaks ?? 1)
+        return pow(min(1, Double(breaks) / full), 0.8)
+    }
+
+    var wearables: [Wearable] { Self.stages.prefix(stageIndex + 1).compactMap(\.wearable) }
+
+    /// Breaks into the current stage and breaks the stage takes, for a progress bar.
+    var progress: (current: Int, needed: Int)? {
+        guard let next = nextStage else { return nil }
+        let start = Self.stages[stageIndex].breaks
+        return (breaks - start, next.breaks - start)
+    }
+
+    static func stageWearable(_ wearable: Wearable) -> Int {
+        stages.firstIndex { $0.wearable == wearable } ?? 0
+    }
+
+    /// "2 more breaks until Unfurling" style hint, or nil once Kip is fully grown.
+    var nextHint: String? {
+        guard let p = progress else { return nil }
+        let left = p.needed - p.current
+        let next = Self.title(stageIndex + 1)
+        return left == 1
+            ? String(localized: "One more break until \(next)")
+            : String(localized: "\(left) more breaks until \(next)")
+    }
 }

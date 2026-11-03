@@ -12,6 +12,7 @@ struct CollectionView: View {
                     DeskSceneView(state: .resting, unlocked: model.unlocked, ghost: model.nextItem)
                         .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(Palette.petrol, lineWidth: 2.5))
+                    wardrobe
                     HStack {
                         Label("\(model.data.energy) energy earned", systemImage: "bolt.heart.fill")
                             .font(.uHeadline)
@@ -40,6 +41,66 @@ struct CollectionView: View {
             }
         }
     }
+
+    // MARK: Wardrobe
+
+    private var wardrobe: some View {
+        let growth = model.growth
+        return VStack(alignment: .leading, spacing: Space.m) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Wardrobe").font(.uTitle2).foregroundStyle(Palette.petrol).accessibilityAddTraits(.isHeader)
+                Spacer()
+                Text(growth.title).font(.uCaption).foregroundStyle(Palette.coralDeep)
+            }
+            Text(growth.nextHint.map { String(localized: "Every break uncurls \(Brand.mascotName) a little. \($0).") }
+                 ?? String(localized: "\(Brand.mascotName) is fully uncurled. Tap to change outfits."))
+                .font(.uCaption.weight(.medium))
+                .foregroundStyle(Palette.petrolSoft)
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Space.s), count: 3), spacing: Space.s) {
+                wearTile(nil)
+                ForEach(Wearable.allCases) { wearTile($0) }
+            }
+        }
+    }
+
+    private func wearTile(_ wearable: Wearable?) -> some View {
+        let owned = wearable.map { model.growth.wearables.contains($0) } ?? true
+        let worn = model.data.outfit == wearable
+        let stage = wearable.map(KipGrowth.stageWearable) ?? 0
+        return Button {
+            withAnimation(Motion.snappy) { model.wear(wearable) }
+        } label: {
+            VStack(spacing: 4) {
+                ShrimpView(state: .inviting)
+                    .environment(\.kipLook, KipLook(uncurl: model.look.uncurl, wearable: wearable))
+                    .frame(height: 64)
+                    .grayscale(owned ? 0 : 1)
+                    .opacity(owned ? 1 : 0.3)
+                    .overlay {
+                        if !owned { Image(systemName: "lock.fill").font(.uHeadline).foregroundStyle(Palette.petrolSoft) }
+                    }
+                    .allowsHitTesting(false)
+                Text(wearable?.title ?? String(localized: "Just \(Brand.mascotName)"))
+                    .font(.uCaption).foregroundStyle(Palette.petrol)
+                    .lineLimit(2).multilineTextAlignment(.center).minimumScaleFactor(0.8)
+                Text(owned ? (worn ? String(localized: "Wearing") : String(localized: "Tap to wear"))
+                           : String(localized: "At \(KipGrowth.title(stage).lowercased())"))
+                    .font(.uMicro)
+                    .foregroundStyle(worn ? Palette.mintDeep : Palette.petrolSoft)
+                    .lineLimit(2).multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, minHeight: 128)
+            .padding(Space.s)
+            .background(RoundedRectangle(cornerRadius: Radius.tile, style: .continuous).fill(worn ? Palette.mintSoft : Palette.paper))
+            .overlay(RoundedRectangle(cornerRadius: Radius.tile, style: .continuous).strokeBorder(worn ? Palette.petrol : Palette.line, lineWidth: worn ? 2 : 1.5))
+        }
+        .buttonStyle(PressableStyle())
+        .disabled(!owned)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(worn ? .isSelected : [])
+    }
+
+    // MARK: Desk
 
     private func tile(_ item: DeskItem) -> some View {
         let owned = model.unlocked.contains(item)

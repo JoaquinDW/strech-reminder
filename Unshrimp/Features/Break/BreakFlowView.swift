@@ -51,9 +51,12 @@ struct BreakFlowView: View {
     @State private var showEndDialog = false
     @State private var resumeAfterDialog = false
 
-    init(routine: Routine) {
+    init(routine: Routine, skipIntro: Bool = false) {
         self.routine = routine
-        _session = State(initialValue: ExerciseSession(routine: routine))
+        let session = ExerciseSession(routine: routine)
+        if skipIntro { session.start() }
+        _session = State(initialValue: session)
+        _stage = State(initialValue: skipIntro ? .moving : .intro)
     }
 
     private var move: Move { session.move }

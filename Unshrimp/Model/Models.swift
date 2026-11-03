@@ -100,4 +100,19 @@ struct AppData: Codable {
     var breaks: [BreakRecord] = []
     var energy = 0
     var unlocked: [DeskItem] = []
+    /// What Kip is wearing. New wearables are put on when they unlock.
+    var outfit: Wearable?
+
+    init() {}
+
+    // Decoded field by field so data saved by older builds keeps loading as fields are added.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        hasOnboarded = try c.decodeIfPresent(Bool.self, forKey: .hasOnboarded) ?? false
+        preferences = try c.decodeIfPresent(Preferences.self, forKey: .preferences) ?? Preferences()
+        breaks = try c.decodeIfPresent([BreakRecord].self, forKey: .breaks) ?? []
+        energy = try c.decodeIfPresent(Int.self, forKey: .energy) ?? 0
+        unlocked = try c.decodeIfPresent([DeskItem].self, forKey: .unlocked) ?? []
+        outfit = try c.decodeIfPresent(Wearable.self, forKey: .outfit)
+    }
 }

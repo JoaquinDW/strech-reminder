@@ -83,10 +83,18 @@ struct ShrimpPose {
     }
 }
 
+/// How Kip looks right now: how far the curl has loosened over time, and what Kip is wearing.
+struct KipLook: Equatable {
+    var uncurl: Double = 0
+    var wearable: Wearable?
+    /// Reference time when the wearable drops onto Kip's head, for the unlock moment.
+    var revealAt: Double?
+}
+
 /// Turns a state plus time into a concrete pose. `t` is seconds; pass `animated: false`
 /// (Reduce Motion) to get the calm, canonical key pose.
 enum ShrimpMotion {
-    static func pose(_ state: ShrimpState, t rawT: Double, animated: Bool) -> ShrimpPose {
+    static func pose(_ state: ShrimpState, t rawT: Double, animated: Bool, growth: Double = 0) -> ShrimpPose {
         let t = animated ? rawT : 0
         let k: Double = animated ? 1 : 0
         var p = ShrimpPose()
@@ -137,11 +145,31 @@ enum ShrimpMotion {
         case .exercise(let move):
             p = exercise(move, t: t, k: k)
         }
+        applyGrowth(&p, growth, state: state)
 
         if animated, p.eye == .dot || p.eye == .wide {
             p.eyeOpen = blink(t)
         }
         return p
+    }
+
+    /// The more breaks Kip has taken, the looser the everyday curl and the higher the head.
+    /// Guided moves are already upright, so they stay as they are.
+    private static func applyGrowth(_ p: inout ShrimpPose, _ growth: Double, state: ShrimpState) {
+        let u = min(max(growth, 0), 1)
+        guard u > 0 else { return }
+        switch state {
+        case .working:
+            p.curl -= 38 * u; p.heading += 7 * u; p.headTilt += 5 * u
+        case .inviting:
+            p.curl -= 34 * u; p.heading += 8 * u
+        case .resting:
+            p.curl -= 60 * u; p.heading += 12 * u; p.headTilt += 6 * u
+        case .celebrating:
+            p.curl -= 20 * u
+        default:
+            break
+        }
     }
 
     static func blink(_ t: Double) -> Double {

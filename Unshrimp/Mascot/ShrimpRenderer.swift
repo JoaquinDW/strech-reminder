@@ -44,15 +44,15 @@ enum ShrimpRenderer {
     }
 
     /// Draws the shrimp scaled to fit `rect`, feet on the rect's bottom edge.
-    static func draw(_ pose: ShrimpPose, in context: GraphicsContext, rect: CGRect) {
+    static func draw(_ pose: ShrimpPose, in context: GraphicsContext, rect: CGRect, look: KipLook = KipLook(), t: Double = 0, animated: Bool = false) {
         var ctx = context
         let s = min(rect.width, rect.height) / designSize
         ctx.translateBy(x: rect.midX - designSize / 2 * s, y: rect.maxY - designSize * s)
         ctx.scaleBy(x: s, y: s)
-        drawInDesignSpace(pose, ctx: ctx)
+        drawInDesignSpace(pose, ctx: ctx, look: look, t: t, animated: animated)
     }
 
-    static func drawInDesignSpace(_ pose: ShrimpPose, ctx: GraphicsContext) {
+    static func drawInDesignSpace(_ pose: ShrimpPose, ctx: GraphicsContext, look: KipLook = KipLook(), t: Double = 0, animated: Bool = false) {
         let g = rig(for: pose)
         let pts = g.points, hs = g.headings, rs = g.radii
         let n = pts.count
@@ -188,6 +188,123 @@ enum ShrimpRenderer {
             ctx.stroke(Geo.polyline([m + CGPoint(x: -3, y: 0.5), m + CGPoint(x: 3, y: 0.5)]), with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 2.6, lineCap: .round))
         }
 
+        if let wearable = look.wearable {
+            // Worn in the face's frame, which stays close to screen-aligned: up is up, the face looks left.
+            let faceAngle = pose.headTilt * 0.6 + pose.lean
+            var worn = ctx
+            worn.translateBy(x: head.x, y: head.y)
+            worn.rotate(by: .degrees(faceAngle))
+            let localHead = headShape.applying(CGAffineTransform(translationX: -head.x, y: -head.y)
+                .concatenating(CGAffineTransform(rotationAngle: -Geo.rad(faceAngle))))
+            var visible = true
+            if animated, let reveal = look.revealAt {
+                // Unlock moment: the new piece drops in from above, lands with a squash, then sparkles.
+                let e = t - reveal
+                if e < 0 {
+                    visible = false
+                } else {
+                    let p = min(1, e / 0.5)
+                    worn.translateBy(x: 0, y: -CGFloat(pow(1 - p, 2)) * 90)
+                    if e > 0.5, e < 0.9 {
+                        let squash = sin((e - 0.5) / 0.4 * .pi) * 0.12
+                        worn.translateBy(x: 0, y: -20)
+                        worn.scaleBy(x: 1 + squash, y: 1 - squash)
+                        worn.translateBy(x: 0, y: 20)
+                    }
+                    if e > 0.5 { DeskSceneRenderer.drawSparkles(ctx, around: head + CGPoint(x: 0, y: -30), progress: e - 0.5) }
+                }
+            }
+            if visible {
+                WearableArt.draw(wearable, in: worn, head: localHead, t: t, animated: animated)
+            }
+        }
+
         arm(shoulder, angle: pose.armFront, color: Palette.shrimp)
+    }
+}
+
+/// Kip's wearables, drawn in the face frame: origin at the head's center, the face to the left.
+enum WearableArt {
+    static func draw(_ item: Wearable, in ctx: GraphicsContext, head: Path, t: Double, animated: Bool) {
+        switch item {
+        case .sweatband: sweatband(ctx, head: head, t: t, animated: animated)
+        case .specs: specs(ctx)
+        case .beanie: beanie(ctx)
+        case .flower: flower(ctx, t: t, animated: animated)
+        case .crown: crown(ctx)
+        }
+    }
+
+    private static func sweatband(_ ctx: GraphicsContext, head: Path, t: Double, animated: Bool) {
+        let flutter = animated ? sin(t * 4) * 6 : 0
+        // Tails tied at the back of the head
+        var tails = ctx
+        tails.translateBy(x: 30, y: -18)
+        tails.rotate(by: .degrees(flutter))
+        tails.outlined(Geo.ellipse(CGPoint(x: 10, y: 5), w: 18, h: 7, angle: 30), Palette.mint, width: 2.5)
+        tails.outlined(Geo.ellipse(CGPoint(x: 11, y: -3), w: 16, h: 6, angle: -10), Palette.mint, width: 2.5)
+        let band = Geo.polyline([CGPoint(x: -44, y: -15), CGPoint(x: 44, y: -25), CGPoint(x: 44, y: -14), CGPoint(x: -44, y: -3)], closed: true)
+        var inside = ctx
+        inside.clip(to: head)
+        inside.fill(band, with: .color(Palette.mint))
+        inside.line(Geo.polyline([CGPoint(x: -44, y: -9), CGPoint(x: 44, y: -19.5)]), Palette.paper, width: 2.5)
+        inside.line(Geo.polyline([CGPoint(x: -44, y: -15), CGPoint(x: 44, y: -25)]), width: 2.5)
+        inside.line(Geo.polyline([CGPoint(x: -44, y: -3), CGPoint(x: 44, y: -14)]), width: 2.5)
+    }
+
+    private static func specs(_ ctx: GraphicsContext) {
+        let eye = CGPoint(x: -14, y: -6)
+        ctx.line(Geo.polyline([eye + CGPoint(x: 9, y: -1), CGPoint(x: 16, y: -9)]), width: 2.5)
+        ctx.fill(Geo.circle(eye, 9.5), with: .color(.white.opacity(0.28)))
+        ctx.stroke(Geo.circle(eye, 9.5), with: .color(Palette.petrol), lineWidth: 2.8)
+        ctx.line(Geo.polyline([eye + CGPoint(x: -9.5, y: -1), eye + CGPoint(x: -14, y: -2)]), width: 2.5)
+        ctx.line(Geo.polyline([eye + CGPoint(x: -4, y: -5), eye + CGPoint(x: 0, y: -6.5)]), .white.opacity(0.9), width: 2)
+    }
+
+    private static func beanie(_ ctx: GraphicsContext) {
+        var dome = Path()
+        dome.move(to: CGPoint(x: -35, y: -17))
+        dome.addCurve(to: CGPoint(x: 33, y: -17), control1: CGPoint(x: -38, y: -66), control2: CGPoint(x: 34, y: -66))
+        dome.closeSubpath()
+        ctx.outlined(dome, Palette.mint, width: 3)
+        for x in stride(from: -18.0, through: 18, by: 12) {
+            var rib = Path()
+            rib.move(to: CGPoint(x: x * 0.4 - 1, y: -50))
+            rib.addQuadCurve(to: CGPoint(x: x, y: -20), control: CGPoint(x: x * 0.9, y: -42))
+            ctx.line(rib, Palette.mintDeep.opacity(0.55), width: 2)
+        }
+        ctx.outlined(Geo.roundRect(-39, -24, 76, 12, 6), Palette.butter, width: 3)
+        for x in stride(from: -30.0, through: 28, by: 8) {
+            ctx.line(Geo.polyline([CGPoint(x: x, y: -21), CGPoint(x: x, y: -15)]), Palette.woodDeep.opacity(0.6), width: 1.6)
+        }
+        ctx.outlined(Geo.circle(CGPoint(x: -2, y: -55), 8), Palette.coralSoft, width: 3)
+    }
+
+    private static func flower(_ ctx: GraphicsContext, t: Double, animated: Bool) {
+        var f = ctx
+        f.translateBy(x: 16, y: -32)
+        f.rotate(by: .degrees(animated ? sin(t * 1.4) * 8 : 0))
+        f.outlined(Geo.ellipse(CGPoint(x: 10, y: 6), w: 14, h: 6, angle: 25), Palette.leaf, width: 2.2)
+        for i in 0..<5 {
+            let a = Double(i) * 72 - 90
+            f.outlined(Geo.ellipse(Geo.dir(a) * 7, w: 10, h: 8, angle: a), Palette.paper, width: 2.2)
+        }
+        f.outlined(Geo.circle(.zero, 4.5), Palette.butter, width: 2.2)
+    }
+
+    private static func crown(_ ctx: GraphicsContext) {
+        var c = ctx
+        c.translateBy(x: -2, y: -26)
+        c.rotate(by: .degrees(-8))
+        c.scaleBy(x: 1.3, y: 1.3)
+        let shape = Geo.polyline([
+            CGPoint(x: -19, y: 0), CGPoint(x: 19, y: 0), CGPoint(x: 21, y: -20), CGPoint(x: 11, y: -10),
+            CGPoint(x: 0, y: -24), CGPoint(x: -11, y: -10), CGPoint(x: -21, y: -20)
+        ], closed: true)
+        c.outlined(shape, Palette.butter, width: 3)
+        c.line(Geo.polyline([CGPoint(x: -18, y: -5), CGPoint(x: 18, y: -5)]), Palette.woodDeep.opacity(0.6), width: 2)
+        c.outlined(Geo.circle(CGPoint(x: 0, y: -24), 3.5), Palette.coral, width: 2)
+        c.outlined(Geo.circle(CGPoint(x: -21, y: -20), 3), Palette.mint, width: 2)
+        c.outlined(Geo.circle(CGPoint(x: 21, y: -20), 3), Palette.mint, width: 2)
     }
 }

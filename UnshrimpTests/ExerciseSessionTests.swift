@@ -106,3 +106,71 @@ final class ExerciseSessionTests: XCTestCase {
         XCTAssertEqual(Set(comments).count, comments.count)
     }
 }
+
+final class KipGrowthTests: XCTestCase {
+    func testStagesUnlockWearablesInOrder() {
+        XCTAssertEqual(KipGrowth(breaks: 0).stageIndex, 0)
+        XCTAssertEqual(KipGrowth(breaks: 0).wearables, [])
+        XCTAssertEqual(KipGrowth(breaks: 3).wearables, [.sweatband])
+        XCTAssertEqual(KipGrowth(breaks: 14).wearables, [.sweatband, .specs])
+        XCTAssertEqual(KipGrowth(breaks: 99).wearables, Wearable.allCases)
+        XCTAssertNil(KipGrowth(breaks: 40).progress)
+    }
+
+    func testUncurlGrowsWithEveryBreakAndCaps() {
+        var last = -1.0
+        for n in 0...40 {
+            let u = KipGrowth(breaks: n).uncurl
+            XCTAssertGreaterThan(u, last)
+            last = u
+        }
+        XCTAssertEqual(KipGrowth(breaks: 80).uncurl, 1)
+    }
+
+    func testProgressCountsFromCurrentStage() {
+        let p = KipGrowth(breaks: 10).progress
+        XCTAssertEqual(p?.current, 2)
+        XCTAssertEqual(p?.needed, 7)
+    }
+
+    func testOldSavedDataStillLoads() throws {
+        let json = #"{"hasOnboarded":true,"energy":42,"unlocked":["plant"],"breaks":[]}"#
+        let data = try JSONDecoder().decode(AppData.self, from: Data(json.utf8))
+        XCTAssertTrue(data.hasOnboarded)
+        XCTAssertEqual(data.energy, 42)
+        XCTAssertEqual(data.unlocked, [.plant])
+        XCTAssertNil(data.outfit)
+    }
+}
+
+final class KipVoiceTests: XCTestCase {
+    private let context = KipVoice.Context(minutes: 3, focus: [.neck], look: KipLook(uncurl: 0.2, wearable: .sweatband),
+                                           stage: 1, breaksToday: 0, goal: 3)
+    private func slot(_ hour: Int, index: Int, count: Int = 5) -> KipVoice.Slot {
+        let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date(timeIntervalSince1970: 1_800_000_000))!
+        return KipVoice.Slot(date: date, index: index, count: count, isToday: false)
+    }
+
+    func testSameSlotAlwaysGetsTheSameWords() {
+        XCTAssertEqual(KipVoice.reminder(slot: slot(11, index: 2), context: context),
+                       KipVoice.reminder(slot: slot(11, index: 2), context: context))
+    }
+
+    func testFirstAndLastNudgesHaveTheirOwnLines() {
+        let firsts = (0..<10).map { i -> KipVoice.Line in
+            var s = slot(9, index: 0)
+            s.date = s.date.addingTimeInterval(Double(i) * 86_400)
+            return KipVoice.reminder(slot: s, context: context)
+        }
+        XCTAssertTrue(firsts.allSatisfy { !$0.title.isEmpty && !$0.body.isEmpty })
+        XCTAssertEqual(KipVoice.reminder(slot: slot(17, index: 4), context: context).title, String(localized: "Last stretch of the day"))
+    }
+
+    func testOneShortOfTheGoalSaysSoForToday() {
+        var c = context
+        c.breaksToday = 2
+        var s = slot(13, index: 2)
+        s.isToday = true
+        XCTAssertEqual(KipVoice.reminder(slot: s, context: c).title, String(localized: "One more and we hit our goal"))
+    }
+}
