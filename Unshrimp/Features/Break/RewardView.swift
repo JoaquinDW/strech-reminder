@@ -11,6 +11,8 @@ struct RewardView: View {
     @State private var shownLines = 0
     @State private var barValue: Double = 0
     @State private var revealUnlock = false
+    /// When the new wearable drops onto Kip's head at the top of the screen.
+    @State private var revealAt = Date().timeIntervalSinceReferenceDate + 0.9
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,6 +21,7 @@ struct RewardView: View {
                     ZStack {
                         ShrimpStage(state: .celebrating, backdrop: Palette.butterSoft)
                             .frame(height: 220)
+                            .environment(\.kipLook, stageLook)
                         ConfettiBurst(trigger: result.energyAfter)
                     }
 
@@ -49,6 +52,10 @@ struct RewardView: View {
                     }
                     .card()
 
+                    if let stage = result.newStage {
+                        growthCard(stage)
+                    }
+
                     if let item = result.newlyUnlocked.first {
                         unlockCard(item)
                     } else if let next = model.nextItem {
@@ -75,6 +82,11 @@ struct RewardView: View {
                                 .font(.uCaption.weight(.medium))
                                 .foregroundStyle(Palette.petrolSoft)
                         }
+                        if result.newStage == nil, let hint = model.growth.nextHint {
+                            Label(String(localized: "\(Brand.mascotName) uncurls a bit with every break. \(hint)."), systemImage: "arrow.up.forward")
+                                .font(.uCaption.weight(.medium))
+                                .foregroundStyle(Palette.petrolSoft)
+                        }
                     }
                     .card()
                 }
@@ -87,7 +99,41 @@ struct RewardView: View {
                 .padding(.bottom, Space.s)
         }
         .sensoryFeedback(.success, trigger: shownEnergy > 0)
+        .sensoryFeedback(.impact(weight: .heavy), trigger: revealUnlock && result.newStage != nil)
         .task { await play() }
+    }
+
+    private var stageLook: KipLook {
+        var look = model.look
+        if result.newWearable != nil, !reduceMotion { look.revealAt = revealAt }
+        return look
+    }
+
+    private func growthCard(_ stage: Int) -> some View {
+        HStack(spacing: Space.l) {
+            ShrimpView(state: .inviting)
+                .frame(width: 76, height: 76)
+                .padding(.top, 6)
+                .background(Circle().fill(Palette.paper))
+                .clipShape(Circle())
+                .overlay(Circle().strokeBorder(Palette.petrol, lineWidth: 2))
+                .scaleEffect(revealUnlock ? 1 : 0.2)
+                .rotationEffect(.degrees(revealUnlock ? 0 : 25))
+                .allowsHitTesting(false)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(Brand.mascotName) uncurled a little more").font(.uMicro).textCase(.uppercase).tracking(1).foregroundStyle(Palette.coralDeep)
+                Text(KipGrowth.title(stage)).font(.uTitle2).foregroundStyle(Palette.petrol)
+                if let wearable = result.newWearable {
+                    Text("New to wear: \(wearable.title). \(wearable.blurb)")
+                        .font(.uCallout).foregroundStyle(Palette.petrolSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .card(Palette.butterSoft)
+        .overlay(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(Palette.petrol, lineWidth: 2.5))
+        .accessibilityElement(children: .combine)
     }
 
     private func unlockCard(_ item: DeskItem) -> some View {

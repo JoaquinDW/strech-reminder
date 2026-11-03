@@ -13,6 +13,7 @@ enum DeskSceneRenderer {
         var popItem: DeskItem?
         var popStart: Double = 0
         var hour: Int
+        var look = KipLook()
     }
 
     static func draw(_ context: GraphicsContext, canvas: CGSize, t: Double, animated: Bool, pose: ShrimpPose, config: Config) {
@@ -47,6 +48,7 @@ enum DeskSceneRenderer {
             DeskItemArt.draw(item, in: layer, t: t, animated: animated)
         }
 
+        item(.rug, at: CGPoint(x: 182, y: 254))
         item(.lights, at: CGPoint(x: 180, y: 0))
         item(.poster, at: CGPoint(x: 168, y: 96))
 
@@ -54,6 +56,7 @@ enum DeskSceneRenderer {
         ctx.outlined(Geo.roundRect(36, deskTop, 6, floorY - deskTop + 2, 3), Palette.woodDeep, width: 2.5)
         ctx.outlined(Geo.roundRect(192, deskTop, 6, floorY - deskTop + 2, 3), Palette.woodDeep, width: 2.5)
         item(.snail, at: CGPoint(x: 112, y: floorY))
+        item(.cat, at: CGPoint(x: 70, y: 246))
         ctx.outlined(Geo.roundRect(18, deskTop - 6, 196, 13, 6), Palette.wood)
 
         item(.plant, at: CGPoint(x: 44, y: deskTop - 6))
@@ -62,28 +65,28 @@ enum DeskSceneRenderer {
 
         // Laptop: base on the desk, lid facing Kip
         let base = Geo.polyline([
-            CGPoint(x: 156, y: deskTop - 6), CGPoint(x: 208, y: deskTop - 6),
-            CGPoint(x: 204, y: deskTop - 12), CGPoint(x: 162, y: deskTop - 12)
+            CGPoint(x: 160, y: deskTop - 6), CGPoint(x: 212, y: deskTop - 6),
+            CGPoint(x: 208, y: deskTop - 12), CGPoint(x: 166, y: deskTop - 12)
         ], closed: true)
         ctx.outlined(base, Palette.laptop, width: 2.5)
         let lid = Geo.polyline([
-            CGPoint(x: 159, y: deskTop - 10), CGPoint(x: 147, y: deskTop - 56),
-            CGPoint(x: 154, y: deskTop - 58), CGPoint(x: 166, y: deskTop - 11)
+            CGPoint(x: 163, y: deskTop - 10), CGPoint(x: 151, y: deskTop - 56),
+            CGPoint(x: 158, y: deskTop - 58), CGPoint(x: 170, y: deskTop - 11)
         ], closed: true)
         ctx.outlined(lid, Palette.laptopLid, width: 2.5)
         // tiny glow on the screen side
-        let glow = Geo.polyline([CGPoint(x: 164, y: deskTop - 16), CGPoint(x: 154, y: deskTop - 53)])
+        let glow = Geo.polyline([CGPoint(x: 168, y: deskTop - 16), CGPoint(x: 158, y: deskTop - 53)])
         ctx.line(glow, Palette.mint, width: 2)
 
         // Kip's floor cushion
-        ctx.outlined(Geo.roundRect(214, floorY - 16, 112, 22, 11), Palette.butter, width: 2.5)
-        ctx.line(Geo.polyline([CGPoint(x: 226, y: floorY - 6), CGPoint(x: 314, y: floorY - 6)]), Palette.woodDeep.opacity(0.5), width: 2)
+        ctx.outlined(Geo.roundRect(200, floorY - 16, 112, 22, 11), Palette.butter, width: 2.5)
+        ctx.line(Geo.polyline([CGPoint(x: 212, y: floorY - 6), CGPoint(x: 300, y: floorY - 6)]), Palette.woodDeep.opacity(0.5), width: 2)
 
         // Kip
         var shrimp = ctx
-        shrimp.translateBy(x: 164, y: 14)
+        shrimp.translateBy(x: 148, y: 14)
         shrimp.scaleBy(x: 0.82, y: 0.82)
-        ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp)
+        ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp, look: config.look, t: t, animated: animated)
     }
 
     private static func drawWindow(_ ctx: GraphicsContext, hour: Int, t: Double, animated: Bool) {
@@ -142,7 +145,7 @@ enum DeskSceneRenderer {
 
 /// Drawings for each unlockable item, anchored at bottom-center (0, 0).
 enum DeskItemArt {
-    static func draw(_ item: DeskItem, in ctx: GraphicsContext, t: Double, animated: Bool) {
+    static func draw(_ item: DeskItem, in ctx: GraphicsContext, t: Double, animated: Bool, compact: Bool = false) {
         switch item {
         case .plant: plant(ctx, t: t, animated: animated)
         case .mug: mug(ctx, t: t, animated: animated)
@@ -150,6 +153,8 @@ enum DeskItemArt {
         case .poster: poster(ctx)
         case .lights: lights(ctx, t: t, animated: animated, width: 300)
         case .snail: snail(ctx, t: t, animated: animated)
+        case .cat: cat(ctx, t: t, animated: animated)
+        case .rug: rug(ctx, width: compact ? 110 : 290)
         }
     }
 
@@ -162,6 +167,8 @@ enum DeskItemArt {
         case .poster: CGRect(x: -30, y: -70, width: 60, height: 72)
         case .lights: CGRect(x: -80, y: -2, width: 160, height: 34)
         case .snail: CGRect(x: -22, y: -30, width: 46, height: 32)
+        case .cat: CGRect(x: -26, y: -30, width: 54, height: 32)
+        case .rug: CGRect(x: -58, y: -34, width: 116, height: 36)
         }
     }
 
@@ -248,6 +255,54 @@ enum DeskItemArt {
         }
     }
 
+    private static func cat(_ ctx: GraphicsContext, t: Double, animated: Bool) {
+        // A loaf of cat asleep on the sill, tail flicking now and then.
+        let flick = animated ? max(0, sin(t * 0.9)) * 18 : 0
+        let breathe = animated ? CGFloat(sin(t * 1.6)) * 0.8 : 0
+        let fur = Color(hex: 0xF3B26B)
+        var tail = Path()
+        tail.move(to: CGPoint(x: 16, y: -5))
+        tail.addQuadCurve(to: CGPoint(x: 26, y: -18 - flick * 0.4), control: CGPoint(x: 30, y: -2))
+        ctx.stroke(tail, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 8.5, lineCap: .round))
+        ctx.stroke(tail, with: .color(fur), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+        ctx.outlined(Geo.ellipse(CGPoint(x: 0, y: -10 - breathe / 2), w: 40, h: 20 + breathe), fur, width: 2.5)
+        // ears and head on the left
+        let head = CGPoint(x: -14, y: -16)
+        ctx.outlined(Geo.polyline([head + CGPoint(x: -9, y: -4), head + CGPoint(x: -8, y: -15), head + CGPoint(x: -1, y: -8)], closed: true), fur, width: 2.2)
+        ctx.outlined(Geo.polyline([head + CGPoint(x: 2, y: -8), head + CGPoint(x: 7, y: -15), head + CGPoint(x: 9, y: -4)], closed: true), fur, width: 2.2)
+        ctx.outlined(Geo.circle(head, 10), fur, width: 2.5)
+        for dx in [-5.0, 4.0] {
+            var lid = Path()
+            lid.move(to: head + CGPoint(x: dx - 2.5, y: 0))
+            lid.addQuadCurve(to: head + CGPoint(x: dx + 2.5, y: 0), control: head + CGPoint(x: dx, y: 3))
+            ctx.line(lid, width: 1.8)
+        }
+        ctx.fill(Geo.ellipse(head + CGPoint(x: -0.5, y: 4), w: 3, h: 2), with: .color(Palette.blush))
+        // stripes
+        for x in [2.0, 9.0] {
+            ctx.line(Geo.polyline([CGPoint(x: x, y: -19), CGPoint(x: x + 2, y: -14)]), Palette.woodDeep, width: 2)
+        }
+        // a little z
+        if animated {
+            let z = CGFloat((t * 0.6).truncatingRemainder(dividingBy: 1))
+            ctx.draw(Text(verbatim: "z").font(.system(size: 9, weight: .heavy, design: .rounded)).foregroundStyle(Palette.petrol.opacity(Double(1 - z))),
+                     at: head + CGPoint(x: -10 - z * 4, y: -18 - z * 10))
+        }
+    }
+
+    private static func rug(_ ctx: GraphicsContext, width: CGFloat) {
+        let h: CGFloat = 26
+        let rect = CGRect(x: -width / 2, y: -h - 2, width: width, height: h)
+        let shape = Path(ellipseIn: rect)
+        ctx.outlined(shape, Palette.coralSoft, width: 2.5)
+        var stripes = ctx
+        stripes.clip(to: shape)
+        for (i, inset) in [CGFloat(7), 13].enumerated() {
+            stripes.stroke(Path(ellipseIn: rect.insetBy(dx: inset * 2.4, dy: inset * 0.7)),
+                           with: .color(i == 0 ? Palette.butter : Palette.mint), lineWidth: 3)
+        }
+    }
+
     private static func snail(_ ctx: GraphicsContext, t: Double, animated: Bool) {
         let bob = animated ? CGFloat(sin(t * 1.5)) * 1.2 : 0
         let body = Geo.roundRect(-20, -9, 42, 9, 4.5)
@@ -271,14 +326,15 @@ struct DeskSceneView: View {
     var ghost: DeskItem? = nil
     var popItem: DeskItem? = nil
     var popStart: Double = 0
+    @Environment(\.kipLook) private var look
     @State private var blender = PoseBlender()
 
     var body: some View {
         LiveCanvas { ctx, size, t, animated in
-            let pose = blender.pose(for: state, t: t, animated: animated)
+            let pose = blender.pose(for: state, t: t, animated: animated, growth: look.uncurl)
             let hour = Calendar.current.component(.hour, from: Date())
             DeskSceneRenderer.draw(ctx, canvas: size, t: t, animated: animated, pose: pose,
-                                   config: .init(unlocked: unlocked, ghost: ghost, popItem: popItem, popStart: popStart, hour: hour))
+                                   config: .init(unlocked: unlocked, ghost: ghost, popItem: popItem, popStart: popStart, hour: hour, look: look))
         }
         .aspectRatio(DeskSceneRenderer.size.width / DeskSceneRenderer.size.height, contentMode: .fit)
         .onChange(of: state) { old, _ in blender.didChange(from: old) }
@@ -311,7 +367,7 @@ struct DeskItemIcon: View {
                 c.opacity = 0.3
                 c.addFilter(.grayscale(1))
             }
-            DeskItemArt.draw(item, in: c, t: t, animated: animated && !locked)
+            DeskItemArt.draw(item, in: c, t: t, animated: animated && !locked, compact: true)
         }
         .aspectRatio(1, contentMode: .fit)
         .accessibilityHidden(true)

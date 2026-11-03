@@ -3,6 +3,8 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var activeRoutine: Routine?
+    @State private var skipIntro = false
+    @State private var breakSource: BreakSource = .app
     @State private var showSettings = false
     @State private var showCollection = false
     @State private var now = Date()
@@ -17,6 +19,7 @@ struct HomeView: View {
                 todayCard
                 startSection
                 weekCard
+                growthCard
                 rewardCard
                 Text(DemoLibrary.disclaimer)
                     .font(.uCaption.weight(.medium))
@@ -29,7 +32,7 @@ struct HomeView: View {
         }
         .background(Palette.ivory.ignoresSafeArea())
         .fullScreenCover(item: $activeRoutine, onDismiss: afterBreak) { routine in
-            BreakFlowView(routine: routine)
+            BreakFlowView(routine: routine, skipIntro: skipIntro, source: breakSource)
         }
         .sheet(isPresented: $showSettings) { SettingsView() }
         .sheet(isPresented: $showCollection) { CollectionView() }
@@ -37,9 +40,23 @@ struct HomeView: View {
         .onChange(of: model.breakRequestedFromNotification, initial: true) { _, requested in
             guard requested else { return }
             model.breakRequestedFromNotification = false
-            startBreak()
+            let skip = model.skipBreakIntro
+            model.skipBreakIntro = false
+            // A break already on screen wins; otherwise close any sheet and go.
+            guard activeRoutine == nil else { return }
+            let hadSheet = showSettings || showCollection
+            showSettings = false
+            showCollection = false
+            if hadSheet {
+                Task { try? await Task.sleep(for: .milliseconds(450)); startBreak(skippingIntro: skip, source: .reminder) }
+            } else {
+                startBreak(skippingIntro: skip, source: .reminder)
+            }
         }
         .task { await model.refreshNotificationStatus() }
+        #if DEBUG
+        .onAppear { if ProcessInfo.processInfo.arguments.contains("-testCollection") { showCollection = true } }
+        #endif
     }
 
     // MARK: Header
@@ -70,9 +87,8 @@ struct HomeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Radius.card, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: Radius.card, style: .continuous).strokeBorder(Palette.petrol, lineWidth: 2.5))
             SpeechBubble(text: model.speech(now))
-                .frame(maxWidth: 180, alignment: .leading)
+                .frame(maxWidth: 176, alignment: .leading)
                 .padding(Space.m)
-                .padding(.leading, 80)
                 .animation(Motion.gentle, value: model.speech(now))
         }
     }
@@ -236,6 +252,39 @@ struct HomeView: View {
         .card()
     }
 
+    // MARK: Kip's growth
+
+    private var growthCard: some View {
+        let growth = model.growth
+        return Button { showCollection = true } label: {
+            HStack(spacing: Space.l) {
+                ShrimpView(state: .inviting)
+                    .frame(width: 64, height: 64)
+                    .padding(.top, 4)
+                    .background(Circle().fill(Palette.butterSoft))
+                    .clipShape(Circle())
+                    .allowsHitTesting(false)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("\(Brand.mascotName)'s growth").font(.uMicro).textCase(.uppercase).tracking(1).foregroundStyle(Palette.petrolSoft)
+                    Text(growth.title).font(.uHeadline).foregroundStyle(Palette.petrol)
+                    if let p = growth.progress, let hint = growth.nextHint {
+                        EnergyBar(value: Double(p.current) / Double(max(1, p.needed)), tint: Palette.coral)
+                        Text(hint).font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                    } else {
+                        Text("Uncurled as far as a shrimp goes. Every outfit is yours.")
+                            .font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                    }
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.uHeadline).foregroundStyle(Palette.petrolSoft)
+            }
+            .card()
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityHint(Text("Shows \(Brand.mascotName)'s wardrobe and desk"))
+    }
+
     // MARK: Reward preview
 
     @ViewBuilder private var rewardCard: some View {
@@ -272,8 +321,12 @@ struct HomeView: View {
 
     // MARK: Actions
 
-    private func startBreak() {
-        activeRoutine = DemoLibrary.routine(length: model.prefs.breakLength, focus: model.prefs.focusAreas)
+    private func startBreak() { startBreak(skippingIntro: false) }
+
+    private func startBreak(skippingIntro: Bool, source: BreakSource = .app) {
+        skipIntro = skippingIntro
+        breakSource = source
+        activeRoutine = model.nextRoutine()
     }
 
     private func afterBreak() {

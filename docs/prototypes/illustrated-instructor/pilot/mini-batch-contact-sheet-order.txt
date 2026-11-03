@@ -1,0 +1,13 @@
+Columnas: inicio | mitad | final.
+Filas, arriba abajo:
+1. shoulder-roll
+2. shrug
+3. neck-tilt
+4. nod
+5. chest-opener
+6. reach-up
+7. twist
+8. cat-cow
+9. side-reach
+10. march
+Gris = sin clip; march no generado. Veredictos en mini-batch-notes.md.

@@ -1,0 +1,42 @@
+{
+  "as_of": "2026-11-02",
+  "budget_file": "higgsfield-budget.json",
+  "generation_authorized": false,
+  "initial_pair_expected_credits": 40,
+  "requests": [
+    {
+      "clip_id": "shoulder-rolls",
+      "status": "prepared_not_submitted",
+      "source_image": "instructor-reference-v1.png",
+      "source_image_role": "start_image",
+      "required_before_submit": "Upload source image and use its confirmed media ID; quote exact completed params again. No invented media IDs.",
+      "params_without_media_id": {
+        "model": "seedance_2_0",
+        "mode": "fast",
+        "resolution": "720p",
+        "duration": 8,
+        "aspect_ratio": "1:1",
+        "generate_audio": false,
+        "count": 1,
+        "prompt": "Animate the illustrated adult instructor from the reference image, preserving exactly the same identity, face, coral sleeveless top, dark petrol trousers, armless wooden chair, warm ivory background and mint oval. Eight-second silent 2D instructional animation with a completely fixed camera, consistent framing and the same clean dark outlines. The seated instructor demonstrates one slow controlled backward shoulder-roll cycle: both shoulder contours rise together, move backward, descend and return naturally to their relaxed starting position. Make shoulder articulation clearly visible. The head, pelvis, feet, chair and background stay stable; the forearms remain relaxed and hands remain loosely on the thighs. The entire body must not bounce or rotate. Start and finish in the exact neutral reference pose, with a short calm beat at each end. No camera motion, no scene cuts, no waving, no exaggerated range, no extra limbs, no body morphing, no text, no arrows, no interface and no audio. Preserve a flat illustrated style rather than converting the person into 3D or live action."
+      }
+    },
+    {
+      "clip_id": "seated-twist",
+      "status": "prepared_not_submitted",
+      "source_image": "instructor-reference-v1.png",
+      "source_image_role": "start_image",
+      "required_before_submit": "Upload source image and use its confirmed media ID; quote exact completed params again. No invented media IDs.",
+      "params_without_media_id": {
+        "model": "seedance_2_0",
+        "mode": "fast",
+        "resolution": "720p",
+        "duration": 8,
+        "aspect_ratio": "1:1",
+        "generate_audio": false,
+        "count": 1,
+        "prompt": "Animate the exact illustrated adult instructor from the reference image. Preserve identity, proportions, coral sleeveless top, petrol trousers, wooden armless chair, ivory background, mint oval and thick rounded dark outlines. Eight-second silent 2D instructional animation in one uninterrupted shot, fixed camera in the same mild frontal three-quarter view. Begin seated upright in the reference pose, both feet resting flat, pelvis and knees facing forward. Demonstrate one gentle seated torso rotation toward one side and then return to the initial center position. The ribcage and shoulder line visibly turn around the upright axis of the torso; the head follows naturally. This must read as axial rotation, not side bending or sideways leaning. Hands rest lightly and may slide naturally with the body; do not pull or lever against the chair. Keep feet, knees, pelvis, chair and background stationary. Use a modest natural movement and a calm beat at the start and end. Start and finish in the same neutral pose. No camera orbit, no pan, no zoom, no scene cuts, no chair movement, no exaggerated twist, no distorted hands, no extra limbs, no text, no arrows, no interface and no audio. Preserve the original flat cartoon artwork."
+      }
+    }
+  ]
+}

@@ -3,6 +3,8 @@ import AVFoundation
 
 @MainActor
 final class ExercisePlayback: ObservableObject {
+    /// The source clips read as sluggish at 1x; 1.5x keeps the form while matching a desk-break pace.
+    static let rate: Float = 1.5
     let player = AVQueuePlayer()
     @Published var hasFrame = false
     @Published var failed = false
@@ -18,6 +20,7 @@ final class ExercisePlayback: ObservableObject {
     init(media: ExerciseMedia?) {
         player.isMuted = true
         player.automaticallyWaitsToMinimizeStalling = false
+        player.defaultRate = Self.rate
         guard let url = media?.url else { failed = true; return }
         statusObservation = player.observe(\.status, options: [.new]) { [weak self] player, _ in
             let didFail = player.status == .failed
@@ -63,7 +66,7 @@ final class ExercisePlayback: ObservableObject {
                 if previewOnce && !playing {
                     self.isPreviewing = true
                     self.preview = Task { [weak self] in
-                        guard let seconds = self?.duration else { return }
+                        guard let seconds = self.map({ $0.duration / Double(Self.rate) }) else { return }
                         do { try await Task.sleep(for: .seconds(seconds)) } catch { return }
                         guard let self, token == self.revision else { return }
                         self.player.pause()
@@ -148,7 +151,8 @@ struct ExerciseDemonstration: View {
         _playback = StateObject(wrappedValue: ExercisePlayback(media: move.media))
     }
 
-    private var shouldPlay: Bool { visible && scenePhase == .active && isRunning && !isPreparing && !reduceMotion && !isObscured }
+    /// Playing through "Get ready" shows the movement right away instead of a still poster for the countdown.
+    private var shouldPlay: Bool { visible && scenePhase == .active && isRunning && !reduceMotion && !isObscured }
     private var pose: String { isPreparing ? "start" : ["start", "mid", "end"][selectedPose] }
     private var status: String {
         if reduceMotion { return String(localized: "Still movement guide") }
@@ -165,7 +169,7 @@ struct ExerciseDemonstration: View {
                         .resizable().scaledToFit()
                     if !reduceMotion {
                         ExercisePlayerSurface(playback: playback)
-                            .opacity(playback.hasFrame && !isPreparing && !playback.failed ? 1 : 0)
+                            .opacity(playback.hasFrame && !playback.failed ? 1 : 0)
                     }
                 } else {
                     VStack(spacing: Space.m) {
@@ -191,14 +195,14 @@ struct ExerciseDemonstration: View {
                 }
             } else if showsReplay && !playback.failed {
                 Button {
-                    playback.restart(playing: shouldPlay, previewOnce: !isPreparing)
+                    playback.restart(playing: shouldPlay, previewOnce: true)
                 } label: {
                     Label("Replay demo", systemImage: "arrow.counterclockwise")
                         .font(.uCaption.weight(.semibold))
                         .frame(minHeight: 44)
                 }
                 .foregroundStyle(Palette.petrolSoft)
-                .disabled(isPreparing || !playback.hasFrame)
+                .disabled(!playback.hasFrame)
                 .accessibilityIdentifier("replay-demonstration")
             }
             if playback.failed {
@@ -259,11 +263,36 @@ struct TrainingBuddy: View {
                 .accessibilityHidden(!showsComment)
                 .animation(reduceMotion ? nil : .easeOut(duration: 0.2), value: showsComment)
             }
-            ShrimpView(state: showsComment ? .inviting : .resting)
-                .frame(width: 76, height: 76)
+            BuddyWindow(state: showsComment ? .inviting : .resting)
+                .accessibilityElement()
                 .accessibilityLabel(Text("\(Brand.mascotName) is here with you"))
         }
-        .frame(minHeight: 76)
+        .frame(minHeight: 84)
         .accessibilityIdentifier("training-buddy")
+    }
+}
+
+/// Kip peeks in through a small window, half hidden behind its sill, instead of floating loose over the screen.
+struct BuddyWindow: View {
+    let state: ShrimpState
+    var size: CGFloat = 80
+
+    var body: some View {
+        let k = size / 80
+        let shape = RoundedRectangle(cornerRadius: Radius.tile * k, style: .continuous)
+        ZStack(alignment: .bottom) {
+            LinearGradient(colors: [Palette.mintSoft, Palette.wall], startPoint: .top, endPoint: .bottom)
+            ShrimpView(state: state)
+                .frame(width: 92 * k, height: 92 * k)
+                .offset(y: 8 * k)
+            Rectangle().fill(Palette.wood)
+                .frame(height: 18 * k)
+                .overlay(alignment: .top) { Rectangle().fill(Palette.woodDeep).frame(height: 2.5) }
+        }
+        .frame(width: size, height: size)
+        .clipShape(shape)
+        .overlay(shape.strokeBorder(Palette.petrol, lineWidth: 2.5))
+        .background(shape.fill(Palette.petrol).offset(y: 4))
+        .padding(.bottom, 4)
     }
 }

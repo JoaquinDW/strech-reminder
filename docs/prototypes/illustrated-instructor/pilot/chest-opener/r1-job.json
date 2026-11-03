@@ -1,0 +1,44 @@
+{
+  "created_at": "2026-11-02T20:31:05.48699Z",
+  "display_name": "Seedance 2.0 Mini",
+  "id": "deaf1066-e0e7-4d84-831d-b9afb666f7da",
+  "job_type": "seedance_2_0_mini",
+  "min_result_url": null,
+  "params": {
+    "aspect_ratio": "1:1",
+    "duration": 8,
+    "generate_audio": false,
+    "genre": "auto",
+    "height": 720,
+    "medias": [
+      {
+        "data": {
+          "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+          "type": "media_input",
+          "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+        },
+        "role": "start_image"
+      },
+      {
+        "data": {
+          "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+          "type": "media_input",
+          "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+        },
+        "role": "end_image"
+      }
+    ],
+    "multi_prompt": [],
+    "multi_shot_mode": "custom",
+    "multi_shots": false,
+    "prompt": "Animate the illustrated adult instructor from the reference image, preserving exactly the same identity, face, coral sleeveless top, dark petrol trousers, armless wooden chair, warm ivory background and mint oval. Eight-second silent 2D instructional animation with a completely fixed camera, consistent framing and the same clean dark outlines. The seated instructor moves her hands from her thighs to hold the sides of the chair seat beside her hips, then slowly lifts her chest and draws both shoulders gently back and down so the chest visibly opens and the collarbones widen, holds a breath, then relaxes and returns the hands to the thighs. The head stays level, no backward lean of the whole torso. Eyes stay open with the same gentle expression. Feet, pelvis, chair and background stay stable and the entire body must not bounce. Start and finish in the exact neutral reference pose, with a short calm beat at each end. No camera motion, no zoom, no scene cuts, no exaggerated range, no extra limbs, no distorted hands, no body morphing, no text, no arrows, no interface and no audio. Preserve a flat illustrated style rather than converting the person into 3D or live action.",
+    "prompt_language": "en",
+    "reference_elements": [],
+    "resolution": "720p",
+    "speedramp": "auto",
+    "width": 720
+  },
+  "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_203105_deaf1066-e0e7-4d84-831d-b9afb666f7da.mp4",
+  "status": "completed",
+  "thumbnail_url": "https://cdn.higgsfield.ai/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_203105_deaf1066-e0e7-4d84-831d-b9afb666f7da_thumbnail.webp"
+}

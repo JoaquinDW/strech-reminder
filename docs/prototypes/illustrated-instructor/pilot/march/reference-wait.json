@@ -1,0 +1,27 @@
+{
+  "created_at": "2026-11-03T01:53:55.948585Z",
+  "display_name": "Nano Banana Pro",
+  "id": "c78b3e85-4dd1-4d07-a280-9699886ca1f5",
+  "job_type": "nano_banana_pro",
+  "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_015355_c78b3e85-4dd1-4d07-a280-9699886ca1f5_min.webp",
+  "params": {
+    "application": null,
+    "aspect_ratio": "1:1",
+    "batch_size": 1,
+    "height": 2048,
+    "input_image": null,
+    "input_images": [
+      {
+        "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+        "type": "media_input",
+        "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+      }
+    ],
+    "prompt": "Same illustrated adult instructor as the reference image: identical face, hair, skin tone, coral sleeveless top, dark petrol trousers and white flat shoes, same flat 2D illustration style with clean dark outlines, same warm ivory background and the same mint oval behind her with a soft mint floor shadow. Now she is standing upright in front of the oval, facing the camera, full body visible from head to shoes with comfortable margin above the head and below the feet, centered, feet hip-width apart, arms relaxed by her sides, gentle smile, eyes open. The wooden chair is not in the image. Square 1:1 composition matching the reference framing scale. No text, no extra objects.",
+    "resolution": "2k",
+    "surface": null,
+    "width": 2048
+  },
+  "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_015355_c78b3e85-4dd1-4d07-a280-9699886ca1f5.png",
+  "status": "completed"
+}

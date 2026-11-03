@@ -23,7 +23,7 @@ enum ShrimpState: Hashable {
 
 /// Illustration poses for the demo moves.
 enum MovePose: String, Codable, Hashable {
-    case neckTilt, nod, shoulderRoll, shrug, chestOpener, reachUp, twist, catCow, march, sideReach
+    case neckTilt, headTurn, nod, shoulderRoll, shrug, chestOpener, crossBody, reachUp, twist, catCow, march, sideReach
 }
 
 /// Every parameter the mascot rig understands. Poses are plain data so they can be
@@ -83,10 +83,18 @@ struct ShrimpPose {
     }
 }
 
+/// How Kip looks right now: how far the curl has loosened over time, and what Kip is wearing.
+struct KipLook: Equatable {
+    var uncurl: Double = 0
+    var wearable: Wearable?
+    /// Reference time when the wearable drops onto Kip's head, for the unlock moment.
+    var revealAt: Double?
+}
+
 /// Turns a state plus time into a concrete pose. `t` is seconds; pass `animated: false`
 /// (Reduce Motion) to get the calm, canonical key pose.
 enum ShrimpMotion {
-    static func pose(_ state: ShrimpState, t rawT: Double, animated: Bool) -> ShrimpPose {
+    static func pose(_ state: ShrimpState, t rawT: Double, animated: Bool, growth: Double = 0) -> ShrimpPose {
         let t = animated ? rawT : 0
         let k: Double = animated ? 1 : 0
         var p = ShrimpPose()
@@ -100,9 +108,9 @@ enum ShrimpMotion {
             p.heading = 8; p.curl = 205
             p.headTilt = -8 + sin(t * 0.7) * 2 * k + (1 - typing) * 5 * k
             // Arms reach all the way to the keys.
-            p.armFront = 2 + max(0, sin(t * 11)) * 7 * typing
-            p.armBack = -4 + max(0, sin(t * 11 + 2.1)) * 7 * typing
-            p.armBend = -18; p.armLength = 1.45
+            p.armFront = 26 + max(0, sin(t * 11)) * 7 * typing
+            p.armBack = 30 + max(0, sin(t * 11 + 2.1)) * 7 * typing
+            p.armBend = -34; p.armLength = 2.0
             p.mouth = .flat
         case .inviting:
             // Front arm raised past the body so the hand waves clear of the silhouette.
@@ -137,11 +145,31 @@ enum ShrimpMotion {
         case .exercise(let move):
             p = exercise(move, t: t, k: k)
         }
+        applyGrowth(&p, growth, state: state)
 
         if animated, p.eye == .dot || p.eye == .wide {
             p.eyeOpen = blink(t)
         }
         return p
+    }
+
+    /// The more breaks Kip has taken, the looser the everyday curl and the higher the head.
+    /// Guided moves are already upright, so they stay as they are.
+    private static func applyGrowth(_ p: inout ShrimpPose, _ growth: Double, state: ShrimpState) {
+        let u = min(max(growth, 0), 1)
+        guard u > 0 else { return }
+        switch state {
+        case .working:
+            p.curl -= 38 * u; p.heading += 7 * u; p.headTilt += 5 * u
+        case .inviting:
+            p.curl -= 34 * u; p.heading += 8 * u
+        case .resting:
+            p.curl -= 60 * u; p.heading += 12 * u; p.headTilt += 6 * u
+        case .celebrating:
+            p.curl -= 20 * u
+        default:
+            break
+        }
     }
 
     static func blink(_ t: Double) -> Double {
@@ -167,6 +195,9 @@ enum ShrimpMotion {
         case .neckTilt:
             p.headTilt = 8 + sin(t * 0.9) * 24 * k
             p.eye = .closed
+        case .headTurn:
+            // Kip is drawn side-on, so a look over the shoulder reads as a slow glance back and forth.
+            p.headTilt = 8 + sin(t * 0.8) * 8 * k
         case .nod:
             p.headTilt = 6 + sin(t * 1.8) * 16 * k
         case .shoulderRoll:
@@ -180,6 +211,11 @@ enum ShrimpMotion {
             p.armFront = -35 + up * 20; p.armBack = -45 + up * 20
             p.headTilt = 4 - up * 6
             p.eye = up > 0.5 ? .closed : .dot
+        case .crossBody:
+            // One arm reaches across the body and the other hugs it in, with a slow breathing hold.
+            let hold = (0.5 + 0.5 * sin(t * 0.7)) * k
+            p.armFront = -5 + hold * 10; p.armBack = -5 + hold * 10; p.armBend = 35 + hold * 15
+            p.headTilt = 8 + hold * 4
         case .chestOpener:
             let o = (0.5 + 0.5 * sin(t * 0.9)) * k
             p.heading = 62 + o * 8; p.curl = 120 - o * 30

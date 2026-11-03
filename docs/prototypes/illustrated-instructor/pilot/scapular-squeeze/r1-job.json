@@ -1,0 +1,46 @@
+[
+  {
+    "created_at": "2026-11-03T01:42:41.588864Z",
+    "display_name": "Seedance 2.0 Mini",
+    "id": "244a8bcc-8639-46ea-b83e-b5a08b8c2083",
+    "job_type": "seedance_2_0_mini",
+    "min_result_url": null,
+    "params": {
+      "aspect_ratio": "1:1",
+      "duration": 8,
+      "generate_audio": false,
+      "genre": "auto",
+      "height": 720,
+      "medias": [
+        {
+          "data": {
+            "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+          },
+          "role": "start_image"
+        },
+        {
+          "data": {
+            "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+          },
+          "role": "end_image"
+        }
+      ],
+      "multi_prompt": [],
+      "multi_shot_mode": "custom",
+      "multi_shots": false,
+      "prompt": "Animate the illustrated adult instructor from the reference image, preserving exactly the same identity, face, coral sleeveless top, dark petrol trousers, armless wooden chair, warm ivory background and mint oval. Eight-second silent 2D instructional animation with a completely fixed camera, consistent framing and the same clean dark outlines. The seated instructor sits tall and lifts both arms into a W shape: upper arms out to the sides and slightly down, elbows bent about ninety degrees, forearms pointing up, palms facing forward, hands at about head height and fully inside the frame. She then squeezes her shoulder blades together, drawing both elbows clearly back and down while the chest lifts and opens, holds for a breath, relaxes, squeezes once more, then lowers both hands back to the thighs. Both arms move together and symmetrically; shoulders stay down away from the ears; head stays level and facing forward. Elbows, wrists and all fingers stay anatomically correct and visible. Eyes stay open with the same gentle expression. Feet, pelvis, chair and background stay stable and the entire body must not bounce. Start and finish in the exact neutral reference pose, with a short calm beat at each end. No camera motion, no zoom, no scene cuts, no exaggerated range, no extra limbs, no distorted hands, no body morphing, no text, no arrows, no interface and no audio. Preserve a flat illustrated style rather than converting the person into 3D or live action.",
+      "prompt_language": "en",
+      "reference_elements": [],
+      "resolution": "720p",
+      "speedramp": "auto",
+      "width": 720
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_014241_244a8bcc-8639-46ea-b83e-b5a08b8c2083.mp4",
+    "status": "completed",
+    "thumbnail_url": "https://cdn.higgsfield.ai/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_014241_244a8bcc-8639-46ea-b83e-b5a08b8c2083_thumbnail.webp"
+  }
+]

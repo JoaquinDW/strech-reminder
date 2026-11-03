@@ -50,10 +50,15 @@ struct BreakFlowView: View {
     @State private var session: ExerciseSession
     @State private var showEndDialog = false
     @State private var resumeAfterDialog = false
+    @State private var analytics: BreakAnalytics
 
-    init(routine: Routine) {
+    init(routine: Routine, skipIntro: Bool = false, source: BreakSource = .app) {
         self.routine = routine
-        _session = State(initialValue: ExerciseSession(routine: routine))
+        _analytics = State(initialValue: BreakAnalytics(minutes: routine.minutes, source: source))
+        let session = ExerciseSession(routine: routine)
+        if skipIntro { session.start() }
+        _session = State(initialValue: session)
+        _stage = State(initialValue: skipIntro ? .moving : .intro)
     }
 
     private var move: Move { session.move }
@@ -82,7 +87,13 @@ struct BreakFlowView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { session.pause() }
         }
-        .onDisappear { session.pause() }
+        .onAppear {
+            if session.hasBegun { analytics.start() }
+        }
+        .onDisappear {
+            session.pause()
+            analytics.abandon(reason: "dismissed")
+        }
         .alert("End this break?", isPresented: $showEndDialog) {
             Button("I moved enough, finish") { withAnimation { stage = .confirm } }
             Button("End without saving", role: .destructive) { dismiss() }
@@ -146,6 +157,7 @@ struct BreakFlowView: View {
             }
             Button("Let's move") {
                 session.start()
+                analytics.start()
                 stage = .moving
             }
             .buttonStyle(.chunky)
@@ -281,11 +293,20 @@ struct BreakFlowView: View {
             Spacer(minLength: 0)
             VStack(spacing: Space.xs) {
                 Button("Yes, I moved") {
+                    guard !analytics.hasEnded else { return }
                     let result = model.recordBreak(minutes: routine.minutes, focus: routine.focus)
+                    analytics.complete(routineReachedEnd: session.isComplete,
+                                       isFirstBreak: model.data.breaks.count == 1, breaksToday: result.breaksToday)
+                    if result.reachedGoalNow {
+                        Analytics.capture("daily_goal_reached", properties: ["daily_goal": result.goal])
+                    }
                     stage = .reward(result)
                 }
                 .buttonStyle(.chunky)
-                Button("Not this time") { stage = .notThisTime }
+                Button("Not this time") {
+                    analytics.abandon(reason: "not_confirmed")
+                    stage = .notThisTime
+                }
                     .buttonStyle(.chunky(.quiet))
             }
             .padding(.horizontal, Space.page)

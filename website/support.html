@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unshrimp Support</title>
+<meta name="description" content="Help with Unshrimp: Stretch Reminder for iPhone.">
+<link rel="icon" href="assets/icon-256.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root { --bg: #FBF5EA; --surface: #FFFCF6; --ink: #1D4550; --ink-soft: #4A6A72; --outline: #1D4550; --line: #E8DAC2; --coral: #FF7A66; --coral-deep: #E5543F; --butter-soft: #FFF1C7;
+  --display: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif; --body: "Nunito", ui-rounded, system-ui, -apple-system, sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #102B32; --surface: #17363D; --ink: #F6EBD9; --ink-soft: #B9C9C6; --outline: #071A1F; --line: #2B4C53; --butter-soft: #4A4127; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #102B32; --surface: #17363D; --ink: #F6EBD9; --ink-soft: #B9C9C6; --outline: #071A1F; --line: #2B4C53; --butter-soft: #4A4127; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-weight: 600; font-size: 1.05rem; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { padding-block: 18px; border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; max-width: 1160px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; font-family: var(--display); font-weight: 700; font-size: 1.3rem; }
+.brand img { width: 38px; height: 38px; border-radius: 10px; border: 2px solid var(--outline); }
+header nav { display: flex; gap: 20px; font-weight: 800; font-size: .95rem; }
+header nav a { color: var(--ink-soft); text-decoration: none; }
+header nav a[aria-current] { color: var(--ink); }
+main { padding-block: clamp(40px, 7vw, 80px); }
+h1, h2 { font-family: var(--display); font-weight: 700; line-height: 1.1; text-wrap: balance; }
+h1 { font-size: clamp(2.3rem, 6vw, 3.4rem); margin: 0 0 12px; }
+h2 { font-size: 1.45rem; font-weight: 600; margin: 40px 0 8px; }
+p, li { color: var(--ink-soft); }
+strong { color: var(--ink); }
+ul { padding-left: 1.2em; }
+a { color: var(--coral-deep); }
+.meta { font-size: .92rem; color: var(--ink-soft); }
+.card { margin-top: 28px; border: 2.5px solid var(--outline); border-radius: 24px; background: var(--surface); padding: 22px 24px; display: grid; gap: 8px; }
+.card b { font-family: var(--display); font-size: 1.2rem; font-weight: 600; }
+.addr { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.addr code { font-family: var(--body); font-weight: 800; font-size: 1.1rem; background: var(--butter-soft); color: var(--ink); padding: 6px 14px; border-radius: 999px; user-select: all; }
+.addr button { font: inherit; font-weight: 800; font-size: .9rem; padding: 6px 14px; border-radius: 999px; border: 2px solid var(--outline); background: var(--bg); color: var(--ink); cursor: pointer; }
+details { border-bottom: 2px solid var(--line); padding-block: 16px; }
+summary { cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--ink); }
+details p { margin: 8px 0 0; }
+footer { padding-block: 32px 48px; border-top: 1px solid var(--line); font-size: .9rem; color: var(--ink-soft); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; max-width: 1160px; }
+footer a { color: inherit; font-weight: 800; text-decoration: none; margin-right: 18px; }
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="brand" href="index.html"><img src="assets/icon-256.png" alt="" width="38" height="38">Unshrimp</a>
+  <nav aria-label="Main"><a href="index.html">Home</a><a href="support.html" aria-current="page">Support</a><a href="privacy.html">Privacy</a></nav>
+</div></header>
+<main><div class="wrap">
+  <h1>Support</h1>
+  <p>Questions, bugs or ideas for Kip? Write in and you'll hear back from the person who makes Unshrimp, usually within two working days.</p>
+  <div class="card">
+    <b>Email</b>
+    <div class="addr"><code id="email">balthasardeweert@gmail.com</code><button type="button" data-copy="email">Copy</button></div>
+    <p class="meta">Tell us your iPhone model, iOS version and what you were doing when something went wrong. A screenshot helps a lot.</p>
+  </div>
+
+  <h2>Common questions</h2>
+  <details><summary>I'm not getting reminders</summary><p>Open Settings › Notifications › Unshrimp and check that Allow Notifications is on. In the app, open the bell on the Home screen and make sure reminders are turned on and that today falls inside your workdays and hours. Focus modes can also hold notifications back.</p></details>
+  <details><summary>Can I change how often Kip reminds me?</summary><p>Yes. Open the bell on the Home screen and choose an interval of 45, 60, 90 or 120 minutes, plus the days and hours you work.</p></details>
+  <details><summary>What does "In 10 minutes" do?</summary><p>It snoozes that reminder. Kip asks again ten minutes later, once.</p></details>
+  <details><summary>A move doesn't feel right for me</summary><p>Skip it. Every move has a skip button, and you can choose which areas to focus on before each break. Unshrimp is a general wellness app and does not give medical advice. If you have pain or an injury, talk to a health professional.</p></details>
+  <details><summary>Will I lose Kip's outfits or desk items if I skip days?</summary><p>No. Nothing you've unlocked is ever taken away.</p></details>
+  <details><summary>How do I move my data to a new iPhone?</summary><p>Your break history is saved on your iPhone and comes along when you restore a new iPhone from an iCloud or computer backup of the old one.</p></details>
+  <details><summary>How do I delete my data?</summary><p>Delete the app. All break history and preferences are stored only on your iPhone and are removed with it.</p></details>
+</div></main>
+<footer><div class="wrap">
+  <span><a href="index.html">Home</a><a href="support.html">Support</a><a href="privacy.html">Privacy policy</a></span>
+  <span>© 2026 Joaquin Balthasar De Weert</span>
+</div></footer>
+<script>
+document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", () => {
+  const t = document.getElementById(b.dataset.copy).textContent;
+  navigator.clipboard.writeText(t).then(() => { b.textContent = "Copied"; }).catch(() => {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById(b.dataset.copy));
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  });
+}));
+</script>
+</body>
+</html>

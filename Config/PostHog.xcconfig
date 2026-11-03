@@ -1,0 +1,4 @@
+// Public ingestion token, bundled with the app. Never put a personal API key here.
+POSTHOG_PROJECT_TOKEN = phc_BuiGEGE8khmTaFzu53fxXEx3dP6fqGzGWqxsv9XqCMNM
+// US Cloud. The empty expansion preserves // in xcconfig URLs.
+POSTHOG_HOST = https:/$()/us.i.posthog.com

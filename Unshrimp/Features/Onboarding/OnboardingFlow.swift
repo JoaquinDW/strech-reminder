@@ -29,7 +29,10 @@ struct OnboardingFlow: View {
             guard !loadedDraft else { return }
             draft = model.prefs
             loadedDraft = true
+            Analytics.capture("onboarding_started")
+            trackStep()
         }
+        .onChange(of: step) { _, _ in trackStep() }
     }
 
     private var topBar: some View {
@@ -48,7 +51,10 @@ struct OnboardingFlow: View {
             .animation(Motion.snappy, value: step)
             .accessibilityElement()
             .accessibilityLabel(Text("Step \(step + 1) of \(Self.stepCount)"))
-            Button("Skip") { go(to: Self.stepCount - 1) }
+            Button("Skip") {
+                Analytics.capture("onboarding_skipped", properties: ["from_step": step])
+                go(to: Self.stepCount - 1)
+            }
                 .font(.uCallout.weight(.bold))
                 .foregroundStyle(Palette.petrolSoft)
                 .frame(minWidth: 44, minHeight: 44)
@@ -74,6 +80,11 @@ struct OnboardingFlow: View {
     }
 
     private func next() { go(to: step + 1) }
+
+    private func trackStep() {
+        let names = ["welcome", "friction", "focus", "demo", "rhythm", "schedule", "reminders", "plan"]
+        Analytics.capture("onboarding_step_viewed", properties: ["step_index": step, "step_name": names[step]])
+    }
 
     private func go(to target: Int) {
         let clamped = min(max(target, 0), Self.stepCount - 1)
@@ -248,18 +259,21 @@ private struct DemoStep: View {
                        subtitle: finished
                         ? String(localized: "Short, guided, done. Then back to work feeling a little looser.")
                         : String(localized: "One move with \(Brand.mascotName). You can skip this.")) {
-            ZStack(alignment: .topTrailing) {
+            ZStack {
                 if finished {
                     ShrimpStage(state: .celebrating, prop: .mat)
                     ConfettiBurst(trigger: 1)
                 } else {
-                    ExerciseDemonstration(move: move, isRunning: session.isRunning,
+                    // Loops before Start too, so the step shows the move instead of a seated still.
+                    ExerciseDemonstration(move: move, isRunning: session.isRunning || !session.hasBegun,
                                           isPreparing: session.isPreparing,
                                           revision: session.playbackRevision, showsReplay: false)
-                        .padding(.horizontal, Space.l)
-                    ShrimpView(state: session.isRunning ? .stretching : .resting)
-                        .frame(width: 64, height: 64)
-                        .accessibilityHidden(true)
+                        // A small picture-in-picture over the card's empty corner keeps Kip clear of the instructor.
+                        .overlay(alignment: .bottomTrailing) {
+                            BuddyWindow(state: session.isRunning ? .exercise(.shrug) : .inviting, size: 64)
+                                .offset(x: Space.l, y: Space.s)
+                                .accessibilityHidden(true)
+                        }
                 }
             }
         } content: {

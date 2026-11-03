@@ -9,12 +9,29 @@ settings:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
+packages:
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios.git
+    from: "3.93.3"
 targets:
   Unshrimp:
     type: application
     platform: iOS
     sources:
       - path: Unshrimp
+    dependencies:
+      - package: PostHog
+    configFiles:
+      Debug: Config/PostHog.xcconfig
+      Release: Config/PostHog.xcconfig
+    info:
+      path: Config/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        PostHogProjectToken: $(POSTHOG_PROJECT_TOKEN)
+        PostHogHost: $(POSTHOG_HOST)
+        PostHogProjectID: "707520"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.unshrimp.prototype

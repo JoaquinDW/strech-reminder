@@ -1,0 +1,1507 @@
+{
+ "currency": "Higgsfield credits",
+ "hard_cap": 160,
+ "confirmed_deductions": 174,
+ "reserved_pending_or_unknown": 0,
+ "confirmed_refunds": 12,
+ "jobs": [
+  {
+   "clip_id": "shoulder-rolls",
+   "round": "R1",
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "duration": 8,
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "prompt_source": "pilot-requests.json shoulder-rolls",
+   "approved_by": "owner, project thread 2026-11-02T20:02Z",
+   "model": "seedance_2_0_mini",
+   "resolution": "720p (output 960x960)",
+   "job_id": "3ebfeb66-b11b-455c-9017-3a159161deb7",
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "output": "pilot/shoulder-rolls/r1-mini.mp4"
+  },
+  {
+   "clip_id": "shoulder-rolls",
+   "round": "R1",
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "duration": 8,
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "prompt_source": "pilot-requests.json shoulder-rolls",
+   "approved_by": "owner, project thread 2026-11-02T20:02Z",
+   "model": "kling3_0",
+   "mode": "std",
+   "job_id": "185b9c6c-61c8-48e3-89a9-0131694fabad",
+   "quoted_credits": 12,
+   "confirmed_deduction": 0,
+   "charged_then_refunded": 12,
+   "refund": 12,
+   "status": "failed (no reason returned); not retried",
+   "output": null
+  },
+  {
+   "clip_id": "shoulder-rolls",
+   "round": "R1",
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "duration": 8,
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "prompt_source": "pilot-requests.json shoulder-rolls",
+   "approved_by": "owner, project thread 2026-11-02T20:02Z",
+   "model": "seedance_2_0",
+   "mode": "fast",
+   "resolution": "720p (output 960x960)",
+   "job_id": "2b0eadec-1b65-4617-9e35-350c126252d7",
+   "quoted_credits": 20,
+   "confirmed_deduction": 20,
+   "refund": 0,
+   "status": "completed",
+   "output": "pilot/shoulder-rolls/r1-seedance-fast.mp4"
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "shrug",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/shrug/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:21:36.393545+00:00",
+   "balance_before": 972,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "69955bb5-bc15-41d1-b986-6d67d46e5302",
+   "output": "pilot/shrug/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 972,
+    "after": 964,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_202137_69955bb5-bc15-41d1-b986-6d67d46e5302.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.968385,
+   "frames": {
+    "start": "pilot/shrug/r1-mini-start.png",
+    "mid": "pilot/shrug/r1-mini-mid.png",
+    "end": "pilot/shrug/r1-mini-end.png",
+    "strip": "pilot/shrug/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "retomar",
+    "movement": "Falla: eleva codos y lleva ambas manos a los hombros; no muestra un encogimiento aislado con manos apoyadas en muslos.",
+    "identity": "Persona y número de extremidades estables en los 12 fotogramas; ojos se cierran durante parte del movimiento.",
+    "camera": "Sin desplazamiento o zoom evidente en los fotogramas.",
+    "artifacts": "No deformaciones claras; el problema principal es la acción equivocada.",
+    "loop": "SSIM inicio/fin 0.968385; proximidad visual, no garantía de bucle fluido.",
+    "evidence": "r1-mini-strip.png, 12 fotogramas cada 16 frames, más inicio/mitad/final extraídos.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "neck-tilt",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/neck-tilt/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:24:54.412433+00:00",
+   "balance_before": 964,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "7c2ebd65-0458-48c5-a3d2-e6ecc0c5a8cf",
+   "output": "pilot/neck-tilt/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 964,
+    "after": 956,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_202455_7c2ebd65-0458-48c5-a3d2-e6ecc0c5a8cf.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.977663,
+   "frames": {
+    "start": "pilot/neck-tilt/r1-mini-start.png",
+    "mid": "pilot/neck-tilt/r1-mini-mid.png",
+    "end": "pilot/neck-tilt/r1-mini-end.png",
+    "strip": "pilot/neck-tilt/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "La cabeza se inclina lateralmente hacia un hombro, sostiene y vuelve al centro. Hombros, manos, pelvis y pies permanecen suficientemente estables en las muestras.",
+    "identity": "Identidad y extremidades estables. Cierra los ojos durante la inclinación, pese al prompt; se registra sin retoma estética.",
+    "artifacts": "No deformaciones claras en las muestras.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.977663; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/neck-tilt/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "nod",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/nod/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:28:09.966890+00:00",
+   "balance_before": 956,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "cec28b1d-4080-4f0b-bfac-52a743582409",
+   "output": "pilot/nod/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 956,
+    "after": 948,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_202810_cec28b1d-4080-4f0b-bfac-52a743582409.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.977936,
+   "frames": {
+    "start": "pilot/nod/r1-mini-start.png",
+    "mid": "pilot/nod/r1-mini-mid.png",
+    "end": "pilot/nod/r1-mini-end.png",
+    "strip": "pilot/nod/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "retomar",
+    "movement": "Giros laterales de cabeza visibles, pero no se distinguen dos asentimientos de sí. La primera fase cambia sobre todo los ojos y el gesto de la cara, con desplazamiento de cabeza muy pequeño.",
+    "identity": "Persona y extremidades estables; ojos cerrados y gesto más serio durante el movimiento.",
+    "artifacts": "Sin deformaciones claras. El fallo funcional es una demostración incompleta de la secuencia sí/no.",
+    "evidence": "Tira r1-mini-strip.png y detalle r1-mini-head-detail.png: 24 muestras de los primeros 3 segundos.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.977936; revisar continuidad perceptual en reproducción.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "chest-opener",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/chest-opener/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:31:04.761182+00:00",
+   "balance_before": 948,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "deaf1066-e0e7-4d84-831d-b9afb666f7da",
+   "output": "pilot/chest-opener/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 948,
+    "after": 940,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_203105_deaf1066-e0e7-4d84-831d-b9afb666f7da.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.978,
+   "frames": {
+    "start": "pilot/chest-opener/r1-mini-start.png",
+    "mid": "pilot/chest-opener/r1-mini-mid.png",
+    "end": "pilot/chest-opener/r1-mini-end.png",
+    "strip": "pilot/chest-opener/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "Coloca las manos a los lados del asiento y eleva el pecho antes de volver a los muslos. Candidato visual: la vista frontal limita juzgar la retracción de hombros; en el pico parecen subir algo, así que debe revisarse técnica antes de producción.",
+    "identity": "Identidad y extremidades estables; las manos alcanzan los bordes del asiento. Los ojos vuelven a cerrarse durante el gesto.",
+    "artifacts": "No se ven extremidades extra, recorte de manos o movimiento de silla. El componente hacia atrás no se puede confirmar con estas muestras.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.978000; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/chest-opener/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "twist",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/twist/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:34:49.525313+00:00",
+   "balance_before": 940,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "d57bf0b9-d93b-4df4-80d3-36939ed203bc",
+   "output": "pilot/twist/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 940,
+    "after": 932,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_203450_d57bf0b9-d93b-4df4-80d3-36939ed203bc.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.978446,
+   "frames": {
+    "start": "pilot/twist/r1-mini-start.png",
+    "mid": "pilot/twist/r1-mini-mid.png",
+    "end": "pilot/twist/r1-mini-end.png",
+    "strip": "pilot/twist/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "Se ve cambiar la orientación del pecho y de la línea de hombros, con pelvis, rodillas y pies esencialmente fijos, y regresa al centro. Hay un giro inicial de cabeza antes del torso, pero no se limita a una inclinación lateral.",
+    "identity": "Misma persona y extremidades estables. Las manos se deslizan sobre muslos sin apoyarse para forzar el giro.",
+    "artifacts": "No deformaciones ni recortes evidentes en las muestras; revisar transición intermedia y perspectiva al reproducir.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.978446; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/twist/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "side-reach",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/side-reach/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:37:09.612909+00:00",
+   "balance_before": 932,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "eb694a21-cfd9-46ce-8a03-715ee3439b69",
+   "output": "pilot/side-reach/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 932,
+    "after": 924,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_203711_eb694a21-cfd9-46ce-8a03-715ee3439b69.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.978583,
+   "frames": {
+    "start": "pilot/side-reach/r1-mini-start.png",
+    "mid": "pilot/side-reach/r1-mini-mid.png",
+    "end": "pilot/side-reach/r1-mini-end.png",
+    "strip": "pilot/side-reach/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "retomar",
+    "movement": "La elevación de un brazo y la inclinación lateral se entienden, pero la mano sale por el borde superior durante la subida. Incumple mantener la articulación visible durante toda la demostración.",
+    "identity": "Identidad y extremidades estables en la fase mantenida; un brazo arriba y la otra mano en muslo. Cierra los ojos en parte del gesto.",
+    "artifacts": "Recorte visible de dedos/mano en muestras de subida (aprox. 2–2,7 s); no se observa zoom que lo compense.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.978583; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/side-reach/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "reach-up",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/reach-up/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:39:29.285557+00:00",
+   "balance_before": 924,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "64170c35-6c58-4237-ba82-60510491a33a",
+   "output": "pilot/reach-up/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 924,
+    "after": 916,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_203930_64170c35-6c58-4237-ba82-60510491a33a.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.978031,
+   "frames": {
+    "start": "pilot/reach-up/r1-mini-start.png",
+    "mid": "pilot/reach-up/r1-mini-mid.png",
+    "end": "pilot/reach-up/r1-mini-end.png",
+    "strip": "pilot/reach-up/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "retomar",
+    "movement": "Eleva ambos brazos, pero los abre lateralmente en V en vez de llevarlos hacia delante y arriba. Las puntas de ambas manos quedan recortadas en la postura mantenida.",
+    "identity": "Persona, silla y extremidades estables; no brazos extra.",
+    "artifacts": "Recorte superior de dedos confirmado en r1-mini-mid.png a tamaño completo. El encuadre actual deja poco margen para brazos extendidos.",
+    "evidence": "r1-mini-strip.png y r1-mini-mid.png a 960×960.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.978031; revisar continuidad perceptual en reproducción.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "cat-cow",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/cat-cow/prompt.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:42:41.728858+00:00",
+   "balance_before": 916,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "509c0324-eecf-429f-a7b2-f3ba56192292",
+   "output": "pilot/cat-cow/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 916,
+    "after": 908,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_204242_509c0324-eecf-429f-a7b2-f3ba56192292.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.978736,
+   "frames": {
+    "start": "pilot/cat-cow/r1-mini-start.png",
+    "mid": "pilot/cat-cow/r1-mini-mid.png",
+    "end": "pilot/cat-cow/r1-mini-end.png",
+    "strip": "pilot/cat-cow/r1-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "no apto",
+    "movement": "Solo muestra inclinar el torso hacia delante y volver a neutral. No aparece de forma legible la segunda fase de abrir/arquear el pecho, por lo que no demuestra curl and arch completo.",
+    "identity": "Persona y extremidades estables; manos en las rodillas/muslos y pelvis sentada. Ojos cerrados en parte del gesto.",
+    "artifacts": "No deformaciones claras; la vista frontal oculta la curvatura de columna. No se programa retoma: el problema pide otro encuadre/referencia y las cuatro retomas del lote se asignan a fallos más concretos de gesto o recorte.",
+    "limits": "No se concluye que Mini sea incapaz en general: este resultado con la referencia frontal no es apto. Fluidez, parpadeo y profundidad no comprobados en tiempo real.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.978736; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/cat-cow/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "shrug",
+   "round": "R2",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/shrug/prompt-r2.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:45:46.775533+00:00",
+   "balance_before": 908,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "5692cfe3-bfc4-4676-895b-2a83ad8be087",
+   "output": "pilot/shrug/r2-mini.mp4",
+   "deduction_evidence": {
+    "before": 908,
+    "after": 900,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_204548_5692cfe3-bfc4-4676-895b-2a83ad8be087.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.967599,
+   "frames": {
+    "start": "pilot/shrug/r2-mini-start.png",
+    "mid": "pilot/shrug/r2-mini-mid.png",
+    "end": "pilot/shrug/r2-mini-end.png",
+    "strip": "pilot/shrug/r2-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "La retoma corrige el fallo: ambos hombros suben hacia las orejas, sostienen y bajan, mientras manos y codos permanecen apoyados/quietos sobre los muslos y la cabeza sigue erguida.",
+    "identity": "Misma persona y extremidades estables; sin el gesto de tocarse los hombros de R1.",
+    "artifacts": "No deformaciones, recortes ni desplazamiento de silla evidentes en las muestras.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.967599; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/shrug/r2-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "nod",
+   "round": "R2",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/nod/prompt-r2.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:48:39.305534+00:00",
+   "balance_before": 900,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "9d8edc47-1a8d-42fd-be54-69d5f367fc35",
+   "output": "pilot/nod/r2-mini.mp4",
+   "deduction_evidence": {
+    "before": 900,
+    "after": 892,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_204840_9d8edc47-1a8d-42fd-be54-69d5f367fc35.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.977196,
+   "frames": {
+    "start": "pilot/nod/r2-mini-start.png",
+    "mid": "pilot/nod/r2-mini-mid.png",
+    "end": "pilot/nod/r2-mini-end.png",
+    "strip": "pilot/nod/r2-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "no apto con Mini",
+    "movement": "R2 mejora ligeramente el cabeceo, pero el detalle de los primeros 3 segundos muestra solo una bajada/vuelta muy pequeña y no dos asentimientos legibles. Los giros de no sí son claros. No apruebo la secuencia combinada completa con esta referencia y duración.",
+    "identity": "Persona y extremidades estables; cierre repetido de ojos pese al prompt. No se rechaza por estética sino por falta de legibilidad de la fase sí.",
+    "artifacts": "Sin deformaciones claras; el componente vertical sigue siendo demasiado sutil a tamaño de app.",
+    "evidence": "r2-mini-strip.png y r2-mini-head-detail.png: 24 muestras de los primeros tres segundos.",
+    "limits": "No habrá tercera versión. Recomendación: separar sí y no o usar otro ángulo/referencia; requiere otro encargo, no se ejecuta en este lote. Fluidez y parpadeo en tiempo real pendientes.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.977196; revisar continuidad perceptual en reproducción."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "side-reach",
+   "round": "R2",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/side-reach/prompt-r2.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:52:30.069946+00:00",
+   "balance_before": 892,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "ae217b21-17c1-47d5-8d66-86da7c73d326",
+   "output": "pilot/side-reach/r2-mini.mp4",
+   "deduction_evidence": {
+    "before": 892,
+    "after": 884,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_205230_ae217b21-17c1-47d5-8d66-86da7c73d326.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.977416,
+   "frames": {
+    "start": "pilot/side-reach/r2-mini-start.png",
+    "mid": "pilot/side-reach/r2-mini-mid.png",
+    "end": "pilot/side-reach/r2-mini-end.png",
+    "strip": "pilot/side-reach/r2-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "La retoma mantiene la mano completa dentro del encuadre en las muestras de entrada, postura mantenida y salida. Se ve la inclinación lateral, con un brazo por encima de la cabeza y la otra mano apoyada.",
+    "identity": "Persona y extremidades estables. Codos flexionados durante entrada/salida para evitar el recorte; ojos cerrados en parte del gesto.",
+    "artifacts": "No recortes ni deformaciones claras en las muestras; debe revisarse el rango de inclinación en la revisión profesional.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.977416; revisar continuidad perceptual en reproducción.",
+    "evidence": "pilot/side-reach/r2-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+    "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+   }
+  },
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "clip_id": "reach-up",
+   "round": "R2",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/reach-up/prompt-r2.txt",
+   "approved_by": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "submitted_at": "2026-11-02T20:55:17.297967+00:00",
+   "balance_before": 884,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "reserved_credits": 0,
+   "status": "completed",
+   "job_id": "8d4c2acb-d6e7-4ee8-bd0c-91109ae826d3",
+   "output": "pilot/reach-up/r2-mini.mp4",
+   "deduction_evidence": {
+    "before": 884,
+    "after": 876,
+    "delta": 8
+   },
+   "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261102_205518_8d4c2acb-d6e7-4ee8-bd0c-91109ae826d3.mp4",
+   "video_metadata": {
+    "width": 960,
+    "height": 960,
+    "avg_frame_rate": "24/1",
+    "duration": "8.041667",
+    "nb_read_frames": "193"
+   },
+   "start_end_ssim": 0.977887,
+   "frames": {
+    "start": "pilot/reach-up/r2-mini-start.png",
+    "mid": "pilot/reach-up/r2-mini-mid.png",
+    "end": "pilot/reach-up/r2-mini-end.png",
+    "strip": "pilot/reach-up/r2-mini-strip.png"
+   },
+   "evaluated": true,
+   "evaluation": {
+    "verdict": "no apto con Mini",
+    "movement": "R2 modifica la trayectoria y flexiona codos, pero sigue cortando las puntas de los dedos durante la postura alta. Las palmas tampoco quedan claramente enfrentadas. No pasa el requisito de articulaciones completas visibles.",
+    "identity": "Persona y extremidades estables; sin brazos extra. Ojos cerrados en parte del gesto.",
+    "artifacts": "Recorte superior de dedos confirmado en r2-mini-mid.png a 960×960. Hace falta una referencia con más margen superior, no una tercera repetición del mismo método.",
+    "evidence": "r2-mini-strip.png y r2-mini-mid.png a tamaño completo.",
+    "limits": "Cuarta y última retoma del lote. No se generan más versiones ni otra referencia. No implica incapacidad general del modelo: este encuadre no es apto; fluidez y parpadeo en reproducción pendientes.",
+    "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+    "loop": "SSIM inicio/fin 0.977887; revisar continuidad perceptual en reproducción."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "clip_id": "head-turn",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "prompt_source": "pilot/head-turn/prompt.txt",
+   "approved_by": "owner, project thread 2026-11-03T01:30Z ('Hace el primer ejercicio'); cap 16 for this exercise",
+   "balance_before": 850,
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "job_id": "c8c1efe2-1d76-425a-aa29-6ff68515d8fc",
+   "output": "pilot/head-turn/r1-mini.mp4",
+   "deduction_evidence": {
+    "before": 850,
+    "after": 842,
+    "delta": 8
+   },
+   "start_end_ssim": 0.980761,
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "Gira la cabeza hasta casi perfil a la derecha, vuelve, gira a la izquierda y vuelve. Hombros cuadrados, manos en muslos, sin inclinación lateral.",
+    "notes": "Cierra los ojos un instante en dos momentos; igual que neck-tilt aceptado."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "approved_by": "owner, project thread 2026-11-03T01:42Z ('Si, segui con esos 3'); batch cap 52",
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "clip_id": "scapular-squeeze",
+   "round": "R1",
+   "job_id": "244a8bcc-8639-46ea-b83e-b5a08b8c2083",
+   "prompt_source": "pilot/scapular-squeeze/prompt.txt",
+   "output": "pilot/scapular-squeeze/r1-mini.mp4",
+   "evaluation": {
+    "verdict": "no apto",
+    "movement": "W visible, pero aparecen manos fantasma sobre los hombros durante el sostén; el apretado no se ve."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "approved_by": "owner, project thread 2026-11-03T01:42Z ('Si, segui con esos 3'); batch cap 52",
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "clip_id": "scapular-squeeze",
+   "round": "R2",
+   "job_id": "c77c7ed2-7501-4e71-a332-22b2480c3509",
+   "prompt_source": "pilot/scapular-squeeze/prompt-r2.txt",
+   "output": "pilot/scapular-squeeze/r2-mini.mp4",
+   "evaluation": {
+    "verdict": "no apto",
+    "movement": "Baja las manos al pecho en vez de mantener la W; otro ejercicio. Se descarta tras 2 fallos."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "approved_by": "owner, project thread 2026-11-03T01:42Z ('Si, segui con esos 3'); batch cap 52",
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "clip_id": "cross-body",
+   "round": "R1",
+   "job_id": "2490f5ca-1929-41d3-8d4e-31e87ef02e12",
+   "prompt_source": "pilot/cross-body/prompt.txt",
+   "output": "pilot/cross-body/r1-mini.mp4",
+   "evaluation": {
+    "verdict": "no apto",
+    "movement": "Empieza bien pero termina en autoabrazo con cara de dolor."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "media_id_start_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "media_id_end_image": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "approved_by": "owner, project thread 2026-11-03T01:42Z ('Si, segui con esos 3'); batch cap 52",
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "clip_id": "cross-body",
+   "round": "R2",
+   "job_id": "b36cb905-018a-4cce-a74c-a4ecba7edef0",
+   "prompt_source": "pilot/cross-body/prompt-r2.txt",
+   "output": "pilot/cross-body/r2-mini.mp4",
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "Brazo recto cruzado, otra mano sobre el brazo, sonrisa tranquila; vuelve a neutral. Se espeja para el otro lado."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "clip_id": "march",
+   "round": "reference",
+   "model": "nano_banana_2",
+   "resolution": "2k",
+   "aspect_ratio": "1:1",
+   "image_references": [
+    "ddacd00b-e416-42ee-a15a-59c4ab80d849"
+   ],
+   "prompt_source": "pilot/march/reference-prompt.txt",
+   "quoted_credits": 2,
+   "confirmed_deduction": 2,
+   "job_id": "c78b3e85-4dd1-4d07-a280-9699886ca1f5",
+   "status": "completed",
+   "output": "instructor-reference-standing-v1.png",
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "Misma identidad y estilo, de pie, cuerpo completo."
+   }
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "clip_id": "march",
+   "round": "R1",
+   "model": "seedance_2_0_mini",
+   "duration": 8,
+   "resolution": "720p",
+   "aspect_ratio": "1:1",
+   "audio": "off",
+   "count": 1,
+   "start_image": "instructor-reference-standing-v1.png (auto-uploaded)",
+   "end_image": "same",
+   "prompt_source": "pilot/march/prompt.txt",
+   "approved_by": "owner, project thread 2026-11-03T01:42Z; batch cap 52",
+   "quoted_credits": 8,
+   "confirmed_deduction": 8,
+   "refund": 0,
+   "status": "completed",
+   "job_id": "86016b19-34c0-433b-840e-3aaeaf89ceae",
+   "output": "pilot/march/r1-mini.mp4",
+   "evaluation": {
+    "verdict": "apto",
+    "movement": "Marcha en el lugar alternando rodillas con braceo opuesto; anatomía limpia; vuelve a la pose de pie."
+   }
+  }
+ ],
+ "status": "Mini seated batch complete: 96/96 incremental net credits; 8 initial clips + 4 retakes; 5 visual candidates, 3 not suitable; march intentionally not generated. Historical pilot preserved.",
+ "balance_checks": [
+  {
+   "at": "2026-11-02",
+   "credits": 1000,
+   "plan": "plus",
+   "workspace": "Private",
+   "note": "before pilot R1; unchanged after upload and quotes"
+  },
+  {
+   "at": "2026-11-02T20:08Z",
+   "credits": 972,
+   "note": "after R1; 1000 - 8 - 12 + 12 - 20"
+  },
+  {
+   "at": "2026-11-02",
+   "credits": 972,
+   "plan": "plus",
+   "note": "Before authorized Mini seated batch, cap 96 credits incremental to previous pilot."
+  },
+  {
+   "at": "2026-11-02T20:21:34.334653+00:00",
+   "credits": 972,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 shrug R1"
+  },
+  {
+   "at": "2026-11-02T20:21:38.809683+00:00",
+   "credits": 964,
+   "plan": "plus",
+   "note": "after submission shrug R1"
+  },
+  {
+   "at": "2026-11-02T20:22:28.506517+00:00",
+   "credits": 964,
+   "plan": "plus",
+   "note": "after status check shrug R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:23:31.964773+00:00",
+   "credits": 964,
+   "plan": "plus",
+   "note": "after status check shrug R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:24:24.143791+00:00",
+   "credits": 964,
+   "plan": "plus",
+   "note": "after status check shrug R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:24:53.189081+00:00",
+   "credits": 964,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 neck-tilt R1"
+  },
+  {
+   "at": "2026-11-02T20:24:56.664653+00:00",
+   "credits": 956,
+   "plan": "plus",
+   "note": "after submission neck-tilt R1"
+  },
+  {
+   "at": "2026-11-02T20:25:42.848575+00:00",
+   "credits": 956,
+   "plan": "plus",
+   "note": "after status check neck-tilt R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:27:20.140665+00:00",
+   "credits": 956,
+   "plan": "plus",
+   "note": "after status check neck-tilt R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:27:41.099913+00:00",
+   "credits": 956,
+   "plan": "plus",
+   "note": "after status check neck-tilt R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:28:08.762427+00:00",
+   "credits": 956,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 nod R1"
+  },
+  {
+   "at": "2026-11-02T20:28:11.882288+00:00",
+   "credits": 948,
+   "plan": "plus",
+   "note": "after submission nod R1"
+  },
+  {
+   "at": "2026-11-02T20:28:57.906692+00:00",
+   "credits": 948,
+   "plan": "plus",
+   "note": "after status check nod R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:29:59.878193+00:00",
+   "credits": 948,
+   "plan": "plus",
+   "note": "after status check nod R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:30:29.987619+00:00",
+   "credits": 948,
+   "plan": "plus",
+   "note": "after status check nod R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:31:03.517237+00:00",
+   "credits": 948,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 chest-opener R1"
+  },
+  {
+   "at": "2026-11-02T20:31:07.874584+00:00",
+   "credits": 940,
+   "plan": "plus",
+   "note": "after submission chest-opener R1"
+  },
+  {
+   "at": "2026-11-02T20:31:54.084522+00:00",
+   "credits": 940,
+   "plan": "plus",
+   "note": "after status check chest-opener R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:32:49.842180+00:00",
+   "credits": 940,
+   "plan": "plus",
+   "note": "after status check chest-opener R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:33:46.612550+00:00",
+   "credits": 940,
+   "plan": "plus",
+   "note": "after status check chest-opener R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:34:10.856218+00:00",
+   "credits": 940,
+   "plan": "plus",
+   "note": "after status check chest-opener R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:34:48.129981+00:00",
+   "credits": 940,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 twist R1"
+  },
+  {
+   "at": "2026-11-02T20:34:51.936434+00:00",
+   "credits": 932,
+   "plan": "plus",
+   "note": "after submission twist R1"
+  },
+  {
+   "at": "2026-11-02T20:35:37.910012+00:00",
+   "credits": 932,
+   "plan": "plus",
+   "note": "after status check twist R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:36:29.531291+00:00",
+   "credits": 932,
+   "plan": "plus",
+   "note": "after status check twist R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:36:45.856687+00:00",
+   "credits": 932,
+   "plan": "plus",
+   "note": "after status check twist R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:37:07.590695+00:00",
+   "credits": 932,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 side-reach R1"
+  },
+  {
+   "at": "2026-11-02T20:37:14.319939+00:00",
+   "credits": 924,
+   "plan": "plus",
+   "note": "after submission side-reach R1"
+  },
+  {
+   "at": "2026-11-02T20:38:01.038166+00:00",
+   "credits": 924,
+   "plan": "plus",
+   "note": "after status check side-reach R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:38:59.845772+00:00",
+   "credits": 924,
+   "plan": "plus",
+   "note": "after status check side-reach R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:39:27.698464+00:00",
+   "credits": 924,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 reach-up R1"
+  },
+  {
+   "at": "2026-11-02T20:39:31.585445+00:00",
+   "credits": 916,
+   "plan": "plus",
+   "note": "after submission reach-up R1"
+  },
+  {
+   "at": "2026-11-02T20:40:17.574085+00:00",
+   "credits": 916,
+   "plan": "plus",
+   "note": "after status check reach-up R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:41:37.143100+00:00",
+   "credits": 916,
+   "plan": "plus",
+   "note": "after status check reach-up R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:42:01.648315+00:00",
+   "credits": 916,
+   "plan": "plus",
+   "note": "after status check reach-up R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:42:40.492629+00:00",
+   "credits": 916,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 cat-cow R1"
+  },
+  {
+   "at": "2026-11-02T20:42:43.847034+00:00",
+   "credits": 908,
+   "plan": "plus",
+   "note": "after submission cat-cow R1"
+  },
+  {
+   "at": "2026-11-02T20:43:30.095534+00:00",
+   "credits": 908,
+   "plan": "plus",
+   "note": "after status check cat-cow R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:44:36.257435+00:00",
+   "credits": 908,
+   "plan": "plus",
+   "note": "after status check cat-cow R1: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:45:01.006250+00:00",
+   "credits": 908,
+   "plan": "plus",
+   "note": "after status check cat-cow R1: completed"
+  },
+  {
+   "at": "2026-11-02T20:45:45.577641+00:00",
+   "credits": 908,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 shrug R2"
+  },
+  {
+   "at": "2026-11-02T20:45:50.743366+00:00",
+   "credits": 900,
+   "plan": "plus",
+   "note": "after submission shrug R2"
+  },
+  {
+   "at": "2026-11-02T20:46:37.211371+00:00",
+   "credits": 900,
+   "plan": "plus",
+   "note": "after status check shrug R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:47:51.460502+00:00",
+   "credits": 900,
+   "plan": "plus",
+   "note": "after status check shrug R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:48:18.739901+00:00",
+   "credits": 900,
+   "plan": "plus",
+   "note": "after status check shrug R2: completed"
+  },
+  {
+   "at": "2026-11-02T20:48:37.570960+00:00",
+   "credits": 900,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 nod R2"
+  },
+  {
+   "at": "2026-11-02T20:48:41.684848+00:00",
+   "credits": 892,
+   "plan": "plus",
+   "note": "after submission nod R2"
+  },
+  {
+   "at": "2026-11-02T20:49:27.734153+00:00",
+   "credits": 892,
+   "plan": "plus",
+   "note": "after status check nod R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:50:16.073028+00:00",
+   "credits": 892,
+   "plan": "plus",
+   "note": "after status check nod R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:50:52.010926+00:00",
+   "credits": 892,
+   "plan": "plus",
+   "note": "after status check nod R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:51:28.194534+00:00",
+   "credits": 892,
+   "plan": "plus",
+   "note": "after status check nod R2: completed"
+  },
+  {
+   "at": "2026-11-02T20:52:28.546816+00:00",
+   "credits": 892,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 side-reach R2"
+  },
+  {
+   "at": "2026-11-02T20:52:32.033243+00:00",
+   "credits": 884,
+   "plan": "plus",
+   "note": "after submission side-reach R2"
+  },
+  {
+   "at": "2026-11-02T20:52:58.023978+00:00",
+   "credits": 884,
+   "plan": "plus",
+   "note": "after status check side-reach R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:53:46.444075+00:00",
+   "credits": 884,
+   "plan": "plus",
+   "note": "after status check side-reach R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:54:37.066027+00:00",
+   "credits": 884,
+   "plan": "plus",
+   "note": "after status check side-reach R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:54:51.125710+00:00",
+   "credits": 884,
+   "plan": "plus",
+   "note": "after status check side-reach R2: completed"
+  },
+  {
+   "at": "2026-11-02T20:55:15.984580+00:00",
+   "credits": 884,
+   "plan": "plus",
+   "note": "before mini-seated-2026-11-02 reach-up R2"
+  },
+  {
+   "at": "2026-11-02T20:55:19.562959+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after submission reach-up R2"
+  },
+  {
+   "at": "2026-11-02T20:55:46.142254+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after status check reach-up R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:56:39.841281+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after status check reach-up R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:57:14.774368+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after status check reach-up R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:57:52.002316+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after status check reach-up R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:58:28.046291+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after status check reach-up R2: in_progress"
+  },
+  {
+   "at": "2026-11-02T20:58:44.961822+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "after status check reach-up R2: completed"
+  },
+  {
+   "at": "2026-11-02T20:59:48.889367+00:00",
+   "credits": 876,
+   "plan": "plus",
+   "note": "Final reconciliation: 12 new Mini spend transactions × 8 = 96; no new refunds; previous accepted clip SHA256 unchanged."
+  },
+  {
+   "at": "2026-11-03T01:39:54.006430+00:00",
+   "credits": 842,
+   "plan": "plus",
+   "note": "after head-turn R1"
+  },
+  {
+   "at": "2026-11-03T02:15:57.892033+00:00",
+   "credits": 808,
+   "plan": "plus",
+   "note": "after zones batch: 4 Mini clips + standing reference charged"
+  },
+  {
+   "at": "2026-11-03T02:39:13.207833+00:00",
+   "credits": 800,
+   "plan": "plus",
+   "note": "after march R1; zones batch complete"
+  }
+ ],
+ "uploads": [
+  {
+   "file": "instructor-reference-v1.png",
+   "media_id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+   "cost_credits": 0
+  }
+ ],
+ "pilot_r1_shoulder_rolls_quotes": {
+  "params": "8 s, 720p (Seedance), 1:1, audio off, start_image=end_image=media above",
+  "seedance_2_0_mini": 8,
+  "kling3_0_std": 12,
+  "seedance_2_0_fast": 20,
+  "total": 40
+ },
+ "final_balance": 800,
+ "batches": [
+  {
+   "batch_id": "mini-seated-2026-11-02",
+   "approved_credits": 96,
+   "approval_source": "docs/handoffs/codex-mini-exercise-batch-2026-11-02.md, supplied as user request",
+   "model": "seedance_2_0_mini",
+   "initial_balance": 972,
+   "prior_project_net_spend": 28,
+   "clip_order": [
+    "shrug",
+    "neck-tilt",
+    "nod",
+    "chest-opener",
+    "twist",
+    "side-reach",
+    "reach-up",
+    "cat-cow"
+   ],
+   "first_pass_expected_credits": 64,
+   "max_retakes": 4,
+   "max_retakes_per_exercise": 1,
+   "spent_net": 96,
+   "reserved": 0,
+   "status": "complete",
+   "attempts_submitted": 12,
+   "preserved_existing_accepted_clip": {
+    "path": "pilot/shoulder-rolls/r1-mini.mp4",
+    "sha256": "3a57d63ed6193b1d4f3cec27f676ef23e4fcc431e532b392a9161f7271ff4ea1",
+    "accepted_by": "user, per supplied handoff",
+    "note": "Do not regenerate; owner acceptance does not remove the R1 technical caveat that it reads more like a shrug than a roll."
+   },
+   "first_pass_jobs": 8,
+   "retake_jobs": 4,
+   "final_balance": 876,
+   "refunds": 0,
+   "confirmed_gross_charges": 96,
+   "transaction_evidence": [
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:55:18.418971Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:52:30.821601Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:48:40.213739Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:45:48.836581Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:42:42.651149Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:39:30.420038Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:37:12.460786Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:34:50.757849Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:31:06.434906Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:28:10.68981Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:24:55.491299Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    },
+    {
+     "action": "spend",
+     "created_at": "2026-11-02T20:21:37.174836Z",
+     "credits": -8,
+     "display_name": "Seedance 2.0 Mini"
+    }
+   ],
+   "completed_at": "2026-11-02T20:59:48.889195+00:00",
+   "visual_candidates": [
+    "shrug",
+    "neck-tilt",
+    "chest-opener",
+    "twist",
+    "side-reach"
+   ],
+   "not_suitable": [
+    "nod",
+    "reach-up",
+    "cat-cow"
+   ],
+   "not_generated": [
+    "march"
+   ],
+   "audio_tracks_found": []
+  },
+  {
+   "batch_id": "zones-2026-11-03",
+   "approved_credits": "8 (head-turn) + 52 (three more)",
+   "model": "seedance_2_0_mini",
+   "initial_balance": 850,
+   "spent_net": 50,
+   "status": "complete",
+   "accepted": [
+    "head-turn",
+    "cross-body",
+    "march"
+   ],
+   "not_suitable": [
+    "scapular-squeeze"
+   ]
+  }
+ ],
+ "confirmed_gross_charges": 186,
+ "accounting_note": "confirmed_deductions preserves historical NET-spend convention; confirmed_gross_charges includes refunded charges. Do not subtract refunds twice."
+}

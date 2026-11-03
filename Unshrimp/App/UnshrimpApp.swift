@@ -11,6 +11,7 @@ struct UnshrimpApp: App {
         WindowGroup {
             RootView()
                 .environment(model)
+                .environment(\.kipLook, model.look)
                 .environment(\.exerciseMotionOverride, testReducedMotion)
                 .transformEnvironment(\.dynamicTypeSize) { value in
                     #if DEBUG
@@ -21,6 +22,7 @@ struct UnshrimpApp: App {
                 .tint(Palette.coral)
         }
         .onChange(of: scenePhase) { _, phase in
+            if phase == .background { Analytics.flush() }
             guard phase == .active else { return }
             Task {
                 await model.refreshNotificationStatus()
@@ -40,11 +42,15 @@ struct UnshrimpApp: App {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @State private var rewardPreview = RootView.rewardPreviewOnce
 
     var body: some View {
         ZStack {
-            if trainingPreview {
-                BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: [.wholeBody], seed: 0))
+            if let result = rewardPreview {
+                RewardView(result: result) { rewardPreview = nil }
+                    .background(Palette.ivory.ignoresSafeArea())
+            } else if trainingPreview {
+                BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: Set(FocusArea.allCases)))
             } else if model.data.hasOnboarded {
                 HomeView().transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
@@ -53,6 +59,19 @@ struct RootView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: model.data.hasOnboarded)
         .fontDesign(.rounded)
+    }
+
+    /// Debug: -testReward records one break and opens its reward screen, to check unlock moments.
+    // Static so it runs once, not on every RootView init.
+    private static let rewardPreviewOnce = makeRewardPreview()
+
+    private static func makeRewardPreview() -> BreakResult? {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-testReward") {
+            return AppModel.shared.recordBreak(minutes: 3, focus: [.neck, .shoulders])
+        }
+        #endif
+        return nil
     }
 
     private var trainingPreview: Bool {
@@ -66,6 +85,7 @@ struct RootView: View {
 
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        Analytics.setup()
         UNUserNotificationCenter.current().delegate = self
         NotificationManager.registerCategories()
         return true
@@ -77,13 +97,23 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        guard response.notification.request.content.categoryIdentifier == NotificationManager.categoryID else { return }
         let action = response.actionIdentifier
         await MainActor.run {
             let model = AppModel.shared
             switch action {
             case NotificationManager.snoozeActionID:
+                Analytics.capture("reminder_snoozed", properties: ["snooze_minutes": Int(NotificationManager.snoozeMinutes)])
+                Analytics.flush()
                 Task { await model.snooze() }
-            case NotificationManager.startActionID, UNNotificationDefaultActionIdentifier:
+            case NotificationManager.startActionID:
+                Analytics.capture("reminder_opened", properties: ["action": "start_break"])
+                // "Stretch with Kip now" goes straight into the first move.
+                guard model.data.hasOnboarded else { break }
+                model.skipBreakIntro = true
+                model.breakRequestedFromNotification = true
+            case UNNotificationDefaultActionIdentifier:
+                Analytics.capture("reminder_opened", properties: ["action": "open"])
                 if model.data.hasOnboarded { model.breakRequestedFromNotification = true }
             default:
                 break

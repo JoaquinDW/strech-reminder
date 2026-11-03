@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unshrimp</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Unshrimp is a stretch reminder for desk workers. Kip the shrimp nudges you on your schedule and leads 2, 3 or 5-minute guided stretch breaks.">
+<meta property="og:title" content="Unshrimp: Stretch Reminder">
+<meta property="og:description" content="Work breaks and desk stretches with Kip, a tiny shrimp who gets lost in work too.">
+<meta property="og:image" content="assets/icon-256.png">
+<link rel="icon" href="assets/icon-256.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap">
+<style>
+/* Layout: the app's desk diorama, opened up. Thick-outlined scenes on warm paper, Kip as the guide. */
+:root {
+  --bg: #FBF5EA;
+  --surface: #FFFCF6;
+  --wash: #F3E6CF;
+  --ink: #1D4550;
+  --ink-soft: #4A6A72;
+  --outline: #1D4550;
+  --line: #E8DAC2;
+  --coral: #FF7A66;
+  --coral-deep: #E5543F;
+  --coral-soft: #FFDCD3;
+  --mint: #A9E3CF;
+  --mint-soft: #DDF3EA;
+  --mint-deep: #2F8A6F;
+  --butter: #FFDD85;
+  --butter-soft: #FFF1C7;
+  --on-coral: #1D4550;
+  --notif: rgba(255, 252, 246, .86);
+  --display: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "Nunito", ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r-scene: 28px;
+  --r-tile: 20px;
+  --stroke: 2.5px;
+  --gut: max(16px, env(safe-area-inset-left, 0px));
+  --gut-r: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #102B32; --surface: #17363D; --wash: #1D4048; --ink: #F6EBD9; --ink-soft: #B9C9C6;
+    --outline: #071A1F; --line: #2B4C53; --coral-soft: #5A3631; --mint-soft: #1F4A46; --mint-deep: #8FD8BE;
+    --butter-soft: #4A4127; --notif: rgba(30, 62, 70, .9); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #102B32; --surface: #17363D; --wash: #1D4048; --ink: #F6EBD9; --ink-soft: #B9C9C6;
+  --outline: #071A1F; --line: #2B4C53; --coral-soft: #5A3631; --mint-soft: #1F4A46; --mint-deep: #8FD8BE;
+  --butter-soft: #4A4127; --notif: rgba(30, 62, 70, .9); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--body); font-size: 1.0625rem; line-height: 1.6; font-weight: 600;
+  -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+img, video { max-width: 100%; display: block; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; border-radius: 8px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(2rem, 4.6vw, 3.25rem); }
+h3 { font-size: 1.35rem; font-weight: 600; line-height: 1.2; }
+p { margin: 0; text-wrap: pretty; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: var(--gut); padding-right: var(--gut-r); }
+.lede { color: var(--ink-soft); font-size: 1.15rem; max-width: 34em; }
+.eyebrow { font-family: var(--display); font-weight: 600; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--coral-deep); }
+section { padding-block: clamp(64px, 9vw, 120px); }
+.section-head { display: grid; gap: 14px; max-width: 40rem; margin-bottom: clamp(32px, 5vw, 56px); }
+
+/* Buttons: the app's chunky pill with a pressed edge */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 600; font-size: 1.1rem;
+  padding: 14px 26px; border-radius: 999px; border: var(--stroke) solid var(--outline); text-decoration: none;
+  background: var(--surface); color: var(--ink); box-shadow: 0 5px 0 var(--outline); transition: transform .12s, box-shadow .12s;
+}
+.btn:hover { transform: translateY(2px); box-shadow: 0 3px 0 var(--outline); }
+.btn:active { transform: translateY(5px); box-shadow: 0 0 0 var(--outline); }
+.btn.primary { background: var(--coral); color: var(--on-coral); }
+.btn svg { width: 22px; height: 22px; flex: none; }
+.store-badge { cursor: default; }
+.store-badge small { display: block; font-family: var(--body); font-size: .72rem; font-weight: 700; line-height: 1; opacity: .75; }
+.store-badge span { line-height: 1.1; }
+
+/* Nav */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color .2s; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+header.top.scrolled { border-bottom-color: var(--line); }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 1.35rem; }
+.brand img { width: 40px; height: 40px; border-radius: 11px; border: 2px solid var(--outline); }
+.nav nav { display: flex; align-items: center; gap: 22px; font-weight: 700; font-size: .98rem; }
+.nav nav a { text-decoration: none; color: var(--ink-soft); }
+.nav nav a:hover { color: var(--ink); }
+.nav .btn { white-space: nowrap; padding: 8px 18px; font-size: .98rem; box-shadow: 0 3px 0 var(--outline); }
+@media (max-width: 720px) { .nav nav a.hide-sm { display: none; } }
+@media (max-width: 420px) { .nav nav a.hide-xs { display: none; } }
+
+/* Hero */
+.hero { padding-block: clamp(28px, 5vw, 64px) clamp(56px, 8vw, 96px); }
+.hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero h1 { font-size: clamp(3.1rem, 8.2vw, 6.4rem); line-height: .92; letter-spacing: -0.025em; }
+.hero h1 .un { color: var(--coral); display: inline-block; }
+.hero .lede { font-size: clamp(1.1rem, 1.6vw, 1.3rem); }
+.cta-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding-top: 6px; }
+.hero-note { font-size: .92rem; color: var(--ink-soft); display: flex; gap: 18px; flex-wrap: wrap; }
+.hero-note span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-note svg { width: 18px; height: 18px; color: var(--mint-deep); }
+
+.stage {
+  position: relative; aspect-ratio: 1 / 1.02; max-width: 100%; border: var(--stroke) solid var(--outline); border-radius: 36px;
+  background: linear-gradient(180deg, #FFF3DA 0 70%, #F4E3C6 70% 100%); overflow: hidden; min-width: 0; color: #1D4550;
+  --surface: #FFFCF6; --ink-soft: #4A6A72; --wash: #F3E6CF; --coral-deep: #E5543F;
+}
+.stage .disc { position: absolute; left: 50%; top: 46%; width: 74%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: var(--mint); }
+.stage .floor { position: absolute; left: 0; right: 0; top: 70%; border-top: var(--stroke) solid var(--outline); }
+.stage .rug { position: absolute; left: 18%; right: 18%; top: 79%; height: 7%; border-radius: 50%; background: repeating-linear-gradient(90deg, #FFDCD3 0 18px, #FFDD85 18px 36px, #A9E3CF 36px 54px); opacity: .8; }
+.sprite { background-repeat: no-repeat; }
+.stage .kip { position: absolute; left: 50%; bottom: 13%; width: 78%; aspect-ratio: 1; transform: translateX(-50%); background-image: url(assets/kip-unshrimp.webp); background-size: 600% 600%; }
+.readout {
+  position: absolute; left: 16px; top: 16px; display: grid; gap: 2px; background: var(--surface); border: 2px solid var(--outline);
+  border-radius: 18px; padding: 10px 14px 10px; min-width: 9.5rem;
+}
+.readout .lbl { font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.readout .val { font-family: var(--display); font-weight: 700; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.readout .stg { font-size: .85rem; font-weight: 800; color: var(--coral-deep); }
+.scrub { position: absolute; left: 16px; right: 16px; bottom: 14px; display: flex; align-items: center; gap: 12px; background: var(--surface); border: 2px solid var(--outline); border-radius: 999px; padding: 6px 16px; font-size: .82rem; font-weight: 800; }
+.scrub label { white-space: nowrap; color: var(--ink-soft); }
+input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; min-width: 0; height: 10px; border-radius: 99px; background: var(--wash); outline-offset: 6px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--coral); border: 2.5px solid var(--outline); cursor: grab; }
+input[type=range]::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--coral); border: 2.5px solid var(--outline); cursor: grab; }
+.bubble {
+  position: absolute; right: 16px; top: 16px; max-width: 13rem; background: var(--surface); border: 2px solid var(--outline); border-radius: 18px;
+  padding: 10px 14px; font-weight: 700; font-size: .95rem; line-height: 1.3; transition: opacity .3s;
+}
+.bubble::after { content: ""; position: absolute; left: 26px; bottom: -9px; width: 14px; height: 14px; background: var(--surface); border-right: 2px solid var(--outline); border-bottom: 2px solid var(--outline); transform: rotate(45deg); }
+@media (max-width: 880px) { .hero-grid { grid-template-columns: 1fr; } .stage { max-width: 520px; width: 100%; } }
+@media (max-width: 440px) { .bubble { max-width: 9.5rem; font-size: .82rem; } .readout .val { font-size: 1.6rem; } .readout { min-width: 0; } }
+
+/* Reminders */
+.reminders { background: var(--surface); border-block: 1px solid var(--line); }
+.rem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+.rem-grid > * { min-width: 0; }
+.lock {
+  position: relative; border-radius: 36px; padding: 28px 18px 30px; border: var(--stroke) solid var(--outline); overflow: hidden;
+  background: linear-gradient(160deg, #2C6B76, #1D4550 55%, #17363D); display: grid; gap: 12px; color: #1D4550;
+}
+.lock .clock { text-align: center; color: #FFF3DA; font-family: var(--display); font-weight: 600; line-height: 1; margin-bottom: 14px; }
+.lock .clock b { display: block; font-size: clamp(3.4rem, 8vw, 4.6rem); font-weight: 600; letter-spacing: -0.02em; }
+.lock .clock span { font-size: 1rem; opacity: .85; font-family: var(--body); font-weight: 700; }
+.notif {
+  display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: start; background: rgba(255, 252, 246, .9);
+  border-radius: 20px; padding: 12px 14px; box-shadow: 0 6px 20px rgba(0,0,0,.18); line-height: 1.3;
+  transform-origin: top center;
+}
+.notif img { width: 40px; height: 40px; border-radius: 10px; }
+.notif b { display: block; font-size: .98rem; font-weight: 800; }
+.notif p { font-size: .92rem; font-weight: 600; color: #34545C; }
+.notif time { font-size: .75rem; color: #4A6A72; font-weight: 700; }
+.notif.faded { opacity: .78; transform: scale(.96); }
+.notif.faded2 { opacity: .55; transform: scale(.92); margin-top: -4px; }
+.notif-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.notif-actions span { background: rgba(255,252,246,.78); border-radius: 14px; text-align: center; padding: 9px; font-weight: 800; font-size: .9rem; }
+.facts { display: grid; gap: 14px; margin-top: 28px; }
+.fact { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; }
+.fact .ico { width: 44px; height: 44px; border-radius: 14px; background: var(--butter-soft); border: 2px solid var(--outline); display: grid; place-items: center; }
+.fact .ico svg { width: 22px; height: 22px; }
+.fact b { display: block; font-family: var(--display); font-weight: 600; font-size: 1.12rem; }
+.fact p { color: var(--ink-soft); font-size: 1rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.chip { font-size: .85rem; font-weight: 800; padding: 4px 12px; border-radius: 999px; border: 2px solid var(--line); background: var(--bg); }
+.chip.on { background: var(--coral-soft); border-color: var(--outline); }
+@media (max-width: 880px) { .rem-grid { grid-template-columns: 1fr; } .lock { max-width: 460px; } }
+
+/* How a break goes */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 36px); list-style: none; padding: 0; margin: 0; counter-reset: s; }
+.step { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.step-text { display: grid; gap: 6px; }
+.step-num { counter-increment: s; display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--butter); border: 2px solid var(--outline); font-family: var(--display); font-weight: 700; color: #1D4550; }
+.step-num::before { content: counter(s); }
+.step-text p { color: var(--ink-soft); }
+.phone { position: relative; border: 9px solid var(--outline); border-radius: 46px; overflow: hidden; background: var(--outline); aspect-ratio: 1206 / 2622; box-shadow: 0 18px 40px -18px rgba(29, 69, 80, .45); max-width: 100%; }
+.phone img { width: 100%; height: 100%; object-fit: cover; border-radius: 37px; }
+.step:nth-child(2) .phone { transform: translateY(28px); }
+@media (max-width: 880px) {
+  .steps { grid-template-columns: 1fr; gap: 48px; }
+  .step { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 20px; }
+  .step:nth-child(2) .phone { transform: none; }
+  .phone { max-width: 260px; }
+}
+@media (max-width: 520px) { .step { grid-template-columns: 1fr; } .phone { max-width: 240px; } }
+
+/* Zones */
+.zones { background: var(--wash); }
+.zone-ui { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+.tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+.tab { font: inherit; font-family: var(--display); font-weight: 600; font-size: 1.05rem; padding: 10px 20px; border-radius: 999px; border: var(--stroke) solid var(--outline); background: var(--surface); color: var(--ink); cursor: pointer; box-shadow: 0 3px 0 var(--outline); }
+.tab[aria-selected="true"] { background: var(--coral-soft); }
+.tab:hover { transform: translateY(1px); box-shadow: 0 2px 0 var(--outline); }
+.moves { display: grid; gap: 10px; list-style: none; padding: 0; margin: 0; }
+.move {
+  font: inherit; text-align: left; width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px 18px; border-radius: var(--r-tile);
+  border: 2px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.move b { font-family: var(--display); font-weight: 600; font-size: 1.12rem; }
+.move .sides { font-size: .75rem; font-weight: 800; color: var(--ink-soft); align-self: center; white-space: nowrap; }
+.move p { grid-column: 1 / -1; color: var(--ink-soft); font-size: .95rem; line-height: 1.45; }
+.move[aria-pressed="true"] { border-color: var(--outline); border-width: 2.5px; box-shadow: 0 4px 0 var(--outline); }
+.player { position: relative; border: var(--stroke) solid var(--outline); border-radius: var(--r-scene); overflow: hidden; background: #EFE6DA; aspect-ratio: 1; max-width: 100%; }
+.player video { width: 100%; height: 100%; object-fit: cover; }
+.player .cap { position: absolute; left: 14px; bottom: 14px; right: 14px; display: flex; justify-content: space-between; align-items: end; gap: 10px; pointer-events: none; }
+.player .cap span { background: rgba(255, 252, 246, .92); color: #1D4550; border-radius: 999px; padding: 6px 14px; font-weight: 800; font-size: .88rem; }
+.player .mini-kip { position: absolute; right: 8px; top: 8px; width: 92px; aspect-ratio: 1; background-image: url(assets/kip-wave.webp); background-size: 600% 400%; }
+.zone-note { margin-top: 16px; font-size: .9rem; color: var(--ink-soft); }
+@media (max-width: 880px) { .zone-ui { grid-template-columns: 1fr; } .player { order: -1; max-width: 520px; } }
+
+/* Growth */
+.grow-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(28px, 5vw, 72px); align-items: center; }
+.closet { border: var(--stroke) solid var(--outline); border-radius: var(--r-scene); background: var(--surface); padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; }
+.closet-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: center; }
+.closet .portrait { aspect-ratio: 1; border-radius: 50%; background: var(--mint); position: relative; max-width: 100%; }
+.closet .portrait .k { position: absolute; inset: 2% 0 0; background-image: url(assets/kip-wardrobe.webp); background-size: 600% 100%; }
+.closet .stat { display: grid; gap: 6px; }
+.closet .stat .n { font-family: var(--display); font-weight: 700; font-size: clamp(2.6rem, 6vw, 3.6rem); line-height: .95; font-variant-numeric: tabular-nums; }
+.closet .stat .n small { font-size: 1rem; font-family: var(--body); font-weight: 800; color: var(--ink-soft); margin-left: 4px; }
+.closet .stat .t { font-family: var(--display); font-weight: 600; font-size: 1.35rem; color: var(--coral-deep); }
+.closet .stat .w { font-size: .95rem; color: var(--ink-soft); }
+.ladder { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; list-style: none; margin: 0; padding: 0; }
+.ladder li { display: grid; justify-items: center; gap: 2px; font-size: .72rem; font-weight: 800; color: var(--ink-soft); text-align: center; line-height: 1.15; }
+.ladder li i { width: 100%; height: 8px; border-radius: 99px; background: var(--wash); }
+.ladder li.on i { background: var(--coral); }
+.ladder li.on { color: var(--ink); }
+.unlocks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.unlock { border: 2px solid var(--line); border-radius: var(--r-tile); padding: 14px; background: var(--surface); display: grid; gap: 4px; align-content: start; }
+.unlock b { font-family: var(--display); font-weight: 600; font-size: 1.05rem; }
+.unlock span { color: var(--ink-soft); font-size: .88rem; font-weight: 700; }
+@media (max-width: 880px) { .grow-grid { grid-template-columns: 1fr; } .closet { max-width: 560px; } }
+@media (max-width: 440px) { .unlocks { grid-template-columns: 1fr; } .ladder li { font-size: .62rem; } }
+
+/* Calm points */
+.calm { background: var(--surface); border-block: 1px solid var(--line); }
+.calm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+.calm-item { display: grid; gap: 10px; align-content: start; }
+.calm-item .ico { width: 52px; height: 52px; border-radius: 16px; background: var(--mint-soft); border: 2px solid var(--outline); display: grid; place-items: center; }
+.calm-item .ico svg { width: 26px; height: 26px; }
+.calm-item p { color: var(--ink-soft); font-size: .98rem; }
+@media (max-width: 880px) { .calm-grid { grid-template-columns: 1fr 1fr; gap: 28px; } }
+@media (max-width: 480px) { .calm-grid { grid-template-columns: 1fr; } }
+
+/* FAQ */
+.faq-grid > .section-head { align-self: start; margin-bottom: 0; }
+.faq-grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 72px); }
+details { border-bottom: 2px solid var(--line); padding-block: 18px; }
+details:first-of-type { border-top: 2px solid var(--line); }
+summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; font-family: var(--display); font-weight: 600; font-size: 1.2rem; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font-size: 1.6rem; line-height: 1; color: var(--coral-deep); transition: transform .2s; }
+details[open] summary::after { transform: rotate(45deg); }
+details p { color: var(--ink-soft); padding-top: 10px; max-width: 38em; }
+@media (max-width: 880px) { .faq-grid { grid-template-columns: 1fr; } }
+
+/* Final */
+.final { padding-block: clamp(56px, 8vw, 96px); }
+.final-card { position: relative; border: var(--stroke) solid var(--outline); border-radius: 40px; background: var(--coral); color: #1D4550; padding: clamp(28px, 5vw, 56px); display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr); gap: 24px; align-items: center; overflow: hidden; }
+.final-card h2 { font-size: clamp(2.2rem, 5.4vw, 4rem); }
+.final-card p { font-size: 1.15rem; max-width: 30em; margin-top: 14px; color: #2A3F45; }
+.final-card .btn { margin-top: 26px; background: #FFFCF6; color: #1D4550; border-color: #1D4550; box-shadow: 0 5px 0 #1D4550; }
+.final-card .party { aspect-ratio: 1; width: 100%; max-width: 320px; justify-self: center; background-image: url(assets/kip-celebrate.webp); background-size: 600% 400%; position: relative; }
+.final-card .sun { position: absolute; right: -6%; top: 50%; width: 46%; aspect-ratio: 1; transform: translateY(-50%); border-radius: 50%; background: var(--butter); border: var(--stroke) solid #1D4550; }
+.final-card > div { position: relative; }
+@media (max-width: 720px) { .final-card { grid-template-columns: 1fr; } .final-card .sun { right: -30%; top: 78%; width: 90%; } .final-card .party { max-width: 240px; } }
+
+footer { padding-block: 40px 56px; color: var(--ink-soft); font-size: .92rem; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; align-items: center; border-top: 2px solid var(--line); padding-top: 28px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 22px; font-weight: 800; }
+.foot nav a { text-decoration: none; }
+.foot nav a:hover { color: var(--ink); }
+.disclaimer { margin-top: 18px; font-size: .84rem; max-width: 60em; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .notif.pop { animation: pop .6s cubic-bezier(.2, 1.4, .4, 1) both; }
+  @keyframes pop { from { transform: translateY(-14px) scale(.96); opacity: 0; } }
+}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <div class="wrap nav">
+    <a class="brand" href="#top"><img src="assets/icon-256.png" alt="" width="40" height="40"><span data-brand>Unshrimp</span></a>
+    <nav aria-label="Main">
+      <a class="hide-sm" href="#how">How it works</a>
+      <a class="hide-sm" href="#moves">Moves</a>
+      <a class="hide-xs" href="support.html">Support</a>
+      <a class="btn primary" href="#get">Get the app</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Work breaks &amp; desk stretches</span>
+      <h1>Time to <span class="un">un</span>shrimp.</h1>
+      <p class="lede">Meet Kip, a tiny shrimp who gets lost in work too. When a break is due, Kip looks up from the laptop, waves, and leads you through 2, 3 or 5 minutes of gentle desk stretches.</p>
+      <div class="cta-row">
+        <a class="btn primary store-badge" href="#get" aria-label="Coming soon on the App Store">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-1.9-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9-1.7 0-3.2 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.4-.9-2.4-3.8zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>
+          <span><small>Coming soon on the</small>App Store</span>
+        </a>
+        <a class="btn" href="#how">See a break</a>
+      </div>
+      <div class="hero-note">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>No account</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Works offline</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>For iPhone</span>
+      </div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="disc"></div>
+      <div class="floor"></div>
+      <div class="rug"></div>
+      <div class="kip sprite" id="heroKip" role="img" aria-label="Kip the shrimp uncurling from a hunched desk pose into a full stretch"></div>
+      <div class="readout" aria-live="polite">
+        <span class="lbl">Kip's curl</span>
+        <span class="val" id="curlVal">215°</span>
+        <span class="stg" id="curlStage">Desk shrimp</span>
+      </div>
+      <div class="bubble" id="bubble">Five more minutes. I'm almost done with this email.</div>
+      <div class="scrub">
+        <label for="uncurl">Drag to uncurl</label>
+        <input type="range" id="uncurl" min="0" max="35" value="0" step="1">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reminders" id="reminders">
+  <div class="wrap rem-grid">
+    <div>
+      <div class="section-head">
+        <span class="eyebrow">Reminders</span>
+        <h2>A nudge that sounds like a friend.</h2>
+        <p class="lede">Kip writes the reminders, and Kip has opinions about sitting still. Tap Start and you go straight into the first move, or give yourself ten more minutes.</p>
+      </div>
+      <div class="facts">
+        <div class="fact">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+          <div><b>Only on your workdays</b><p>Choose the days and hours you work. Evenings and weekends stay quiet.</p>
+            <div class="chips" aria-label="Example workdays"><span class="chip on">Mon</span><span class="chip on">Tue</span><span class="chip on">Wed</span><span class="chip on">Thu</span><span class="chip on">Fri</span><span class="chip">Sat</span><span class="chip">Sun</span></div>
+          </div>
+        </div>
+        <div class="fact">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div>
+          <div><b>Every 45, 60, 90 or 120 minutes</b><p>If you already took a break, the next reminder steps back instead of piling on.</p></div>
+        </div>
+        <div class="fact">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 003.4 0"/></svg></div>
+          <div><b>Optional, always</b><p>Unshrimp asks for notification permission only when you turn reminders on. Without them, the app still works.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lock" aria-label="Example lock screen with reminders from Kip">
+      <div class="clock"><b>10:30</b><span>Tuesday, 3 November</span></div>
+      <div class="notif pop">
+        <img src="assets/icon-256.png" alt="">
+        <div><b>My tail fell asleep</b><p>Wake it up with me? 3 minutes, I'll count.</p></div>
+        <time>now</time>
+      </div>
+      <div class="notif-actions"><span>Start a break</span><span>In 10 minutes</span></div>
+      <div class="notif faded">
+        <img src="assets/icon-256.png" alt="">
+        <div><b>Psst. Shoulders check</b><p>Mine are up by my antennae. Roll them out with me?</p></div>
+        <time>9:00</time>
+      </div>
+      <div class="notif faded2">
+        <img src="assets/icon-256.png" alt="">
+        <div><b>Morning! I've been curled since breakfast</b><p>Uncurl with me for 3 minutes?</p></div>
+        <time>7:30</time>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">How a break goes</span>
+      <h2>Three minutes, start to finish.</h2>
+      <p class="lede">Pick 2, 3 or 5 minutes. Each move has an illustrated video demo, a short written cue and a timer, so you can follow along without reading a wall of text.</p>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <div class="step-text"><span class="step-num" aria-hidden="true"></span><h3>Kip looks up</h3><p>Your desk scene on the Home screen shows how many breaks you've taken today and when the next nudge is due.</p></div>
+        <div class="phone"><img src="assets/shots/home.webp" alt="Unshrimp Home screen with Kip typing at the desk, 2 of 3 breaks done today, and a Start a break button" loading="lazy" width="600" height="1304"></div>
+      </li>
+      <li class="step">
+        <div class="step-text"><span class="step-num" aria-hidden="true"></span><h3>Follow the moves</h3><p>Watch the demo, read the cue, move with the countdown. Pause, replay or skip whenever you need to.</p></div>
+        <div class="phone"><img src="assets/shots/move.webp" alt="A guided move: an illustrated instructor demonstrates Side reach, with a 35-second countdown" loading="lazy" width="600" height="1304"></div>
+      </li>
+      <li class="step">
+        <div class="step-text"><span class="step-num" aria-hidden="true"></span><h3>Back to work</h3><p>Kip celebrates, you earn energy for the desk, and the day's progress bar fills in.</p></div>
+        <div class="phone"><img src="assets/shots/reward.webp" alt="Break complete screen: Kip celebrates, +10 energy for Kip's world, next desk item Wave poster" loading="lazy" width="600" height="1304"></div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="zones" id="moves">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Choose where to focus</span>
+      <h2>Neck, shoulders or lower back.</h2>
+      <p class="lede">Pick one area or mix them. Routines rotate through the moves so the same stretch doesn't come up every time.</p>
+    </div>
+    <div class="zone-ui">
+      <div>
+        <div class="tabs" role="tablist" aria-label="Focus areas">
+          <button class="tab" role="tab" id="tab-neck" aria-selected="true" aria-controls="moveList" data-zone="neck">Neck</button>
+          <button class="tab" role="tab" id="tab-shoulders" aria-selected="false" aria-controls="moveList" data-zone="shoulders">Shoulders</button>
+          <button class="tab" role="tab" id="tab-back" aria-selected="false" aria-controls="moveList" data-zone="back">Lower back</button>
+        </div>
+        <ul class="moves" id="moveList" role="tabpanel" aria-labelledby="tab-neck"></ul>
+        <p class="zone-note">These are the moves that ship with video today. Each one is done seated except March in place.</p>
+      </div>
+      <div class="player">
+        <video id="clip" muted loop playsinline autoplay preload="metadata" poster="assets/clips/neck-tilt.jpg" aria-label="Illustrated demonstration of the selected move">
+          <source src="assets/clips/neck-tilt.mp4" type="video/mp4">
+        </video>
+        <div class="mini-kip sprite" id="miniKip" aria-hidden="true"></div>
+        <div class="cap"><span id="clipName">Ear to shoulder</span><span id="clipSides">Both sides</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="kip">
+  <div class="wrap grow-grid">
+    <div>
+      <div class="section-head">
+        <span class="eyebrow">Kip grows with you</span>
+        <h2>Every break uncurls Kip a little.</h2>
+        <p class="lede">Kip starts the way most of us end a long day: tightly curled. Each break you finish loosens that curl, and new stages bring something to wear.</p>
+      </div>
+      <div class="unlocks">
+        <div class="unlock"><b>+10 energy</b><span>for every break you confirm</span></div>
+        <div class="unlock"><b>Desk decor</b><span>a sprout, a mug, a lamp, fairy lights, a snail</span></div>
+        <div class="unlock"><b>Tide Pool Trail</b><span>one stop for each day you meet your goal</span></div>
+      </div>
+    </div>
+
+    <div class="closet" id="closet">
+      <div class="closet-top">
+        <div class="portrait"><div class="k sprite" id="closetKip" role="img" aria-label="Kip wearing the current stage's outfit"></div></div>
+        <div class="stat">
+          <span class="n" id="breakN">0<small>breaks</small></span>
+          <span class="t" id="stageName">Tightly curled</span>
+          <span class="w" id="stageWear">Just Kip, for now.</span>
+        </div>
+      </div>
+      <div class="scrub-row" style="display:flex;gap:12px;align-items:center;font-size:.85rem;font-weight:800;color:var(--ink-soft)">
+        <label for="breaks">Breaks taken</label>
+        <input type="range" id="breaks" min="0" max="40" value="0" step="1">
+      </div>
+      <ol class="ladder" id="ladder" aria-label="Growth stages">
+        <li class="on"><i></i>0</li><li><i></i>3</li><li><i></i>8</li><li><i></i>15</li><li><i></i>25</li><li><i></i>40</li>
+      </ol>
+      <p style="font-size:.88rem;color:var(--ink-soft)">Nothing is ever taken away. Skip a week and Kip keeps every outfit.</p>
+    </div>
+  </div>
+</section>
+
+<section class="calm">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Quiet by design</span>
+      <h2>Your breaks stay on your iPhone.</h2>
+    </div>
+    <div class="calm-grid">
+      <div class="calm-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6M3 3l18 18"/></svg></div>
+        <h3>No account</h3><p>Open the app and start. There's no sign-up and no email to give.</p>
+      </div>
+      <div class="calm-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <h3>Saved on device</h3><p>Break history and preferences live on your iPhone. Unshrimp doesn't collect them.</p>
+      </div>
+      <div class="calm-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0120 0M5.5 12a10 10 0 0113 0M9 15.5a5 5 0 016 0M12 19h.01M3 3l18 18"/></svg></div>
+        <h3>Works offline</h3><p>Every demonstration is built into the app, so breaks work on a plane or a bad connection.</p>
+      </div>
+      <div class="calm-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9 15c1.6 1.3 4.4 1.3 6 0"/></svg></div>
+        <h3>Reduce Motion aware</h3><p>With Reduce Motion on, still poses replace autoplaying video and Kip holds a calm pose.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap faq-grid">
+    <div class="section-head">
+      <span class="eyebrow">Questions</span>
+      <h2>Good to know.</h2>
+      <p class="lede">Something else? Visit <a href="support.html">Support</a>.</p>
+    </div>
+    <div>
+      <details open><summary>Who is Unshrimp for?</summary><p>Desk workers, remote workers and anyone who gets so absorbed in a screen that they forget to get up. If you've ever looked up at 4 pm and realized you haven't moved since lunch, Kip gets it.</p></details>
+      <details><summary>Do I need to stand up or change clothes?</summary><p>No. Almost every move is done in your chair, in whatever you're wearing. March in place is the one standing move.</p></details>
+      <details><summary>Is this medical advice?</summary><p>No. Unshrimp is a general wellness app that helps you take movement breaks. It doesn't diagnose, treat or prevent any condition. Move gently, skip anything that feels uncomfortable, and talk to a health professional if you have pain or an injury.</p></details>
+      <details><summary>Which iPhones does it run on?</summary><p>Any iPhone running iOS 18 or later.</p></details>
+      <details><summary>What happens if I ignore a reminder?</summary><p>Nothing bad. Kip never takes anything away, and the next reminder comes at your usual interval.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="get">
+  <div class="wrap">
+    <div class="final-card">
+      <div>
+        <h2>Your desk can wait a minute.</h2>
+        <p>Unshrimp is coming soon to the App Store for iPhone. Kip is already stretching.</p>
+        <span class="btn store-badge" aria-label="Coming soon on the App Store">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-1.9-1.5-.2-3 .9-3.7.9-.8 0-2-.9-3.2-.9-1.7 0-3.2 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.4-.9-2.4-3.8zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>
+          <span><small>Coming soon on the</small>App Store</span>
+        </span>
+      </div>
+      <div><div class="sun"></div><div class="party sprite" id="partyKip" role="img" aria-label="Kip in a tiny crown, hopping to celebrate"></div></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="#top"><img src="assets/icon-256.png" alt="" width="40" height="40"><span>Unshrimp</span></a>
+      <nav aria-label="Footer">
+        <a href="support.html">Support</a>
+        <a href="privacy.html">Privacy policy</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <span>© 2026 Joaquin Balthasar De Weert</span>
+    </div>
+    <p class="disclaimer">Movement guidance in Unshrimp is for general wellness. Move gently and skip anything uncomfortable. Unshrimp does not provide medical advice, diagnosis or treatment. App Store is a service mark of Apple Inc.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Sprite sheets are 6 columns of 420px frames.
+  function setFrame(el, i, rows) {
+    const col = i % 6, row = Math.floor(i / 6);
+    el.style.backgroundPosition = `${col * 20}% ${rows > 1 ? row * (100 / (rows - 1)) : 0}%`;
+  }
+
+  // Looping sprites that pause offscreen.
+  function loop(el, frames, rows, ms, still) {
+    if (!el) return;
+    if (reduce) { setFrame(el, still, rows); return; }
+    let i = 0, last = 0, visible = false;
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) requestAnimationFrame(tick); }).observe(el);
+    function tick(t) {
+      if (!visible) return;
+      if (t - last > ms) { last = t; i = (i + 1) % frames; setFrame(el, i, rows); }
+      requestAnimationFrame(tick);
+    }
+    setFrame(el, 0, rows);
+  }
+  loop(document.getElementById("partyKip"), 24, 4, 72, 3);
+  loop(document.getElementById("miniKip"), 24, 4, 88, 2);
+
+  // Hero: Kip uncurls from a hunched desk pose (curl 215°) to a full stretch (85°),
+  // the same rig numbers the app uses.
+  const kip = document.getElementById("heroKip"), range = document.getElementById("uncurl");
+  const val = document.getElementById("curlVal"), stg = document.getElementById("curlStage"), bubble = document.getElementById("bubble");
+  const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const lines = [
+    [0, "Desk shrimp", "Five more minutes. I'm almost done with this email."],
+    [.3, "Looking up", "Oh. Is it break time?"],
+    [.62, "Uncurling", "Okay, okay. Antennae up."],
+    [.9, "Unshrimped", "Ahh. Back to work in a minute."]
+  ];
+  function show(i) {
+    const u = i / 35;
+    const curl = u < .5 ? 215 + (188 - 215) * ease(u / .5) : 188 + (85 - 188) * ease((u - .5) / .5);
+    setFrame(kip, i, 6);
+    val.textContent = Math.round(curl) + "°";
+    const l = lines.filter(x => u >= x[0]).pop();
+    if (stg.textContent !== l[1]) { stg.textContent = l[1]; bubble.textContent = l[2]; }
+  }
+  range.addEventListener("input", () => { autoplay = false; show(+range.value); });
+  let autoplay = !reduce;
+  show(0);
+  if (reduce) { range.value = 35; show(35); }
+  else {
+    setTimeout(() => {
+      const start = performance.now(), dur = 2600;
+      (function step(t) {
+        if (!autoplay) return;
+        const p = Math.min(1, (t - start) / dur), i = Math.round(p * 35);
+        range.value = i; show(i);
+        if (p < 1) requestAnimationFrame(step);
+      })(start);
+    }, 1400);
+  }
+
+  // Zones and moves, as they ship in the app.
+  const zones = {
+    neck: [
+      ["neck-tilt", "Ear to shoulder", "Sit tall. Let one ear drift toward its shoulder, breathe, then switch sides. Keep it easy.", true],
+      ["head-turn", "Look over your shoulder", "Sit tall. Turn your head slowly to look over one shoulder, pause, come back, then the other side. Chin level.", false],
+      ["shrug", "Shrug and drop", "Lift your shoulders toward your ears, hold a moment, then let them drop.", false]
+    ],
+    shoulders: [
+      ["shoulder-roll", "Shoulder rolls", "Roll both shoulders up, back and down in slow circles.", false],
+      ["cross-body", "Arm across", "Bring one straight arm across your chest and hug it in just above the elbow with the other hand. Hold, breathe, then switch.", true],
+      ["chest-opener", "Chest opener", "Hold the sides of your chair, lift your chest and draw your shoulders gently back.", false],
+      ["shrug", "Shrug and drop", "Lift your shoulders toward your ears, hold a moment, then let them drop.", false]
+    ],
+    back: [
+      ["twist", "Seated twist", "Sit tall and turn gently to one side, then the other. Let your breath lead.", true],
+      ["side-reach", "Side reach", "Reach one arm overhead and lean gently to the other side. Switch.", true],
+      ["march", "March in place", "Stand up and march on the spot, knees up, arms swinging. Easy pace.", false]
+    ]
+  };
+  const list = document.getElementById("moveList"), clip = document.getElementById("clip");
+  const clipName = document.getElementById("clipName"), clipSides = document.getElementById("clipSides");
+  if (reduce) clip.removeAttribute("autoplay");
+  function play(m) {
+    clip.poster = `assets/clips/${m[0]}.jpg`;
+    clip.src = `assets/clips/${m[0]}.mp4`;
+    clipName.textContent = m[1];
+    clipSides.textContent = m[3] ? "Both sides" : "Steady pace";
+    if (!reduce) clip.play().catch(() => {});
+    list.querySelectorAll(".move").forEach(b => b.setAttribute("aria-pressed", b.dataset.id === m[0]));
+  }
+  function render(zone) {
+    list.innerHTML = "";
+    zones[zone].forEach((m, idx) => {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.className = "move"; b.type = "button"; b.dataset.id = m[0]; b.setAttribute("aria-pressed", idx === 0);
+      b.innerHTML = `<b></b><span class="sides">${m[3] ? "Both sides" : "One go"}</span><p></p>`;
+      b.querySelector("b").textContent = m[1];
+      b.querySelector("p").textContent = m[2];
+      b.addEventListener("click", () => play(m));
+      li.appendChild(b); list.appendChild(li);
+    });
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.zone === zone));
+    list.setAttribute("aria-labelledby", "tab-" + zone);
+  }
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => { render(t.dataset.zone); play(zones[t.dataset.zone][0]); }));
+  render("neck");
+  // Pause the demo while it's offscreen.
+  new IntersectionObserver(([e]) => { if (reduce) return; e.isIntersecting ? clip.play().catch(() => {}) : clip.pause(); }).observe(clip);
+
+  // Growth stages from the app: breaks needed, title, what Kip wears.
+  const stages = [
+    [0, "Tightly curled", "Just Kip, for now."],
+    [3, "Loosening up", "Unlocks the sweatband. Kip insists it's for style."],
+    [8, "Unfurling", "Unlocks little specs, for reading without leaning in."],
+    [15, "Stretchy", "Unlocks a bobble beanie. Slightly too big."],
+    [25, "Limber", "Unlocks an antenna flower."],
+    [40, "Fully unshrimped", "Unlocks the tiny crown. Earned, not given."]
+  ];
+  const breaks = document.getElementById("breaks"), closetKip = document.getElementById("closetKip");
+  const ladder = [...document.querySelectorAll("#ladder li")];
+  function grow() {
+    const n = +breaks.value;
+    let s = 0; stages.forEach((x, i) => { if (n >= x[0]) s = i; });
+    document.getElementById("breakN").innerHTML = `${n}<small>${n === 1 ? "break" : "breaks"}</small>`;
+    document.getElementById("stageName").textContent = stages[s][1];
+    document.getElementById("stageWear").textContent = stages[s][2];
+    setFrame(closetKip, s, 1);
+    ladder.forEach((li, i) => li.classList.toggle("on", i <= s));
+  }
+  breaks.addEventListener("input", grow);
+  breaks.value = 15; grow();
+
+  const header = document.querySelector("header.top");
+  addEventListener("scroll", () => header.classList.toggle("scrolled", scrollY > 8), { passive: true });
+})();
+</script>
+</body>
+</html>
