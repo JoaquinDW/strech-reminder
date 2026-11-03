@@ -100,9 +100,9 @@ enum ShrimpMotion {
             p.heading = 8; p.curl = 205
             p.headTilt = -8 + sin(t * 0.7) * 2 * k + (1 - typing) * 5 * k
             // Arms reach all the way to the keys.
-            p.armFront = 2 + max(0, sin(t * 11)) * 7 * typing
-            p.armBack = -4 + max(0, sin(t * 11 + 2.1)) * 7 * typing
-            p.armBend = -18; p.armLength = 1.45
+            p.armFront = 26 + max(0, sin(t * 11)) * 7 * typing
+            p.armBack = 30 + max(0, sin(t * 11 + 2.1)) * 7 * typing
+            p.armBend = -34; p.armLength = 2.0
             p.mouth = .flat
         case .inviting:
             // Front arm raised past the body so the hand waves clear of the silhouette.

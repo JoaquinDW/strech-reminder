@@ -62,26 +62,26 @@ enum DeskSceneRenderer {
 
         // Laptop: base on the desk, lid facing Kip
         let base = Geo.polyline([
-            CGPoint(x: 156, y: deskTop - 6), CGPoint(x: 208, y: deskTop - 6),
-            CGPoint(x: 204, y: deskTop - 12), CGPoint(x: 162, y: deskTop - 12)
+            CGPoint(x: 160, y: deskTop - 6), CGPoint(x: 212, y: deskTop - 6),
+            CGPoint(x: 208, y: deskTop - 12), CGPoint(x: 166, y: deskTop - 12)
         ], closed: true)
         ctx.outlined(base, Palette.laptop, width: 2.5)
         let lid = Geo.polyline([
-            CGPoint(x: 159, y: deskTop - 10), CGPoint(x: 147, y: deskTop - 56),
-            CGPoint(x: 154, y: deskTop - 58), CGPoint(x: 166, y: deskTop - 11)
+            CGPoint(x: 163, y: deskTop - 10), CGPoint(x: 151, y: deskTop - 56),
+            CGPoint(x: 158, y: deskTop - 58), CGPoint(x: 170, y: deskTop - 11)
         ], closed: true)
         ctx.outlined(lid, Palette.laptopLid, width: 2.5)
         // tiny glow on the screen side
-        let glow = Geo.polyline([CGPoint(x: 164, y: deskTop - 16), CGPoint(x: 154, y: deskTop - 53)])
+        let glow = Geo.polyline([CGPoint(x: 168, y: deskTop - 16), CGPoint(x: 158, y: deskTop - 53)])
         ctx.line(glow, Palette.mint, width: 2)
 
         // Kip's floor cushion
-        ctx.outlined(Geo.roundRect(214, floorY - 16, 112, 22, 11), Palette.butter, width: 2.5)
-        ctx.line(Geo.polyline([CGPoint(x: 226, y: floorY - 6), CGPoint(x: 314, y: floorY - 6)]), Palette.woodDeep.opacity(0.5), width: 2)
+        ctx.outlined(Geo.roundRect(200, floorY - 16, 112, 22, 11), Palette.butter, width: 2.5)
+        ctx.line(Geo.polyline([CGPoint(x: 212, y: floorY - 6), CGPoint(x: 300, y: floorY - 6)]), Palette.woodDeep.opacity(0.5), width: 2)
 
         // Kip
         var shrimp = ctx
-        shrimp.translateBy(x: 164, y: 14)
+        shrimp.translateBy(x: 148, y: 14)
         shrimp.scaleBy(x: 0.82, y: 0.82)
         ShrimpRenderer.drawInDesignSpace(pose, ctx: shrimp)
     }
