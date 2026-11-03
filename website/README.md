@@ -3,7 +3,7 @@
 Static marketing site: `index.html` (landing), `support.html`, `privacy.html`. No build step; serve the folder as is.
 
 - Brand name appears as plain text; search for "Unshrimp" to rename.
-- Support email is a placeholder (`support@example.com`) in support.html and privacy.html.
+- Support email (support.html, privacy.html): balthasardeweert@gmail.com.
 - Kip sprites in `assets/kip-*.webp` are rendered from the app's own rig with `kip-sprites-harness.swift`:
 
 ```sh
