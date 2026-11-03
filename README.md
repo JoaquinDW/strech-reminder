@@ -23,6 +23,7 @@ Useful launch arguments (Edit Scheme → Run → Arguments):
 
 - `-resetData` starts fresh (onboarding again).
 - `-seedWeek` fills earlier days of the current week with sample breaks.
+- `-testPaywall` forces the paywall in debug builds; `-skipPaywall` skips it (UI tests use it).
 - Debug-only media previews: `-testTraining`, optionally `-testReduceMotion` or
   `-testLargeType`. These open a deterministic routine without resetting saved data.
 
@@ -79,3 +80,12 @@ rescheduled on every preference change, after each break, and when the app becom
 active. Notifications offer "Start a break" and "In 15 minutes" actions. Permission is
 only requested after the user taps "Turn on reminders"; if denied, the app keeps working
 and Settings links to iOS notification settings.
+
+## Subscriptions
+
+Unshrimp has a hard paywall right after onboarding: a free trial, then yearly or monthly,
+through [RevenueCat](https://www.revenuecat.com) (`Model/Subscription.swift`, `Features/Paywall`).
+Prices and the trial length are read from the App Store, so they change in App Store Connect
+without a new build. Reminders are only scheduled while the `pro` entitlement is active.
+
+Until `Billing.revenueCatAPIKey` holds the real public key, debug builds act as subscribed.
