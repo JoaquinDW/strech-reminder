@@ -4,6 +4,7 @@ struct HomeView: View {
     @Environment(AppModel.self) private var model
     @State private var activeRoutine: Routine?
     @State private var skipIntro = false
+    @State private var breakSource: BreakSource = .app
     @State private var showSettings = false
     @State private var showCollection = false
     @State private var now = Date()
@@ -31,7 +32,7 @@ struct HomeView: View {
         }
         .background(Palette.ivory.ignoresSafeArea())
         .fullScreenCover(item: $activeRoutine, onDismiss: afterBreak) { routine in
-            BreakFlowView(routine: routine, skipIntro: skipIntro)
+            BreakFlowView(routine: routine, skipIntro: skipIntro, source: breakSource)
         }
         .sheet(isPresented: $showSettings) { SettingsView() }
         .sheet(isPresented: $showCollection) { CollectionView() }
@@ -47,9 +48,9 @@ struct HomeView: View {
             showSettings = false
             showCollection = false
             if hadSheet {
-                Task { try? await Task.sleep(for: .milliseconds(450)); startBreak(skippingIntro: skip) }
+                Task { try? await Task.sleep(for: .milliseconds(450)); startBreak(skippingIntro: skip, source: .reminder) }
             } else {
-                startBreak(skippingIntro: skip)
+                startBreak(skippingIntro: skip, source: .reminder)
             }
         }
         .task { await model.refreshNotificationStatus() }
@@ -322,8 +323,9 @@ struct HomeView: View {
 
     private func startBreak() { startBreak(skippingIntro: false) }
 
-    private func startBreak(skippingIntro: Bool) {
+    private func startBreak(skippingIntro: Bool, source: BreakSource = .app) {
         skipIntro = skippingIntro
+        breakSource = source
         activeRoutine = model.nextRoutine()
     }
 

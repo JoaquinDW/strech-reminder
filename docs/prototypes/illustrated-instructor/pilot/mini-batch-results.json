@@ -1,0 +1,237 @@
+{
+  "batch_id": "mini-seated-2026-11-02",
+  "as_of": "2026-11-02",
+  "status": "complete",
+  "initial_balance": 972,
+  "final_balance": 876,
+  "net_spent": 96,
+  "approved_cap": 96,
+  "new_clips": 8,
+  "retakes": 4,
+  "review_scope": "Extracted still frames only; visual candidate does not mean medically reviewed or approved for production.",
+  "app_integration_performed": false,
+  "results": [
+    {
+      "clip_id": "shoulder-roll",
+      "status": "accepted_by_user_previously",
+      "output": "pilot/shoulder-rolls/r1-mini.mp4",
+      "job_id": "3ebfeb66-b11b-455c-9017-3a159161deb7",
+      "regenerated": false,
+      "note": "Original pilot acceptance retained; see technical caveat in original R1 notes."
+    },
+    {
+      "clip_id": "shrug",
+      "status": "apto",
+      "selected_round": "R2",
+      "output": "pilot/shrug/r2-mini.mp4",
+      "job_id": "5692cfe3-bfc4-4676-895b-2a83ad8be087",
+      "start_end_ssim": 0.967599,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "69955bb5-bc15-41d1-b986-6d67d46e5302",
+        "5692cfe3-bfc4-4676-895b-2a83ad8be087"
+      ],
+      "comments": {
+        "verdict": "apto",
+        "movement": "La retoma corrige el fallo: ambos hombros suben hacia las orejas, sostienen y bajan, mientras manos y codos permanecen apoyados/quietos sobre los muslos y la cabeza sigue erguida.",
+        "identity": "Misma persona y extremidades estables; sin el gesto de tocarse los hombros de R1.",
+        "artifacts": "No deformaciones, recortes ni desplazamiento de silla evidentes en las muestras.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.967599; revisar continuidad perceptual en reproducción.",
+        "evidence": "pilot/shrug/r2-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+        "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+      }
+    },
+    {
+      "clip_id": "neck-tilt",
+      "status": "apto",
+      "selected_round": "R1",
+      "output": "pilot/neck-tilt/r1-mini.mp4",
+      "job_id": "7c2ebd65-0458-48c5-a3d2-e6ecc0c5a8cf",
+      "start_end_ssim": 0.977663,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "7c2ebd65-0458-48c5-a3d2-e6ecc0c5a8cf"
+      ],
+      "comments": {
+        "verdict": "apto",
+        "movement": "La cabeza se inclina lateralmente hacia un hombro, sostiene y vuelve al centro. Hombros, manos, pelvis y pies permanecen suficientemente estables en las muestras.",
+        "identity": "Identidad y extremidades estables. Cierra los ojos durante la inclinación, pese al prompt; se registra sin retoma estética.",
+        "artifacts": "No deformaciones claras en las muestras.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.977663; revisar continuidad perceptual en reproducción.",
+        "evidence": "pilot/neck-tilt/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+        "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+      }
+    },
+    {
+      "clip_id": "nod",
+      "status": "no apto con Mini",
+      "selected_round": "R2",
+      "output": "pilot/nod/r2-mini.mp4",
+      "job_id": "9d8edc47-1a8d-42fd-be54-69d5f367fc35",
+      "start_end_ssim": 0.977196,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "cec28b1d-4080-4f0b-bfac-52a743582409",
+        "9d8edc47-1a8d-42fd-be54-69d5f367fc35"
+      ],
+      "comments": {
+        "verdict": "no apto con Mini",
+        "movement": "R2 mejora ligeramente el cabeceo, pero el detalle de los primeros 3 segundos muestra solo una bajada/vuelta muy pequeña y no dos asentimientos legibles. Los giros de no sí son claros. No apruebo la secuencia combinada completa con esta referencia y duración.",
+        "identity": "Persona y extremidades estables; cierre repetido de ojos pese al prompt. No se rechaza por estética sino por falta de legibilidad de la fase sí.",
+        "artifacts": "Sin deformaciones claras; el componente vertical sigue siendo demasiado sutil a tamaño de app.",
+        "evidence": "r2-mini-strip.png y r2-mini-head-detail.png: 24 muestras de los primeros tres segundos.",
+        "limits": "No habrá tercera versión. Recomendación: separar sí y no o usar otro ángulo/referencia; requiere otro encargo, no se ejecuta en este lote. Fluidez y parpadeo en tiempo real pendientes.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.977196; revisar continuidad perceptual en reproducción."
+      }
+    },
+    {
+      "clip_id": "chest-opener",
+      "status": "apto",
+      "selected_round": "R1",
+      "output": "pilot/chest-opener/r1-mini.mp4",
+      "job_id": "deaf1066-e0e7-4d84-831d-b9afb666f7da",
+      "start_end_ssim": 0.978,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "deaf1066-e0e7-4d84-831d-b9afb666f7da"
+      ],
+      "comments": {
+        "verdict": "apto",
+        "movement": "Coloca las manos a los lados del asiento y eleva el pecho antes de volver a los muslos. Candidato visual: la vista frontal limita juzgar la retracción de hombros; en el pico parecen subir algo, así que debe revisarse técnica antes de producción.",
+        "identity": "Identidad y extremidades estables; las manos alcanzan los bordes del asiento. Los ojos vuelven a cerrarse durante el gesto.",
+        "artifacts": "No se ven extremidades extra, recorte de manos o movimiento de silla. El componente hacia atrás no se puede confirmar con estas muestras.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.978000; revisar continuidad perceptual en reproducción.",
+        "evidence": "pilot/chest-opener/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+        "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+      }
+    },
+    {
+      "clip_id": "reach-up",
+      "status": "no apto con Mini",
+      "selected_round": "R2",
+      "output": "pilot/reach-up/r2-mini.mp4",
+      "job_id": "8d4c2acb-d6e7-4ee8-bd0c-91109ae826d3",
+      "start_end_ssim": 0.977887,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "64170c35-6c58-4237-ba82-60510491a33a",
+        "8d4c2acb-d6e7-4ee8-bd0c-91109ae826d3"
+      ],
+      "comments": {
+        "verdict": "no apto con Mini",
+        "movement": "R2 modifica la trayectoria y flexiona codos, pero sigue cortando las puntas de los dedos durante la postura alta. Las palmas tampoco quedan claramente enfrentadas. No pasa el requisito de articulaciones completas visibles.",
+        "identity": "Persona y extremidades estables; sin brazos extra. Ojos cerrados en parte del gesto.",
+        "artifacts": "Recorte superior de dedos confirmado en r2-mini-mid.png a 960×960. Hace falta una referencia con más margen superior, no una tercera repetición del mismo método.",
+        "evidence": "r2-mini-strip.png y r2-mini-mid.png a tamaño completo.",
+        "limits": "Cuarta y última retoma del lote. No se generan más versiones ni otra referencia. No implica incapacidad general del modelo: este encuadre no es apto; fluidez y parpadeo en reproducción pendientes.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.977887; revisar continuidad perceptual en reproducción."
+      }
+    },
+    {
+      "clip_id": "twist",
+      "status": "apto",
+      "selected_round": "R1",
+      "output": "pilot/twist/r1-mini.mp4",
+      "job_id": "d57bf0b9-d93b-4df4-80d3-36939ed203bc",
+      "start_end_ssim": 0.978446,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "d57bf0b9-d93b-4df4-80d3-36939ed203bc"
+      ],
+      "comments": {
+        "verdict": "apto",
+        "movement": "Se ve cambiar la orientación del pecho y de la línea de hombros, con pelvis, rodillas y pies esencialmente fijos, y regresa al centro. Hay un giro inicial de cabeza antes del torso, pero no se limita a una inclinación lateral.",
+        "identity": "Misma persona y extremidades estables. Las manos se deslizan sobre muslos sin apoyarse para forzar el giro.",
+        "artifacts": "No deformaciones ni recortes evidentes en las muestras; revisar transición intermedia y perspectiva al reproducir.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.978446; revisar continuidad perceptual en reproducción.",
+        "evidence": "pilot/twist/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+        "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+      }
+    },
+    {
+      "clip_id": "cat-cow",
+      "status": "no apto",
+      "selected_round": "R1",
+      "output": "pilot/cat-cow/r1-mini.mp4",
+      "job_id": "509c0324-eecf-429f-a7b2-f3ba56192292",
+      "start_end_ssim": 0.978736,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "509c0324-eecf-429f-a7b2-f3ba56192292"
+      ],
+      "comments": {
+        "verdict": "no apto",
+        "movement": "Solo muestra inclinar el torso hacia delante y volver a neutral. No aparece de forma legible la segunda fase de abrir/arquear el pecho, por lo que no demuestra curl and arch completo.",
+        "identity": "Persona y extremidades estables; manos en las rodillas/muslos y pelvis sentada. Ojos cerrados en parte del gesto.",
+        "artifacts": "No deformaciones claras; la vista frontal oculta la curvatura de columna. No se programa retoma: el problema pide otro encuadre/referencia y las cuatro retomas del lote se asignan a fallos más concretos de gesto o recorte.",
+        "limits": "No se concluye que Mini sea incapaz en general: este resultado con la referencia frontal no es apto. Fluidez, parpadeo y profundidad no comprobados en tiempo real.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.978736; revisar continuidad perceptual en reproducción.",
+        "evidence": "pilot/cat-cow/r1-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas."
+      }
+    },
+    {
+      "clip_id": "side-reach",
+      "status": "apto",
+      "selected_round": "R2",
+      "output": "pilot/side-reach/r2-mini.mp4",
+      "job_id": "ae217b21-17c1-47d5-8d66-86da7c73d326",
+      "start_end_ssim": 0.977416,
+      "needs_professional_and_playback_review": true,
+      "accepted_by_user": false,
+      "attempt_job_ids": [
+        "eb694a21-cfd9-46ce-8a03-715ee3439b69",
+        "ae217b21-17c1-47d5-8d66-86da7c73d326"
+      ],
+      "comments": {
+        "verdict": "apto",
+        "movement": "La retoma mantiene la mano completa dentro del encuadre en las muestras de entrada, postura mantenida y salida. Se ve la inclinación lateral, con un brazo por encima de la cabeza y la otra mano apoyada.",
+        "identity": "Persona y extremidades estables. Codos flexionados durante entrada/salida para evitar el recorte; ojos cerrados en parte del gesto.",
+        "artifacts": "No recortes ni deformaciones claras en las muestras; debe revisarse el rango de inclinación en la revisión profesional.",
+        "camera": "Sin desplazamiento ni zoom evidente en las muestras.",
+        "loop": "SSIM inicio/fin 0.977416; revisar continuidad perceptual en reproducción.",
+        "evidence": "pilot/side-reach/r2-mini-strip.png; 12 muestras cronológicas cada 16 fotogramas.",
+        "limits": "No reproducción en tiempo real: fluidez, parpadeo fino y profundidad no comprobados."
+      }
+    },
+    {
+      "clip_id": "march",
+      "status": "not_generated",
+      "reason": "Needs standing reference; explicitly excluded from this batch."
+    }
+  ],
+  "contact_sheet": {
+    "file": "pilot/mini-batch-contact-sheet.png",
+    "columns": [
+      "start",
+      "mid",
+      "end"
+    ],
+    "row_order": [
+      "shoulder-roll",
+      "shrug",
+      "neck-tilt",
+      "nod",
+      "chest-opener",
+      "reach-up",
+      "twist",
+      "cat-cow",
+      "side-reach",
+      "march"
+    ],
+    "gray_row": "march, not generated"
+  }
+}

@@ -28,6 +28,10 @@ Useful launch arguments (Edit Scheme → Run → Arguments):
 
 ## Structure
 
+PostHog tracks onboarding, reminder interactions and confirmed breaks. Configuration,
+event definitions and initial reports: [analytics notes](docs/analytics.md).
+Debug/test launches do not send events unless explicitly enabled for manual testing.
+
 | Folder | What lives there |
 | --- | --- |
 | `Unshrimp/Brand` | App and mascot names, so branding is a one-file change |

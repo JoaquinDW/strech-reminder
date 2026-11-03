@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "as_of": "2026-11-02",
+  "purpose": "Two illustrated exercise demonstration pilots, keeping Kip as a separate native companion.",
+  "generation_authorized_by_this_document": false,
+  "account_snapshot": {
+    "plan": "free",
+    "credits": 0,
+    "unlimited_available": false
+  },
+  "offer_observed": {
+    "source": "https://higgsfield.ai/pricing",
+    "method": "Rendered live pricing page, main individual plan cards, billing toggled to monthly; not indexed search snippets.",
+    "currency": "USD",
+    "tax_included": false,
+    "checkout_confirmed": false,
+    "starter": {
+      "monthly_price": 15,
+      "monthly_credits": 200
+    },
+    "plus": {
+      "monthly_price": 49,
+      "monthly_credits": 1000
+    },
+    "indexed_source_conflict": "Other official indexed pages also show 19/270 and 59/1200. Use the actual purchase screen if it differs."
+  },
+  "recommendation": {
+    "plan": "Starter",
+    "billing": "monthly",
+    "scope": "pilot_only",
+    "reason": "Seedance 2.0 Fast is explicitly available from Starter and the pilot hard cap is 160 credits. Validate movement quality before scaling."
+  },
+  "pilot": {
+    "selected_model": "seedance_2_0",
+    "selected_mode": "fast",
+    "duration_seconds": 8,
+    "resolution": "720p",
+    "aspect_ratio": "1:1",
+    "generate_audio": false,
+    "count_per_request": 1,
+    "concurrency": 1,
+    "quoted_credits_per_attempt": 20,
+    "clips": 2,
+    "planning_attempts_per_clip": {
+      "minimum": 2,
+      "expected": 3,
+      "maximum": 4
+    },
+    "planning_basis": "An allowance for iteration, not a measured success probability.",
+    "expected_credits": 120,
+    "planning_range_credits": [
+      80,
+      120
+    ],
+    "hard_cap_credits": 160,
+    "maximum_generation_attempts": 8,
+    "unused_plan_credits_at_cap": 40,
+    "initial_pair_credits": 40,
+    "reassess_after_initial_pair": true
+  },
+  "full_library_scenario": {
+    "clip_count": 10,
+    "model": "seedance_2_0",
+    "mode": "fast",
+    "duration_seconds": 8,
+    "quoted_credits_per_attempt": 20,
+    "expected_attempts_per_clip": 3,
+    "expected_credits": 600,
+    "maximum_attempts_per_clip": 4,
+    "hard_cap_credits": 800,
+    "plus_unused_credits_at_cap": 200,
+    "scope_note": "10 final clips is a quantity assumption, not a promise that every bilateral exercise is covered. Additional sides, longer clips, new reference art, and professional content review are outside these video totals.",
+    "generation_authorized": false
+  },
+  "guardrails": {
+    "status": "documented_plan_not_platform_enforced",
+    "require_fresh_quote_before_every_submission": true,
+    "count_pending_and_unknown_outcomes_as_committed": true,
+    "do_not_resubmit_transport_timeouts": true,
+    "refunds_only_restore_budget_after_confirmed": true,
+    "max_quote_per_attempt_credits": 20,
+    "stop_if_quote_exceeds_recorded_unit_price": true,
+    "stop_if_projected_total_exceeds_hard_cap": true,
+    "stop_after_two_similar_motion_failures_to_rework_reference": true,
+    "no_automatic_topups": true,
+    "no_subscription_changes": true,
+    "no_automatic_model_or_resolution_upgrades": true,
+    "no_credit_assumption_for_web_only_unlimited": true,
+    "formula": "confirmed_deductions + pending_or_unknown_reservations + next_quote <= 160",
+    "external_media_upload_not_yet_done": true
+  },
+  "quotes": [
+    {
+      "key": "seedance-fast-5s",
+      "params": {
+        "model": "seedance_2_0",
+        "mode": "fast",
+        "resolution": "720p",
+        "duration": 5,
+        "generate_audio": false,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 12.5,
+        "credits_exact": 12.5
+      },
+      "is_error": false
+    },
+    {
+      "key": "seedance-fast-8s",
+      "params": {
+        "model": "seedance_2_0",
+        "mode": "fast",
+        "resolution": "720p",
+        "duration": 8,
+        "generate_audio": false,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 20,
+        "credits_exact": 20
+      },
+      "is_error": false
+    },
+    {
+      "key": "seedance-mini-8s",
+      "params": {
+        "model": "seedance_2_0_mini",
+        "resolution": "720p",
+        "duration": 8,
+        "generate_audio": false,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 8,
+        "credits_exact": 8
+      },
+      "is_error": false
+    },
+    {
+      "key": "kling-std-8s",
+      "params": {
+        "model": "kling3_0",
+        "mode": "std",
+        "sound": "off",
+        "duration": 8,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 12,
+        "credits_exact": 12
+      },
+      "is_error": false
+    },
+    {
+      "key": "kling-pro-8s",
+      "params": {
+        "model": "kling3_0",
+        "mode": "pro",
+        "sound": "off",
+        "duration": 8,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 14,
+        "credits_exact": 14
+      },
+      "is_error": false
+    },
+    {
+      "key": "seedance25-720-8s",
+      "params": {
+        "model": "seedance_2_5",
+        "mode": "omni_reference",
+        "resolution": "720p",
+        "duration": 8,
+        "generate_audio": false,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 56,
+        "credits_exact": 56
+      },
+      "is_error": false
+    },
+    {
+      "key": "seedance25-1080-8s",
+      "params": {
+        "model": "seedance_2_5",
+        "mode": "omni_reference",
+        "resolution": "1080p",
+        "duration": 8,
+        "generate_audio": false,
+        "aspect_ratio": "1:1",
+        "count": 1
+      },
+      "cost": {
+        "credits": 128,
+        "credits_exact": 128
+      },
+      "is_error": false
+    }
+  ]
+}

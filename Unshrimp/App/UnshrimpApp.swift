@@ -22,6 +22,7 @@ struct UnshrimpApp: App {
                 .tint(Palette.coral)
         }
         .onChange(of: scenePhase) { _, phase in
+            if phase == .background { Analytics.flush() }
             guard phase == .active else { return }
             Task {
                 await model.refreshNotificationStatus()
@@ -84,6 +85,7 @@ struct RootView: View {
 
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        Analytics.setup()
         UNUserNotificationCenter.current().delegate = self
         NotificationManager.registerCategories()
         return true
@@ -95,18 +97,23 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        guard response.notification.request.content.categoryIdentifier == NotificationManager.categoryID else { return }
         let action = response.actionIdentifier
         await MainActor.run {
             let model = AppModel.shared
             switch action {
             case NotificationManager.snoozeActionID:
+                Analytics.capture("reminder_snoozed", properties: ["snooze_minutes": Int(NotificationManager.snoozeMinutes)])
+                Analytics.flush()
                 Task { await model.snooze() }
             case NotificationManager.startActionID:
+                Analytics.capture("reminder_opened", properties: ["action": "start_break"])
                 // "Stretch with Kip now" goes straight into the first move.
                 guard model.data.hasOnboarded else { break }
                 model.skipBreakIntro = true
                 model.breakRequestedFromNotification = true
             case UNNotificationDefaultActionIdentifier:
+                Analytics.capture("reminder_opened", properties: ["action": "open"])
                 if model.data.hasOnboarded { model.breakRequestedFromNotification = true }
             default:
                 break

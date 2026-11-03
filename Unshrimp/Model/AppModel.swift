@@ -21,6 +21,8 @@ struct Store {
             try data.write(to: url, options: .atomic)
         } catch {
             print("Unshrimp: failed to save data: \(error)")
+            let failure = error as NSError
+            Analytics.capture("app_error", properties: ["operation": "save_progress", "error_domain": failure.domain, "error_code": failure.code])
         }
     }
 
@@ -78,15 +80,24 @@ final class AppModel {
         var p = data.preferences
         change(&p)
         guard p != data.preferences else { return }
+        if p.remindersEnabled != data.preferences.remindersEnabled {
+            Analytics.capture("reminders_toggled", properties: ["enabled": p.remindersEnabled])
+        }
         data.preferences = p
         save()
         Task { await rescheduleReminders() }
     }
 
     func finishOnboarding(with prefs: Preferences) {
+        guard !data.hasOnboarded else { return }
         data.preferences = prefs
         data.hasOnboarded = true
         save()
+        Analytics.capture("onboarding_completed", properties: [
+            "duration_minutes": prefs.breakLength.minutes,
+            "daily_goal": prefs.dailyGoal,
+            "reminders_enabled": prefs.remindersEnabled && notificationsAllowed
+        ])
         Task { await rescheduleReminders() }
     }
 
@@ -256,8 +267,13 @@ final class AppModel {
 
     @discardableResult
     func requestNotifications() async -> Bool {
+        let previousStatus = await NotificationManager.status()
+        if previousStatus == .notDetermined { Analytics.capture("notification_permission_requested") }
         let granted = await NotificationManager.requestPermission()
         await refreshNotificationStatus()
+        if previousStatus == .notDetermined {
+            Analytics.capture("notification_permission_result", properties: ["granted": granted])
+        }
         if granted, !prefs.remindersEnabled { updatePrefs { $0.remindersEnabled = true } }
         await rescheduleReminders()
         return granted

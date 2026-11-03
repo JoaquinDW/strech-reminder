@@ -29,7 +29,10 @@ struct OnboardingFlow: View {
             guard !loadedDraft else { return }
             draft = model.prefs
             loadedDraft = true
+            Analytics.capture("onboarding_started")
+            trackStep()
         }
+        .onChange(of: step) { _, _ in trackStep() }
     }
 
     private var topBar: some View {
@@ -48,7 +51,10 @@ struct OnboardingFlow: View {
             .animation(Motion.snappy, value: step)
             .accessibilityElement()
             .accessibilityLabel(Text("Step \(step + 1) of \(Self.stepCount)"))
-            Button("Skip") { go(to: Self.stepCount - 1) }
+            Button("Skip") {
+                Analytics.capture("onboarding_skipped", properties: ["from_step": step])
+                go(to: Self.stepCount - 1)
+            }
                 .font(.uCallout.weight(.bold))
                 .foregroundStyle(Palette.petrolSoft)
                 .frame(minWidth: 44, minHeight: 44)
@@ -74,6 +80,11 @@ struct OnboardingFlow: View {
     }
 
     private func next() { go(to: step + 1) }
+
+    private func trackStep() {
+        let names = ["welcome", "friction", "focus", "demo", "rhythm", "schedule", "reminders", "plan"]
+        Analytics.capture("onboarding_step_viewed", properties: ["step_index": step, "step_name": names[step]])
+    }
 
     private func go(to target: Int) {
         let clamped = min(max(target, 0), Self.stepCount - 1)

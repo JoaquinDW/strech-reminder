@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-03",
+  "appId": "6830175290",
+  "locale": "en-US",
+  "version": "0.1",
+  "state": "PREPARE_FOR_SUBMISSION",
+  "chosen": {
+    "name": "Unshrimp: Stretch Reminder",
+    "subtitle": "Work Breaks & Desk Stretches",
+    "keywords": "timer,stretching,exercise,stand,up,neck,shoulder,lower,back,5,minute,mobility,office,sitting,move"
+  },
+  "research": [
+    {
+      "phrase": "stretch breaks",
+      "storefront": "us",
+      "volumeProxy": 3,
+      "difficulty": 0
+    },
+    {
+      "phrase": "stretching breaks",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 10
+    },
+    {
+      "phrase": "stretch break app",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 14
+    },
+    {
+      "phrase": "stretching break app",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 22
+    },
+    {
+      "phrase": "stretching reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 12
+    },
+    {
+      "phrase": "break reminder",
+      "storefront": "us",
+      "volumeProxy": 7,
+      "difficulty": 4
+    },
+    {
+      "phrase": "work break timer",
+      "storefront": "us",
+      "volumeProxy": 30,
+      "difficulty": 18
+    },
+    {
+      "phrase": "stand up reminder",
+      "storefront": "us",
+      "volumeProxy": 25,
+      "difficulty": 4
+    },
+    {
+      "phrase": "movement reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk breaks",
+      "storefront": "us",
+      "volumeProxy": 3,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk break reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk break timer",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk stretching",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk stretch reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk stretching reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "desk stretch breaks",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "work breaks",
+      "storefront": "us",
+      "volumeProxy": 30,
+      "difficulty": 6
+    },
+    {
+      "phrase": "work break reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "work stretch reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "work stretch breaks",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "office stretch reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 0
+    },
+    {
+      "phrase": "office break timer",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 4
+    },
+    {
+      "phrase": "office workout",
+      "storefront": "us",
+      "volumeProxy": 7,
+      "difficulty": 16
+    },
+    {
+      "phrase": "desk exercises",
+      "storefront": "us",
+      "volumeProxy": 7,
+      "difficulty": 15
+    },
+    {
+      "phrase": "desk exercise reminder",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 11
+    },
+    {
+      "phrase": "stretch timer",
+      "storefront": "us",
+      "volumeProxy": 16,
+      "difficulty": 18
+    },
+    {
+      "phrase": "stretching timer",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 13
+    },
+    {
+      "phrase": "2 minute stretch",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 20
+    },
+    {
+      "phrase": "3 minute stretch",
+      "storefront": "us",
+      "volumeProxy": 0,
+      "difficulty": 23
+    }
+  ],
+  "rationale": "Revised after new Wow Keywords research: work break (proxy 30, difficulty 4), stand up reminder (25/4) and stretch reminder (14/4). Keep Unshrimp first with Stretch Reminder in the name; the subtitle now carries work breaks and desk stretches, and the keyword field adds stand,up,sitting,move so stand up reminder and sitting/move intents combine with visible words. Metrics are Wow Keywords proxies, not Apple search counts or ranking forecasts.",
+  "finalReview": {
+    "changes": [],
+    "looks": [],
+    "runs": {
+      "keywords": {
+        "at": "2026-11-03T13:21:42.405Z",
+        "locales": [
+          "en-US"
+        ]
+      },
+      "copy": {
+        "at": "2026-11-03T13:21:42.405Z",
+        "locales": [
+          "en-US"
+        ]
+      }
+    }
+  },
+  "verifiedAt": "2026-11-03T14:22:35.573Z",
+  "remainingMetadataChanges": 0,
+  "pending": [
+    "Support URL",
+    "Privacy policy URL",
+    "Marketing URL / landing page",
+    "App Store screenshots"
+  ],
+  "submittedForReview": false
+}

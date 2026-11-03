@@ -1,0 +1,46 @@
+[
+  {
+    "created_at": "2026-11-03T01:45:52.234916Z",
+    "display_name": "Seedance 2.0 Mini",
+    "id": "c77c7ed2-7501-4e71-a332-22b2480c3509",
+    "job_type": "seedance_2_0_mini",
+    "min_result_url": null,
+    "params": {
+      "aspect_ratio": "1:1",
+      "duration": 8,
+      "generate_audio": false,
+      "genre": "auto",
+      "height": 720,
+      "medias": [
+        {
+          "data": {
+            "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+          },
+          "role": "start_image"
+        },
+        {
+          "data": {
+            "id": "ddacd00b-e416-42ee-a15a-59c4ab80d849",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/ddacd00b-e416-42ee-a15a-59c4ab80d849.png"
+          },
+          "role": "end_image"
+        }
+      ],
+      "multi_prompt": [],
+      "multi_shot_mode": "custom",
+      "multi_shots": false,
+      "prompt": "Animate the illustrated adult instructor from the reference image, preserving exactly the same identity, face, coral sleeveless top, dark petrol trousers, armless wooden chair, warm ivory background and mint oval. Eight-second silent 2D instructional animation with a completely fixed camera, consistent framing and the same clean dark outlines. The seated instructor smoothly raises both arms up beside her head, elbows bent and hands open with palms facing forward, upper arms angled up and out. Then, keeping the hands up and the elbows bent, she slowly pulls both elbows down and in toward her ribs so the arms form a clear W shape with the hands at shoulder height, holds for one breath, pushes the arms back up to the starting raised position, pulls down into the W once more and holds, then lowers both hands smoothly back onto the thighs. The visible downward pull of both elbows is the key movement. Both arms move together and symmetrically; shoulders stay down away from the ears; torso upright; head level and facing forward. Hands, wrists and all five fingers on each hand stay anatomically correct and fully inside the frame. Eyes stay open with the same gentle expression. Feet, pelvis, chair and background stay stable and the entire body must not bounce. Start and finish in the exact neutral reference pose, with a short calm beat at each end. No camera motion, no zoom, no scene cuts, no exaggerated range, no extra limbs, no distorted hands, no body morphing, no text, no arrows, no motion lines, no marks on the shoulders, no interface and no audio. Preserve a flat illustrated style rather than converting the person into 3D or live action.",
+      "prompt_language": "en",
+      "reference_elements": [],
+      "resolution": "720p",
+      "speedramp": "auto",
+      "width": 720
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_014552_c77c7ed2-7501-4e71-a332-22b2480c3509.mp4",
+    "status": "completed",
+    "thumbnail_url": "https://cdn.higgsfield.ai/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_014552_c77c7ed2-7501-4e71-a332-22b2480c3509_thumbnail.webp"
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "created_at": "2026-11-03T02:31:18.603833Z",
+  "display_name": "Seedance 2.0 Mini",
+  "id": "86016b19-34c0-433b-840e-3aaeaf89ceae",
+  "job_type": "seedance_2_0_mini",
+  "min_result_url": null,
+  "params": {
+    "aspect_ratio": "1:1",
+    "duration": 8,
+    "generate_audio": false,
+    "genre": "auto",
+    "height": 720,
+    "medias": [
+      {
+        "data": {
+          "id": "3426177a-a219-4285-9199-1b60ef12105d",
+          "type": "media_input",
+          "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/3426177a-a219-4285-9199-1b60ef12105d.png"
+        },
+        "role": "start_image"
+      },
+      {
+        "data": {
+          "id": "3426177a-a219-4285-9199-1b60ef12105d",
+          "type": "media_input",
+          "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/3426177a-a219-4285-9199-1b60ef12105d.png"
+        },
+        "role": "end_image"
+      }
+    ],
+    "multi_prompt": [],
+    "multi_shot_mode": "custom",
+    "multi_shots": false,
+    "prompt": "Animate the illustrated adult instructor from the reference image, preserving exactly the same identity, face, coral sleeveless top, dark petrol trousers, white flat shoes, warm ivory background and mint oval. Eight-second silent 2D instructional animation with a completely fixed camera, consistent framing and the same clean dark outlines. The standing instructor marches in place at a relaxed, steady pace: she lifts her right knee up in front to about hip height and sets the foot down, then lifts her left knee and sets it down, alternating for about eight clear steps. Her arms swing naturally and in opposition to the legs, bent slightly at the elbows: when the right knee rises the left arm swings forward. She stays on the same spot without travelling, torso upright, head level, gentle smile, eyes open. Both feet and both hands with all fingers stay fully inside the frame and anatomically correct; the legs never merge or cross. Start and finish in the exact neutral standing reference pose, with a short calm beat at each end. No camera motion, no zoom, no scene cuts, no exaggerated range, no extra limbs, no distorted hands, no body morphing, no text, no arrows, no interface and no audio. Preserve a flat illustrated style rather than converting the person into 3D or live action.",
+    "prompt_language": "en",
+    "reference_elements": [],
+    "resolution": "720p",
+    "speedramp": "auto",
+    "width": 720
+  },
+  "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_023118_86016b19-34c0-433b-840e-3aaeaf89ceae.mp4",
+  "status": "completed",
+  "thumbnail_url": "https://cdn.higgsfield.ai/user_3CryPjnRxOe7p1xUXiMnT5mZFrk/hf_20261103_023118_86016b19-34c0-433b-840e-3aaeaf89ceae_thumbnail.webp"
+}
