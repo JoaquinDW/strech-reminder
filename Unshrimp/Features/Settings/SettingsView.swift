@@ -6,6 +6,9 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var confirmReset = false
     @State private var testSent = false
+    @State private var showManageSubscription = false
+    @State private var restoring = false
+    @State private var subscription = Subscription.shared
 
     var body: some View {
         NavigationStack {
@@ -14,6 +17,7 @@ struct SettingsView: View {
                     remindersSection
                     scheduleSection
                     breaksSection
+                    subscriptionSection
                     aboutSection
                 }
                 .padding(Space.page)
@@ -36,6 +40,7 @@ struct SettingsView: View {
             }
         }
         .task { await model.refreshNotificationStatus() }
+        .manageSubscriptionsSheet(isPresented: $showManageSubscription)
     }
 
     private func binding<T>(_ keyPath: WritableKeyPath<Preferences, T>) -> Binding<T> {
@@ -129,6 +134,32 @@ struct SettingsView: View {
                     FocusPicker(selection: binding(\.focusAreas))
                 }
             }
+            .card()
+        }
+    }
+
+    private var subscriptionSection: some View {
+        VStack(spacing: Space.s) {
+            SectionLabel(text: "Subscription")
+            VStack(alignment: .leading, spacing: Space.m) {
+                Button("Manage subscription") { showManageSubscription = true }
+                    .buttonStyle(.chunky(.secondary, compact: true))
+                Button(restoring ? LocalizedStringKey("Restoring…") : LocalizedStringKey("Restore purchases")) {
+                    restoring = true
+                    Task {
+                        await subscription.restore()
+                        restoring = false
+                    }
+                }
+                .font(.uCallout.weight(.bold))
+                .foregroundStyle(Palette.petrol)
+                .frame(minHeight: 44)
+                .disabled(restoring)
+                if let message = subscription.errorMessage {
+                    Text(message).font(.uCallout).foregroundStyle(Palette.coralDeep)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .card()
         }
     }

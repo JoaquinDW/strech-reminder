@@ -280,7 +280,10 @@ final class AppModel {
     }
 
     func rescheduleReminders() async {
-        await NotificationManager.reschedule(preferences: prefs, lastBreak: lastBreak, context: voiceContext)
+        // Without a subscription Kip stays quiet: a reminder would only lead to the paywall.
+        var preferences = prefs
+        if !Subscription.shared.isActive { preferences.remindersEnabled = false }
+        await NotificationManager.reschedule(preferences: preferences, lastBreak: lastBreak, context: voiceContext)
     }
 
     func snooze() async {

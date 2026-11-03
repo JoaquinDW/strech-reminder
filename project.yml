@@ -4,15 +4,18 @@ options:
   deploymentTarget:
     iOS: "18.0"
   createIntermediateGroups: true
+packages:
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm
+    from: 5.0.0
+  PostHog:
+    url: https://github.com/PostHog/posthog-ios.git
+    from: "3.93.3"
 settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1"
     CURRENT_PROJECT_VERSION: "1"
-packages:
-  PostHog:
-    url: https://github.com/PostHog/posthog-ios.git
-    from: "3.93.3"
 targets:
   Unshrimp:
     type: application
@@ -21,6 +24,8 @@ targets:
       - path: Unshrimp
     dependencies:
       - package: PostHog
+      - package: RevenueCat
+        product: RevenueCat
     configFiles:
       Debug: Config/PostHog.xcconfig
       Release: Config/PostHog.xcconfig

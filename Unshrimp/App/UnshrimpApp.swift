@@ -5,6 +5,7 @@ import UserNotifications
 struct UnshrimpApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var model = AppModel.shared
+    @State private var subscription = Subscription.shared
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -42,6 +43,7 @@ struct UnshrimpApp: App {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    @State private var subscription = Subscription.shared
     @State private var rewardPreview = RootView.rewardPreviewOnce
 
     var body: some View {
@@ -51,6 +53,9 @@ struct RootView: View {
                     .background(Palette.ivory.ignoresSafeArea())
             } else if trainingPreview {
                 BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: Set(FocusArea.allCases)))
+            } else if model.data.hasOnboarded && !subscription.isActive {
+                // Hard paywall: right after onboarding, and again whenever the subscription lapses.
+                PaywallView().transition(.opacity)
             } else if model.data.hasOnboarded {
                 HomeView().transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {
@@ -58,6 +63,7 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.4), value: model.data.hasOnboarded)
+        .animation(.easeInOut(duration: 0.4), value: subscription.isActive)
         .fontDesign(.rounded)
     }
 

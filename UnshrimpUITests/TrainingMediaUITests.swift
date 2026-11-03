@@ -12,7 +12,7 @@ final class TrainingMediaUITests: XCTestCase {
     private func startTraining(reducedMotion: Bool = false, largeType: Bool = false) {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-testTraining", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+        app.launchArguments = ["-testTraining", "-skipPaywall", "-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
         if reducedMotion { app.launchArguments.append("-testReduceMotion") }
         if largeType { app.launchArguments.append("-testLargeType") }
         app.launch()
