@@ -23,7 +23,7 @@ enum ShrimpState: Hashable {
 
 /// Illustration poses for the demo moves.
 enum MovePose: String, Codable, Hashable {
-    case neckTilt, headTurn, nod, shoulderRoll, shrug, chestOpener, reachUp, twist, catCow, march, sideReach
+    case neckTilt, headTurn, nod, shoulderRoll, shrug, chestOpener, crossBody, reachUp, twist, catCow, march, sideReach
 }
 
 /// Every parameter the mascot rig understands. Poses are plain data so they can be
@@ -211,6 +211,11 @@ enum ShrimpMotion {
             p.armFront = -35 + up * 20; p.armBack = -45 + up * 20
             p.headTilt = 4 - up * 6
             p.eye = up > 0.5 ? .closed : .dot
+        case .crossBody:
+            // One arm reaches across the body and the other hugs it in, with a slow breathing hold.
+            let hold = (0.5 + 0.5 * sin(t * 0.7)) * k
+            p.armFront = -5 + hold * 10; p.armBack = -5 + hold * 10; p.armBend = 35 + hold * 15
+            p.headTilt = 8 + hold * 4
         case .chestOpener:
             let o = (0.5 + 0.5 * sin(t * 0.9)) * k
             p.heading = 62 + o * 8; p.curl = 120 - o * 30

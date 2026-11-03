@@ -120,10 +120,14 @@ final class ExerciseSessionTests: XCTestCase {
     }
 
     func testNextBreakStartsWithMovesNotSeenLately() {
-        let routine = DemoLibrary.routine(length: .two, focus: [.shoulders], recent: ["chest-opener", "shoulder-roll", "shrug"])
-        XCTAssertEqual(routine.moves.prefix(3).map(\.id), ["chest-opener", "shoulder-roll", "shrug"])
-        let fresh = DemoLibrary.routine(length: .two, focus: [.shoulders], recent: ["shoulder-roll", "shrug"])
-        XCTAssertEqual(fresh.moves.first?.id, "chest-opener")
+        let shoulders = DemoLibrary.availableMoves.filter { $0.focus.contains(.shoulders) }.map(\.id)
+        // Everything seen once, oldest first: the next break starts from the oldest.
+        let routine = DemoLibrary.routine(length: .two, focus: [.shoulders], recent: shoulders)
+        XCTAssertEqual(routine.moves.first?.id, shoulders.first)
+        // A move that never came up beats all of them.
+        let fresh = DemoLibrary.routine(length: .two, focus: [.shoulders], recent: Array(shoulders.dropFirst()))
+        XCTAssertEqual(fresh.moves.first?.id, shoulders.first)
+        XCTAssertEqual(fresh.moves.dropFirst().first?.id, shoulders.dropFirst().first)
     }
 
     func testOldWholeBodyChoiceBecomesEveryArea() throws {

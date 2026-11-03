@@ -17,6 +17,7 @@
 		294EB62453CC7E5CD656967B /* exercise-shrug.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = CA42FD3E8A103657722A956E /* exercise-shrug.mp4 */; };
 		2B4330D0D6ABA5B2320EDE13 /* ShrimpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E12086147E6DF497234035DD /* ShrimpView.swift */; };
 		2EC7496343866C0FC662FB44 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF3EEDC125449F608F9BD3C /* Components.swift */; };
+		3C43FDBCD89E7754660F6B79 /* exercise-cross-body.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 31E965E83A1CE0ADEB447F03 /* exercise-cross-body.mp4 */; };
 		3EAB6128EEAD5D09F5C5CF0C /* OnboardingFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7841BC0779CBDA336B1776D /* OnboardingFlow.swift */; };
 		445CAFAB884DC354D6916EAC /* exercise-head-turn.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 3334441311217449FDAB919D /* exercise-head-turn.mp4 */; };
 		48A35215822F8B73B0DCC90D /* exercise-chest-opener.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 22ED25FCC5C5562B352CC4B0 /* exercise-chest-opener.mp4 */; };
@@ -80,6 +81,7 @@
 		2738459B9278EC61AA00A85A /* UnshrimpUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = UnshrimpUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D7EA931C102BA4DFC1294A0 /* Unshrimp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Unshrimp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F497A95543C12048B3244D5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		31E965E83A1CE0ADEB447F03 /* exercise-cross-body.mp4 */ = {isa = PBXFileReference; path = "exercise-cross-body.mp4"; sourceTree = "<group>"; };
 		3334441311217449FDAB919D /* exercise-head-turn.mp4 */ = {isa = PBXFileReference; path = "exercise-head-turn.mp4"; sourceTree = "<group>"; };
 		398DDA842446F7D6704B2907 /* ExerciseDemonstration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseDemonstration.swift; sourceTree = "<group>"; };
 		3DF3EEDC125449F608F9BD3C /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 			isa = PBXGroup;
 			children = (
 				22ED25FCC5C5562B352CC4B0 /* exercise-chest-opener.mp4 */,
+				31E965E83A1CE0ADEB447F03 /* exercise-cross-body.mp4 */,
 				3334441311217449FDAB919D /* exercise-head-turn.mp4 */,
 				EB474D97F45B7F07635DBDCE /* exercise-neck-tilt.mp4 */,
 				5D435A496F5B90EADB3A0D5A /* exercise-shoulder-roll.mp4 */,
@@ -398,6 +401,7 @@
 				5D6AF8917734F2340A3EFCEA /* Assets.xcassets in Resources */,
 				043E9DCFC46E80AAE2F0AA7F /* Localizable.xcstrings in Resources */,
 				48A35215822F8B73B0DCC90D /* exercise-chest-opener.mp4 in Resources */,
+				3C43FDBCD89E7754660F6B79 /* exercise-cross-body.mp4 in Resources */,
 				445CAFAB884DC354D6916EAC /* exercise-head-turn.mp4 in Resources */,
 				5F1A3424532B287A1299E074 /* exercise-neck-tilt.mp4 in Resources */,
 				70FE9C03B69178E6AB928852 /* exercise-shoulder-roll.mp4 in Resources */,

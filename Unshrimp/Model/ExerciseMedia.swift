@@ -17,6 +17,7 @@ struct ExerciseMedia: Hashable {
         // Turns to both sides within the clip, so it plays as one continuous move.
         ExerciseMedia(moveID: "head-turn", switchesSides: false),
         ExerciseMedia(moveID: "chest-opener", switchesSides: false),
+        ExerciseMedia(moveID: "cross-body", switchesSides: true),
         ExerciseMedia(moveID: "twist", switchesSides: true),
         ExerciseMedia(moveID: "side-reach", switchesSides: true)
     ].map { ($0.moveID, $0) })
@@ -31,6 +32,7 @@ extension Move {
             switch id {
             case "neck-tilt": return String(localized: "My neck has requested an encore.")
             case "head-turn": return String(localized: "Still nobody behind me. Good.")
+            case "cross-body": return String(localized: "Hugging myself again. No shame.")
             case "shoulder-roll": return String(localized: "Still a shrimp. A little less folded.")
             case "shrug": return String(localized: "That backpack was heavier than I thought.")
             case "chest-opener": return String(localized: "Coffee can wait for round two.")
@@ -42,6 +44,7 @@ extension Move {
         switch id {
         case "neck-tilt": return String(localized: "My neck asked for a break too.")
         case "head-turn": return String(localized: "Checking for sneaky seagulls.")
+        case "cross-body": return String(localized: "A self-hug. I've earned it.")
         case "shrug": return String(localized: "Putting down my imaginary backpack.")
         case "chest-opener": return String(localized: "Making room for one more coffee.")
         case "twist": return String(localized: "Checking if work is still behind me.")
