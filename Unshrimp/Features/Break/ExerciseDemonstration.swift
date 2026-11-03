@@ -275,19 +275,21 @@ struct TrainingBuddy: View {
 /// Kip peeks in through a small window, half hidden behind its sill, instead of floating loose over the screen.
 struct BuddyWindow: View {
     let state: ShrimpState
+    var size: CGFloat = 80
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: Radius.tile, style: .continuous)
+        let k = size / 80
+        let shape = RoundedRectangle(cornerRadius: Radius.tile * k, style: .continuous)
         ZStack(alignment: .bottom) {
             LinearGradient(colors: [Palette.mintSoft, Palette.wall], startPoint: .top, endPoint: .bottom)
             ShrimpView(state: state)
-                .frame(width: 92, height: 92)
-                .offset(y: 8)
+                .frame(width: 92 * k, height: 92 * k)
+                .offset(y: 8 * k)
             Rectangle().fill(Palette.wood)
-                .frame(height: 18)
+                .frame(height: 18 * k)
                 .overlay(alignment: .top) { Rectangle().fill(Palette.woodDeep).frame(height: 2.5) }
         }
-        .frame(width: 80, height: 80)
+        .frame(width: size, height: size)
         .clipShape(shape)
         .overlay(shape.strokeBorder(Palette.petrol, lineWidth: 2.5))
         .background(shape.fill(Palette.petrol).offset(y: 4))

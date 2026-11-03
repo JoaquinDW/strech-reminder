@@ -257,10 +257,10 @@ private struct DemoStep: View {
                     ExerciseDemonstration(move: move, isRunning: session.isRunning || !session.hasBegun,
                                           isPreparing: session.isPreparing,
                                           revision: session.playbackRevision, showsReplay: false)
-                        // Kip's window sits behind the card's edge, so he peeks out without covering the instructor.
-                        .background(alignment: .bottomTrailing) {
-                            BuddyWindow(state: session.isRunning ? .exercise(.shrug) : .inviting)
-                                .offset(x: 72, y: -Space.m)
+                        // A small picture-in-picture over the card's empty corner keeps Kip clear of the instructor.
+                        .overlay(alignment: .bottomTrailing) {
+                            BuddyWindow(state: session.isRunning ? .exercise(.shrug) : .inviting, size: 64)
+                                .offset(x: Space.l, y: Space.s)
                                 .accessibilityHidden(true)
                         }
                 }
