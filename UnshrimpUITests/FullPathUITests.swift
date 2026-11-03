@@ -39,7 +39,7 @@ final class FullPathUITests: XCTestCase {
     }
 
     func testFullPath() {
-        app.launchArguments = ["-resetData"]
+        app.launchArguments = ["-resetData", "-skipPaywall"]
         app.launch()
 
         sleep(2)
@@ -133,7 +133,7 @@ final class FullPathUITests: XCTestCase {
 
         // Persistence: relaunch without reset
         app.terminate()
-        app.launchArguments = []
+        app.launchArguments = ["-skipPaywall"]
         app.launch()
         sleep(2)
         snap("16-relaunch")
@@ -141,7 +141,7 @@ final class FullPathUITests: XCTestCase {
     }
 
     func testSeededWeek() {
-        app.launchArguments = ["-resetData", "-seedWeek"]
+        app.launchArguments = ["-resetData", "-seedWeek", "-skipPaywall"]
         app.launch()
         sleep(2)
         snap("20-home-seeded")
