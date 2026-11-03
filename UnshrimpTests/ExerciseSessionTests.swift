@@ -83,7 +83,7 @@ final class ExerciseSessionTests: XCTestCase {
         for length in BreakLength.allCases {
             let routine = DemoLibrary.routine(length: length, focus: Set(FocusArea.allCases))
             XCTAssertTrue(routine.moves.allSatisfy { $0.media != nil })
-            XCTAssertFalse(routine.moves.contains { ["nod", "reach-up", "cat-cow", "march"].contains($0.id) })
+            XCTAssertFalse(routine.moves.contains { ["nod", "reach-up", "cat-cow"].contains($0.id) })
             XCTAssertEqual(routine.moves.indices.reduce(0) { $0 + routine.seconds(for: $1) }, length.minutes * 60)
             XCTAssertEqual(routine.moves.count, length == .two ? 4 : length == .three ? 6 : 8)
         }

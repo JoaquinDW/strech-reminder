@@ -61,7 +61,7 @@ enum DemoLibrary {
              cue: String(localized: "Hands on knees. Round your back like a shrimp, then lift your chest. Repeat slowly."),
              focus: [.lowerBack], pose: .catCow),
         Move(id: "march", name: String(localized: "March in place"),
-             cue: String(localized: "Stand up and march on the spot. Let your arms swing."),
+             cue: String(localized: "Stand up and march on the spot, knees up, arms swinging. Easy pace."),
              focus: [.lowerBack], pose: .march),
         Move(id: "side-reach", name: String(localized: "Side reach"),
              cue: String(localized: "Reach one arm overhead and lean gently to the other side. Switch."),
