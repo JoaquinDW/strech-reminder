@@ -123,17 +123,14 @@ struct ShrimpStage: View {
         let rig = ShrimpRenderer.rig(for: pose)
         let pts = rig.points, hs = rig.headings, rs = rig.radii
         var spots: [CGPoint] = []
-        if areas.contains(.neck) || areas.contains(.wholeBody) {
+        if areas.contains(.neck) {
             spots.append(Geo.mid(pts[0], pts[1]) + Geo.dir(hs[1] - 90) * (rs[1] * 0.6))
         }
-        if areas.contains(.shoulders) || areas.contains(.wholeBody) {
+        if areas.contains(.shoulders) {
             spots.append(pts[2] + Geo.dir(hs[2] - 90) * (rs[2] * 0.3))
         }
-        if areas.contains(.back) || areas.contains(.wholeBody) {
+        if areas.contains(.lowerBack) {
             spots.append(pts[4] + Geo.dir(hs[4] - 90) * (rs[4] * 0.45))
-        }
-        if areas.contains(.wholeBody) {
-            spots.append(pts[7])
         }
         for (i, p) in spots.enumerated() {
             let pulse = animated ? 0.5 + 0.5 * sin(t * 3 + Double(i)) : 0.6

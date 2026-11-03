@@ -23,7 +23,7 @@ enum ShrimpState: Hashable {
 
 /// Illustration poses for the demo moves.
 enum MovePose: String, Codable, Hashable {
-    case neckTilt, nod, shoulderRoll, shrug, chestOpener, reachUp, twist, catCow, march, sideReach
+    case neckTilt, headTurn, nod, shoulderRoll, shrug, chestOpener, reachUp, twist, catCow, march, sideReach
 }
 
 /// Every parameter the mascot rig understands. Poses are plain data so they can be
@@ -195,6 +195,9 @@ enum ShrimpMotion {
         case .neckTilt:
             p.headTilt = 8 + sin(t * 0.9) * 24 * k
             p.eye = .closed
+        case .headTurn:
+            // Kip is drawn side-on, so a look over the shoulder reads as a slow glance back and forth.
+            p.headTilt = 8 + sin(t * 0.8) * 8 * k
         case .nod:
             p.headTilt = 6 + sin(t * 1.8) * 16 * k
         case .shoulderRoll:

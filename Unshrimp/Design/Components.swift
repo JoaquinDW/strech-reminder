@@ -195,10 +195,13 @@ struct FlowLayout: Layout {
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        // Wrap against the width sizeThatFits measured with; bounds can be that measured width,
+        // and rounding there used to push the last chip of a row onto its own line.
+        let maxX = bounds.minX + max(proposal.width ?? bounds.width, bounds.width) + 0.5
         var x = bounds.minX, y = bounds.minY, rowH: CGFloat = 0
         for v in subviews {
             let s = v.sizeThatFits(.unspecified)
-            if x > bounds.minX, x + s.width > bounds.maxX { x = bounds.minX; y += rowH + spacing; rowH = 0 }
+            if x > bounds.minX, x + s.width > maxX { x = bounds.minX; y += rowH + spacing; rowH = 0 }
             v.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(s))
             x += s.width + spacing
             rowH = max(rowH, s.height)

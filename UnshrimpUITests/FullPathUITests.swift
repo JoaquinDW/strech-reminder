@@ -52,7 +52,7 @@ final class FullPathUITests: XCTestCase {
         tapButton("Continue")
 
         sleep(1)
-        tapButton("Whole body")
+        tapButton("Lower back")
         snap("03-focus")
         tapButton("Continue")
 

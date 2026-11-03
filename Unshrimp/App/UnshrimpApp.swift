@@ -49,7 +49,7 @@ struct RootView: View {
                 RewardView(result: result) { rewardPreview = nil }
                     .background(Palette.ivory.ignoresSafeArea())
             } else if trainingPreview {
-                BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: [.wholeBody], seed: 0))
+                BreakFlowView(routine: DemoLibrary.routine(length: .five, focus: Set(FocusArea.allCases)))
             } else if model.data.hasOnboarded {
                 HomeView().transition(.opacity.combined(with: .scale(scale: 0.98)))
             } else {

@@ -203,6 +203,14 @@ final class AppModel {
 
     // MARK: Breaks and rewards
 
+    /// The next break's routine. Moves it shows count as done, so the following break rotates on.
+    func nextRoutine() -> Routine {
+        let routine = DemoLibrary.routine(length: prefs.breakLength, focus: prefs.focusAreas, recent: data.recentMoves)
+        data.recentMoves = Array((data.recentMoves + routine.moves.map(\.id)).suffix(DemoLibrary.historyLimit))
+        save()
+        return routine
+    }
+
     @discardableResult
     func recordBreak(minutes: Int, focus: Set<FocusArea>, at date: Date = Date()) -> BreakResult {
         let before = data.energy

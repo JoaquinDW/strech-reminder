@@ -1,15 +1,23 @@
 import Foundation
 
 enum FocusArea: String, Codable, CaseIterable, Identifiable, Hashable {
-    case neck, shoulders, back, wholeBody
+    // Raw value "back" is kept so data saved before the rename still loads.
+    case neck, shoulders, lowerBack = "back"
     var id: String { rawValue }
+
+    /// Builds before 1.1 also offered "wholeBody"; its moves now live under the lower back.
+    static let legacyWholeBody = "wholeBody"
+
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = FocusArea(rawValue: raw) ?? .lowerBack
+    }
 
     var title: String {
         switch self {
         case .neck: String(localized: "Neck")
         case .shoulders: String(localized: "Shoulders")
-        case .back: String(localized: "Back")
-        case .wholeBody: String(localized: "Whole body")
+        case .lowerBack: String(localized: "Lower back")
         }
     }
 
@@ -17,8 +25,7 @@ enum FocusArea: String, Codable, CaseIterable, Identifiable, Hashable {
         switch self {
         case .neck: "person.bust"
         case .shoulders: "figure.arms.open"
-        case .back: "figure.flexibility"
-        case .wholeBody: "figure.walk"
+        case .lowerBack: "figure.flexibility"
         }
     }
 
@@ -83,6 +90,26 @@ struct Preferences: Codable, Equatable {
     var remindersEnabled = true
 
     static let goalRange = 1...8
+
+    init() {}
+
+    // Decoded field by field; someone who picked "Whole body" before it was removed gets every area.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        let d = Preferences()
+        friction = try c.decodeIfPresent(Friction.self, forKey: .friction) ?? d.friction
+        let areas = try c.decodeIfPresent([String].self, forKey: .focusAreas)
+        if let areas {
+            focusAreas = areas.contains(FocusArea.legacyWholeBody)
+                ? Set(FocusArea.allCases)
+                : Set(areas.compactMap(FocusArea.init(rawValue:)))
+            if focusAreas.isEmpty { focusAreas = d.focusAreas }
+        }
+        breakLength = try c.decodeIfPresent(BreakLength.self, forKey: .breakLength) ?? d.breakLength
+        dailyGoal = try c.decodeIfPresent(Int.self, forKey: .dailyGoal) ?? d.dailyGoal
+        schedule = try c.decodeIfPresent(WorkSchedule.self, forKey: .schedule) ?? d.schedule
+        remindersEnabled = try c.decodeIfPresent(Bool.self, forKey: .remindersEnabled) ?? d.remindersEnabled
+    }
 }
 
 struct BreakRecord: Codable, Identifiable, Equatable {
@@ -102,6 +129,8 @@ struct AppData: Codable {
     var unlocked: [DeskItem] = []
     /// What Kip is wearing. New wearables are put on when they unlock.
     var outfit: Wearable?
+    /// Move ids from past breaks, oldest first, so new routines can favor what hasn't come up lately.
+    var recentMoves: [String] = []
 
     init() {}
 
@@ -114,5 +143,6 @@ struct AppData: Codable {
         energy = try c.decodeIfPresent(Int.self, forKey: .energy) ?? 0
         unlocked = try c.decodeIfPresent([DeskItem].self, forKey: .unlocked) ?? []
         outfit = try c.decodeIfPresent(Wearable.self, forKey: .outfit)
+        recentMoves = try c.decodeIfPresent([String].self, forKey: .recentMoves) ?? []
     }
 }

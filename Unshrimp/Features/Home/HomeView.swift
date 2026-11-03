@@ -324,7 +324,7 @@ struct HomeView: View {
 
     private func startBreak(skippingIntro: Bool) {
         skipIntro = skippingIntro
-        activeRoutine = DemoLibrary.routine(length: model.prefs.breakLength, focus: model.prefs.focusAreas)
+        activeRoutine = model.nextRoutine()
     }
 
     private func afterBreak() {

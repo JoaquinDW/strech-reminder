@@ -81,7 +81,7 @@ final class ExerciseSessionTests: XCTestCase {
 
     func testRoutineUsesSelectedMediaAndPreservesExactMovementDuration() {
         for length in BreakLength.allCases {
-            let routine = DemoLibrary.routine(length: length, focus: [.wholeBody], seed: 3)
+            let routine = DemoLibrary.routine(length: length, focus: Set(FocusArea.allCases))
             XCTAssertTrue(routine.moves.allSatisfy { $0.media != nil })
             XCTAssertFalse(routine.moves.contains { ["nod", "reach-up", "cat-cow", "march"].contains($0.id) })
             XCTAssertEqual(routine.moves.indices.reduce(0) { $0 + routine.seconds(for: $1) }, length.minutes * 60)
@@ -99,11 +99,40 @@ final class ExerciseSessionTests: XCTestCase {
     }
 
     func testCompanionDoesNotRepeatCommentsWithinLongRoutine() {
-        let routine = DemoLibrary.routine(length: .five, focus: [.neck], seed: 4)
+        let routine = DemoLibrary.routine(length: .five, focus: [.neck])
         let comments = routine.moves.enumerated().map { index, move in
             move.companionComment(occurrence: routine.moves.prefix(index).filter { $0.id == move.id }.count)
         }
         XCTAssertEqual(Set(comments).count, comments.count)
+    }
+
+    func testRoutineDoesNotRepeatWhileCatalogHasEnoughMoves() {
+        let routine = DemoLibrary.routine(length: .three, focus: [.lowerBack])
+        XCTAssertEqual(Set(routine.moves.map(\.id)).count, routine.moves.count)
+        // Chosen area first, then borrowed moves.
+        XCTAssertTrue(routine.moves.prefix(2).allSatisfy { $0.focus.contains(.lowerBack) })
+    }
+
+    func testRoutineTakesTurnsBetweenChosenAreas() {
+        let routine = DemoLibrary.routine(length: .two, focus: [.neck, .lowerBack])
+        XCTAssertTrue(routine.moves[0].focus.contains(.neck))
+        XCTAssertTrue(routine.moves[1].focus.contains(.lowerBack))
+    }
+
+    func testNextBreakStartsWithMovesNotSeenLately() {
+        let routine = DemoLibrary.routine(length: .two, focus: [.shoulders], recent: ["chest-opener", "shoulder-roll", "shrug"])
+        XCTAssertEqual(routine.moves.prefix(3).map(\.id), ["chest-opener", "shoulder-roll", "shrug"])
+        let fresh = DemoLibrary.routine(length: .two, focus: [.shoulders], recent: ["shoulder-roll", "shrug"])
+        XCTAssertEqual(fresh.moves.first?.id, "chest-opener")
+    }
+
+    func testOldWholeBodyChoiceBecomesEveryArea() throws {
+        let json = #"{"focusAreas":["wholeBody"],"dailyGoal":5}"#.data(using: .utf8)!
+        let prefs = try JSONDecoder().decode(Preferences.self, from: json)
+        XCTAssertEqual(prefs.focusAreas, Set(FocusArea.allCases))
+        XCTAssertEqual(prefs.dailyGoal, 5)
+        let record = try JSONDecoder().decode([FocusArea].self, from: #"["back","wholeBody"]"#.data(using: .utf8)!)
+        XCTAssertEqual(record, [.lowerBack, .lowerBack])
     }
 }
 
