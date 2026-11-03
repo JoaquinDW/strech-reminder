@@ -1,8 +1,6 @@
 import Foundation
 
-/// PROTOTYPE CONTENT. These moves are generic placeholders written for the prototype.
-/// They have not been reviewed by a physiotherapist or other professional and should be
-/// replaced with professionally reviewed guidance before release.
+/// General wellness moves. Keep cues gentle and free of pain, posture or clinical claims.
 struct Move: Identifiable, Hashable {
     let id: String
     let name: String
@@ -27,7 +25,7 @@ struct Routine: Hashable {
 }
 
 enum DemoLibrary {
-    static let disclaimer = String(localized: "Demo routine for this prototype. Placeholder moves, not professionally reviewed guidance. Move gently and skip anything that doesn't feel right.")
+    static let disclaimer = String(localized: "General wellness guidance, not medical advice. Move gently and skip anything that doesn't feel right.")
 
     static let moves: [Move] = [
         Move(id: "neck-tilt", name: String(localized: "Ear to shoulder"),

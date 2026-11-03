@@ -15,5 +15,5 @@ Choose 2, 3 or 5 minutes and focus areas for neck, shoulders or lower back. Dura
 
 Detailed progress, break history and preferences are stored on the device. PostHog receives usage events with generated installation identifiers; RevenueCat processes subscription information. No HealthKit, camera or remote account is used. Demonstrations are bundled and work offline after subscription access has been established. Reduce Motion offers still poses instead of automatic video playback.
 
-CONTENT STATUS
-Settings > About this prototype identifies the movement guidance as prototype content that has not been professionally reviewed. The app does not diagnose, treat pain or claim clinical or posture-correction benefits.
+CONTENT AND SAFETY
+Home, the break overview and Settings > About show a general wellness notice: the guidance is not medical advice, and users should move gently and skip anything uncomfortable. The app does not diagnose, treat pain or claim clinical or posture-correction benefits.

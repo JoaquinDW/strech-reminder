@@ -166,7 +166,7 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         VStack(spacing: Space.s) {
-            SectionLabel(text: "About this prototype")
+            SectionLabel(text: "About")
             VStack(alignment: .leading, spacing: Space.m) {
                 Text(DemoLibrary.disclaimer).font(.uCallout).foregroundStyle(Palette.petrolSoft)
                 Button("Replay onboarding") {

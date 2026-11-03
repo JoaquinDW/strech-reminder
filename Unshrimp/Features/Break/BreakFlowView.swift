@@ -113,7 +113,6 @@ struct BreakFlowView: View {
             HStack {
                 CircleIconButton(systemName: "xmark", label: "Close") { dismiss() }
                 Spacer()
-                DemoBadge()
             }
             .padding(.horizontal, Space.page)
             .padding(.top, Space.s)

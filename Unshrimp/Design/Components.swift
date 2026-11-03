@@ -307,15 +307,3 @@ struct EnergyBar: View {
     }
 }
 
-/// Clearly labels placeholder exercise content.
-struct DemoBadge: View {
-    var body: some View {
-        Label("Demo routine", systemImage: "flask")
-            .font(.uMicro)
-            .foregroundStyle(Palette.petrol)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Capsule().fill(Palette.butterSoft))
-            .overlay(Capsule().strokeBorder(Palette.petrol.opacity(0.3), lineWidth: 1))
-    }
-}
