@@ -273,7 +273,7 @@ struct TrainingBuddy: View {
 }
 
 /// Kip peeks in through a small window, half hidden behind its sill, instead of floating loose over the screen.
-private struct BuddyWindow: View {
+struct BuddyWindow: View {
     let state: ShrimpState
 
     var body: some View {

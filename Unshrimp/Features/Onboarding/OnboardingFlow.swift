@@ -248,18 +248,21 @@ private struct DemoStep: View {
                        subtitle: finished
                         ? String(localized: "Short, guided, done. Then back to work feeling a little looser.")
                         : String(localized: "One move with \(Brand.mascotName). You can skip this.")) {
-            ZStack(alignment: .topTrailing) {
+            ZStack {
                 if finished {
                     ShrimpStage(state: .celebrating, prop: .mat)
                     ConfettiBurst(trigger: 1)
                 } else {
-                    ExerciseDemonstration(move: move, isRunning: session.isRunning,
+                    // Loops before Start too, so the step shows the move instead of a seated still.
+                    ExerciseDemonstration(move: move, isRunning: session.isRunning || !session.hasBegun,
                                           isPreparing: session.isPreparing,
                                           revision: session.playbackRevision, showsReplay: false)
-                        .padding(.horizontal, Space.l)
-                    ShrimpView(state: session.isRunning ? .stretching : .resting)
-                        .frame(width: 64, height: 64)
-                        .accessibilityHidden(true)
+                        // Kip's window sits behind the card's edge, so he peeks out without covering the instructor.
+                        .background(alignment: .bottomTrailing) {
+                            BuddyWindow(state: session.isRunning ? .exercise(.shrug) : .inviting)
+                                .offset(x: 72, y: -Space.m)
+                                .accessibilityHidden(true)
+                        }
                 }
             }
         } content: {
