@@ -38,6 +38,7 @@ targets:
         PostHogProjectToken: $(POSTHOG_PROJECT_TOKEN)
         PostHogHost: $(POSTHOG_HOST)
         PostHogProjectID: "707520"
+        ITSAppUsesNonExemptEncryption: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: app.unshrimp.prototype
