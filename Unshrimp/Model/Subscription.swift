@@ -6,14 +6,15 @@ import UserNotifications
 /// Store settings. The RevenueCat public key is safe to ship in the app.
 enum Billing {
     /// RevenueCat → Project settings → API keys → the App Store public key ("appl_…").
-    static let revenueCatAPIKey = "appl_REPLACE_WITH_REVENUECAT_PUBLIC_KEY"
+    static let revenueCatAPIKey = "appl_uPPJaCDTsWyZqZTbNuTFrIepWnk"
     /// RevenueCat entitlement that unlocks the app.
     static let entitlement = "pro"
     static let termsURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-    // TODO: replace with the real privacy policy before submitting.
-    static let privacyURL = URL(string: "https://unshrimp.app/privacy")!
+    static let privacyURL = URL(string: "https://unshrimp.vercel.app/privacy.html")!
 
-    static var isConfigured: Bool { !revenueCatAPIKey.contains("REPLACE") }
+    static var isConfigured: Bool {
+        revenueCatAPIKey.hasPrefix("appl_") && !revenueCatAPIKey.contains("REPLACE")
+    }
 }
 
 /// One plan on the paywall, read from the App Store through RevenueCat so prices and
@@ -51,7 +52,7 @@ final class Subscription {
     private static let trialReminderID = "unshrimp.trial-ending"
 
     private init() {
-        isActive = UserDefaults.standard.bool(forKey: Self.activeKey)
+        isActive = Billing.isConfigured && UserDefaults.standard.bool(forKey: Self.activeKey)
         #if DEBUG
         let args = ProcessInfo.processInfo.arguments
         // Lets UI tests and screenshots skip the store; -testPaywall forces it on.
@@ -81,7 +82,7 @@ final class Subscription {
     // MARK: Loading
 
     func loadPlans() async {
-        guard Billing.isConfigured else {
+        guard Purchases.isConfigured else {
             errorMessage = String(localized: "The store isn't set up yet (missing RevenueCat key).")
             return
         }
@@ -95,10 +96,16 @@ final class Subscription {
                 return
             }
             let packages = [offering.annual, offering.monthly].compactMap { $0 }
+            guard !packages.isEmpty else {
+                annual = nil
+                monthly = nil
+                errorMessage = String(localized: "Plans aren't available right now. Please try again in a moment.")
+                return
+            }
             let eligibility = await Purchases.shared.checkTrialOrIntroDiscountEligibility(packages: packages)
             func plan(_ package: Package?, _ kind: Plan.Kind) -> Plan? {
                 guard let package else { return nil }
-                let eligible = eligibility[package]?.status != .ineligible
+                let eligible = eligibility[package]?.status == .eligible
                 return Plan(kind: kind, package: package, trialDays: eligible ? Self.trialDays(package.storeProduct) : nil)
             }
             annual = plan(offering.annual, .annual)
@@ -126,6 +133,10 @@ final class Subscription {
     /// Returns true when the purchase unlocked the app.
     @discardableResult
     func purchase(_ plan: Plan) async -> Bool {
+        guard Purchases.isConfigured else {
+            errorMessage = String(localized: "The store isn't available right now. Please try again in a moment.")
+            return false
+        }
         do {
             let result = try await Purchases.shared.purchase(package: plan.package)
             if result.userCancelled { return false }
@@ -140,6 +151,10 @@ final class Subscription {
     }
 
     func restore() async {
+        guard Purchases.isConfigured else {
+            errorMessage = String(localized: "The store isn't available right now. Please try again in a moment.")
+            return
+        }
         do {
             let info = try await Purchases.shared.restorePurchases()
             apply(info)

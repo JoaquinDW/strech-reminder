@@ -53,6 +53,7 @@
 		C18115178DD4D93D755A6058 /* ShrimpRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F27D67490DF90F6E3BBE9A /* ShrimpRenderer.swift */; };
 		C3A3FB2A293A9A5E7B5E467A /* Brand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058D7497B21E845AE011D29A /* Brand.swift */; };
 		D715903235A39ED7B2139335 /* Rewards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52120CB9FDF00B91644E4D88 /* Rewards.swift */; };
+		D8B6744B06870A8F7401EBF0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EBA7363F5987B6A1B1EAF982 /* PrivacyInfo.xcprivacy */; };
 		DD23AF5AF690F937C282CC19 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = 537C3CBBF0715FC36AB33755 /* PostHog */; };
 		DE4624A223E21B83D6A2C28B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7027F2F158F3BAC0BA350E55 /* SettingsView.swift */; };
 		DF4BAF528B089DF243E87923 /* exercise-side-reach.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9FD7CB5606757EC09A03FD0E /* exercise-side-reach.mp4 */; };
@@ -126,6 +127,7 @@
 		E4F8ACF9DBD3DAF6CE48E37A /* RewardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardView.swift; sourceTree = "<group>"; };
 		E7841BC0779CBDA336B1776D /* OnboardingFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlow.swift; sourceTree = "<group>"; };
 		EB474D97F45B7F07635DBDCE /* exercise-neck-tilt.mp4 */ = {isa = PBXFileReference; path = "exercise-neck-tilt.mp4"; sourceTree = "<group>"; };
+		EBA7363F5987B6A1B1EAF982 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F0B682C006582B3660F82A04 /* Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		F27EA265764F4F49DDD83619 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		F50BDEE4E3E50FA172EFD5B0 /* PreferenceControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceControls.swift; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 			children = (
 				2F497A95543C12048B3244D5 /* Assets.xcassets */,
 				9C8C29CBE887B2EE5E6D2791 /* Localizable.xcstrings */,
+				EBA7363F5987B6A1B1EAF982 /* PrivacyInfo.xcprivacy */,
 				D4AD5D5B4DB3C8872AFB1CDC /* ExerciseVideos */,
 			);
 			path = Resources;
@@ -419,13 +422,16 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					C19AD256795F0D8ECB8B778A = {
+						DevelopmentTeam = F7RT2PJH7G;
 						ProvisioningStyle = Automatic;
 					};
 					D6E09AC6C8A74A9C14392B90 = {
+						DevelopmentTeam = F7RT2PJH7G;
 						ProvisioningStyle = Automatic;
 						TestTargetID = C19AD256795F0D8ECB8B778A;
 					};
 					DC4D0A5084681326D15038D4 = {
+						DevelopmentTeam = F7RT2PJH7G;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -463,6 +469,7 @@
 			files = (
 				5D6AF8917734F2340A3EFCEA /* Assets.xcassets in Resources */,
 				043E9DCFC46E80AAE2F0AA7F /* Localizable.xcstrings in Resources */,
+				D8B6744B06870A8F7401EBF0 /* PrivacyInfo.xcprivacy in Resources */,
 				48A35215822F8B73B0DCC90D /* exercise-chest-opener.mp4 in Resources */,
 				3C43FDBCD89E7754660F6B79 /* exercise-cross-body.mp4 in Resources */,
 				445CAFAB884DC354D6916EAC /* exercise-head-turn.mp4 in Resources */,
@@ -623,8 +630,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = F7RT2PJH7G;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -642,7 +650,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -733,8 +741,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = F7RT2PJH7G;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -746,7 +755,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				MARKETING_VERSION = 0.1;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

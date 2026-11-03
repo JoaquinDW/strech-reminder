@@ -1,0 +1,19 @@
+Unshrimp
+
+Unshrimp is a companion for short movement breaks during desk work. No account or sign-in is required. After onboarding, an active auto-renewable subscription or free trial is required to use the app.
+
+SUBSCRIPTIONS
+RevenueCat validates purchases and grants the pro entitlement. The yearly plan is USD 29.99 and the monthly plan is USD 6.99 in the US storefront, each with a 3-day introductory free trial for eligible subscribers. Actual prices and eligibility are read from the App Store. Product IDs:
+com.balthasardeweert.unshrimp.pro.yearly
+com.balthasardeweert.unshrimp.pro.monthly
+The paywall includes Restore, Terms and Privacy links. Please use sandbox purchases during review.
+
+REVIEW FLOW
+Complete onboarding and optionally allow notifications. Choose a plan or restore an existing subscription. Reminders are local and follow the selected workdays, working hours and interval. If notifications are declined, subscribers can start routines from Home.
+
+Choose 2, 3 or 5 minutes and focus areas for neck, shoulders or lower back. Duration is active movement time; preparation and side changes add a few seconds. Follow the bundled demonstration and written cues. Pause, resume and skip controls are available. Backgrounding pauses the routine. Completed breaks earn energy, unlock desk decorations and advance the weekly Tide Pool Trail.
+
+Detailed progress, break history and preferences are stored on the device. PostHog receives usage events with generated installation identifiers; RevenueCat processes subscription information. No HealthKit, camera or remote account is used. Demonstrations are bundled and work offline after subscription access has been established. Reduce Motion offers still poses instead of automatic video playback.
+
+CONTENT STATUS
+Settings > About this prototype identifies the movement guidance as prototype content that has not been professionally reviewed. The app does not diagnose, treat pain or claim clinical or posture-correction benefits.

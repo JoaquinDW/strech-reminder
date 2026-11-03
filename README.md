@@ -92,4 +92,10 @@ through [RevenueCat](https://www.revenuecat.com) (`Model/Subscription.swift`, `F
 Prices and the trial length are read from the App Store, so they change in App Store Connect
 without a new build. Reminders are only scheduled while the `pro` entitlement is active.
 
-Until `Billing.revenueCatAPIKey` holds the real public key, debug builds act as subscribed.
+The production App Store public SDK key is configured in `Billing.revenueCatAPIKey`.
+The existing App Store Connect products are `com.balthasardeweert.unshrimp.pro.yearly`
+and `com.balthasardeweert.unshrimp.pro.monthly`. Both must unlock the `pro` entitlement
+in RevenueCat and be attached to the current offering's annual and monthly packages.
+Use `-skipPaywall` for development without purchasing and `-testPaywall` to verify the store.
+
+See [release configuration](docs/release.md) for signing, archiving and website deployment.

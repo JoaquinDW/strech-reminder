@@ -223,7 +223,7 @@ struct HomeView: View {
             HStack {
                 Text("This week").font(.uHeadline).foregroundStyle(Palette.petrol)
                 Spacer()
-                Text(model.isFirstDay ? String(localized: "Fills in as you move") : String(localized: "\(good) goal days"))
+                Text(model.isFirstDay ? String(localized: "Fills in as you move") : good == 1 ? String(localized: "1 goal day") : String(localized: "\(good) goal days"))
                     .font(.uCaption)
                     .foregroundStyle(Palette.petrolSoft)
             }
