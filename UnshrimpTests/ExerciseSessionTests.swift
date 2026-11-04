@@ -146,7 +146,7 @@ final class KipGrowthTests: XCTestCase {
         XCTAssertEqual(KipGrowth(breaks: 0).wearables, [])
         XCTAssertEqual(KipGrowth(breaks: 3).wearables, [.sweatband])
         XCTAssertEqual(KipGrowth(breaks: 14).wearables, [.sweatband, .specs])
-        XCTAssertEqual(KipGrowth(breaks: 99).wearables, Wearable.allCases)
+        XCTAssertEqual(KipGrowth(breaks: 99).wearables, Wearable.allCases.filter { $0.streakMilestone == nil })
         XCTAssertNil(KipGrowth(breaks: 40).progress)
     }
 

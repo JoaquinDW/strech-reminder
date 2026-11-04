@@ -25,6 +25,7 @@ struct UnshrimpApp: App {
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { Analytics.flush() }
             guard phase == .active else { return }
+            model.reconcileStreak()
             Task {
                 await model.refreshNotificationStatus()
                 await model.rescheduleReminders()

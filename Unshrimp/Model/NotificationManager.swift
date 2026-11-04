@@ -19,9 +19,11 @@ enum NotificationManager {
     static let recapCategoryID = "WEEKLY_RECAP"
     static let recapID = "unshrimp.reminder.weekly"
 
+    static let streakIDPrefix = "unshrimp.reminder.streak."
+
     /// iOS keeps at most 64 pending requests per app; leave room for the trial heads-up, the weekly
-    /// recap and a snooze or two.
-    static let pendingLimit = 58
+    /// recap, two streak nudges and a snooze or two.
+    static let pendingLimit = 56
 
     static var center: UNUserNotificationCenter { .current() }
 
@@ -60,6 +62,9 @@ enum NotificationManager {
         var lastStand: Date?
         var standSkipStreak: Int = 0
         var hasBreaks: Bool = false
+        /// Days in a row so far, and whether today already has a break.
+        var streak: Int = 0
+        var streakSafeToday: Bool = false
     }
 
     /// Replaces all pending Unshrimp reminders with a fresh plan: break reminders, quick stands
@@ -129,6 +134,21 @@ enum NotificationManager {
             let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
             try? await center.add(UNNotificationRequest(identifier: recapID, content: content, trigger: trigger))
+        }
+
+        // Near the end of the next workday or two without a break: one friendly nudge to keep the
+        // streak going. Skipped where a break reminder already lands around the same time.
+        guard plan.streak > 0 else { return }
+        let recap = plan.hasBreaks ? ReminderPlanner.weeklyRecapDate(after: now, schedule: schedule) : nil
+        for date in ReminderPlanner.streakSaveDates(after: now, schedule: schedule, skipToday: plan.streakSafeToday) {
+            let nearby = breakDates + [recap].compactMap { $0 }
+            if nearby.contains(where: { abs($0.timeIntervalSince(date)) < 30 * 60 }) { continue }
+            let isToday = calendar.isDate(date, inSameDayAs: now)
+            let content = makeContent(KipVoice.streakSave(streak: isToday ? plan.streak : nil, date: date), portrait: portrait)
+            let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+            try? await center.add(UNNotificationRequest(identifier: streakIDPrefix + "\(Int(date.timeIntervalSince1970))",
+                                                        content: content, trigger: trigger))
         }
     }
 
@@ -306,6 +326,26 @@ enum KipVoice {
         default: title = String(localized: "Quick stand with me?")
         }
         return Line(title: title, body: String(localized: "\(move.seconds) seconds: \(move.cue)"))
+    }
+
+    /// The end-of-day streak nudge. `streak` is set only when the count is sure to be right,
+    /// which is for today; later days get a line without a number.
+    static func streakSave(streak: Int?, date: Date, calendar: Calendar = .current) -> Line {
+        let day = calendar.ordinality(of: .day, in: .era, for: date) ?? 0
+        if let streak {
+            return pick(day, [
+                Line(title: String(localized: "\(streak) days in a row, and counting?"),
+                     body: String(localized: "One quick stretch before you wrap up keeps our streak going.")),
+                Line(title: String(localized: "Our \(streak)-day streak says hi"),
+                     body: String(localized: "A short break before logging off? I'll lead."))
+            ])
+        }
+        return pick(day, [
+            Line(title: String(localized: "Close the day with a stretch?"),
+                 body: String(localized: "A short one keeps our streak going.")),
+            Line(title: String(localized: "Before the laptop naps"),
+                 body: String(localized: "One stretch with me and the streak lives on."))
+        ])
     }
 
     static func weeklyRecap() -> Line {

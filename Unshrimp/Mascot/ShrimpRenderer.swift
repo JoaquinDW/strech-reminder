@@ -385,14 +385,14 @@ enum WearableArt {
     static func lift(_ item: Wearable) -> CGFloat {
         switch item {
         case .sweatband: 10
-        case .beanie: 6
-        case .specs, .flower, .crown: 0
+        case .beanie, .cap, .captain: 6
+        case .specs, .flower, .crown, .starfish, .headphones, .shades, .coralCrown: 0
         }
     }
 
     /// A brim on the brow line already reads as the brow, so the drawn one would only clutter it.
     static func hidesBrow(_ item: Wearable) -> Bool {
-        item == .sweatband || item == .beanie
+        item == .sweatband || item == .beanie || item == .cap || item == .captain
     }
 
     static func draw(_ item: Wearable, in ctx: GraphicsContext, head: Path, t: Double, animated: Bool) {
@@ -402,6 +402,12 @@ enum WearableArt {
         case .beanie: beanie(ctx)
         case .flower: flower(ctx, t: t, animated: animated)
         case .crown: crown(ctx)
+        case .cap: cap(ctx)
+        case .starfish: starfish(ctx, t: t, animated: animated)
+        case .headphones: headphones(ctx)
+        case .captain: captain(ctx)
+        case .shades: shades(ctx)
+        case .coralCrown: coralCrown(ctx)
         }
     }
 
@@ -476,5 +482,120 @@ enum WearableArt {
         c.outlined(Geo.circle(CGPoint(x: 0, y: -24), 3.5), Palette.coral, width: 2)
         c.outlined(Geo.circle(CGPoint(x: -21, y: -20), 3), Palette.mint, width: 2)
         c.outlined(Geo.circle(CGPoint(x: 21, y: -20), 3), Palette.mint, width: 2)
+    }
+
+    // MARK: Streak milestone wearables
+
+    private static func cap(_ ctx: GraphicsContext) {
+        var dome = Path()
+        dome.move(to: CGPoint(x: -32, y: -18))
+        dome.addCurve(to: CGPoint(x: 31, y: -18), control1: CGPoint(x: -34, y: -60), control2: CGPoint(x: 31, y: -60))
+        dome.closeSubpath()
+        ctx.outlined(dome, Palette.butter, width: 3)
+        var seam = Path()
+        seam.move(to: CGPoint(x: -2, y: -50))
+        seam.addQuadCurve(to: CGPoint(x: -8, y: -19), control: CGPoint(x: -9, y: -36))
+        ctx.line(seam, Palette.woodDeep.opacity(0.6), width: 2)
+        ctx.fill(Geo.ellipse(CGPoint(x: 14, y: -38), w: 12, h: 5, angle: 35), with: .color(.white.opacity(0.5)))
+        // The brim points the way Kip faces.
+        var brim = Path()
+        brim.move(to: CGPoint(x: -26, y: -24))
+        brim.addQuadCurve(to: CGPoint(x: -62, y: -15), control: CGPoint(x: -46, y: -30))
+        brim.addQuadCurve(to: CGPoint(x: -24, y: -15), control: CGPoint(x: -44, y: -9))
+        brim.closeSubpath()
+        ctx.outlined(brim, Palette.mint, width: 3)
+        ctx.outlined(Geo.circle(CGPoint(x: -2, y: -51), 4), Palette.mint, width: 2.4)
+    }
+
+    private static func starfish(_ ctx: GraphicsContext, t: Double, animated: Bool) {
+        var s = ctx
+        s.translateBy(x: 12, y: -34)
+        s.rotate(by: .degrees(-12 + (animated ? sin(t * 1.2) * 6 : 0)))
+        let points = (0..<10).map { k -> CGPoint in
+            let r: CGFloat = k.isMultiple(of: 2) ? 13 : 5.5
+            return Geo.dir(Double(k) * 36 - 90) * r
+        }
+        var star = Path()
+        star.move(to: points[0])
+        for k in 1...points.count {
+            let p = points[k % points.count], prev = points[k - 1]
+            star.addQuadCurve(to: p, control: Geo.mid(prev, p) * 1.08)
+        }
+        star.closeSubpath()
+        s.outlined(star, Palette.terracotta, width: 2.4)
+        for k in 0..<5 {
+            s.fill(Geo.circle(Geo.dir(Double(k) * 72 - 90) * 6.5, 1.3), with: .color(Palette.butter))
+        }
+        s.fill(Geo.circle(.zero, 1.8), with: .color(Palette.butter))
+    }
+
+    private static func headphones(_ ctx: GraphicsContext) {
+        var band = Path()
+        band.move(to: CGPoint(x: -28, y: -27))
+        band.addCurve(to: CGPoint(x: 18, y: -10), control1: CGPoint(x: -20, y: -58), control2: CGPoint(x: 24, y: -56))
+        ctx.stroke(band, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 8.5, lineCap: .round))
+        ctx.stroke(band, with: .color(Palette.mint), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+        // The far cup only peeks out past the edge of the head, clear of the brow.
+        ctx.outlined(Geo.ellipse(CGPoint(x: -30, y: -24), w: 8, h: 12, angle: -35), Palette.mintDeep, width: 2.2)
+        ctx.outlined(Geo.ellipse(CGPoint(x: 19, y: -3), w: 19, h: 25, angle: 12), Palette.mint, width: 3)
+        ctx.outlined(Geo.ellipse(CGPoint(x: 18, y: -3), w: 10, h: 15, angle: 12), Palette.coralSoft, width: 2)
+    }
+
+    private static func captain(_ ctx: GraphicsContext) {
+        var crown = Path()
+        crown.move(to: CGPoint(x: -29, y: -20))
+        crown.addLine(to: CGPoint(x: 29, y: -20))
+        crown.addLine(to: CGPoint(x: 37, y: -45))
+        crown.addQuadCurve(to: CGPoint(x: -37, y: -45), control: CGPoint(x: 0, y: -58))
+        crown.closeSubpath()
+        ctx.outlined(crown, Palette.paper, width: 3)
+        ctx.outlined(Geo.roundRect(-31, -31, 62, 11, 3), Palette.petrol, width: 2.4)
+        var brim = Path()
+        brim.move(to: CGPoint(x: -24, y: -23))
+        brim.addQuadCurve(to: CGPoint(x: -56, y: -14), control: CGPoint(x: -42, y: -27))
+        brim.addQuadCurve(to: CGPoint(x: -22, y: -15), control: CGPoint(x: -40, y: -9))
+        brim.closeSubpath()
+        ctx.outlined(brim, Palette.petrol, width: 2.6)
+        // A little gold anchor badge
+        ctx.outlined(Geo.circle(CGPoint(x: -6, y: -40), 5), Palette.butter, width: 2.2)
+        ctx.line(Geo.polyline([CGPoint(x: -6, y: -43), CGPoint(x: -6, y: -37)]), width: 1.4)
+        var hook = Path()
+        hook.move(to: CGPoint(x: -9, y: -39))
+        hook.addQuadCurve(to: CGPoint(x: -3, y: -39), control: CGPoint(x: -6, y: -35.5))
+        ctx.line(hook, width: 1.4)
+    }
+
+    private static func shades(_ ctx: GraphicsContext) {
+        let eye = CGPoint(x: -14, y: -6)
+        ctx.line(Geo.polyline([eye + CGPoint(x: 9, y: -3), CGPoint(x: 20, y: -11)]), width: 3)
+        ctx.line(Geo.polyline([eye + CGPoint(x: -11, y: -3), eye + CGPoint(x: -17, y: -4)]), width: 3)
+        ctx.outlined(Geo.roundRect(eye.x - 12, eye.y - 9, 24, 17, 7), Palette.petrol, width: 2.4)
+        ctx.line(Geo.polyline([eye + CGPoint(x: -6, y: 1), eye + CGPoint(x: 0, y: -5)]), Palette.mint, width: 2.6)
+        ctx.line(Geo.polyline([eye + CGPoint(x: 0, y: 3), eye + CGPoint(x: 4, y: -1)]), Palette.mint.opacity(0.7), width: 2)
+    }
+
+    private static func coralCrown(_ ctx: GraphicsContext) {
+        var c = ctx
+        c.translateBy(x: -2, y: -29)
+        c.rotate(by: .degrees(-8))
+        c.scaleBy(x: 1.25, y: 1.25)
+        var branches = Path()
+        for (root, tip, fork, forkTip) in [
+            (CGPoint(x: 0, y: -4), CGPoint(x: 0, y: -27), CGPoint(x: 0, y: -15), CGPoint(x: 7, y: -22)),
+            (CGPoint(x: -12, y: -4), CGPoint(x: -17, y: -22), CGPoint(x: -14, y: -13), CGPoint(x: -8, y: -19)),
+            (CGPoint(x: 12, y: -4), CGPoint(x: 17, y: -22), CGPoint(x: 14, y: -13), CGPoint(x: 20, y: -15))
+        ] {
+            branches.move(to: root)
+            branches.addLine(to: tip)
+            branches.move(to: fork)
+            branches.addLine(to: forkTip)
+        }
+        c.stroke(branches, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 7.5, lineCap: .round))
+        c.stroke(branches, with: .color(Palette.coralSoft), style: StrokeStyle(lineWidth: 3.2, lineCap: .round))
+        for tip in [CGPoint(x: 0, y: -27), CGPoint(x: -17, y: -22), CGPoint(x: 17, y: -22)] {
+            c.outlined(Geo.circle(tip, 3.2), Palette.paper, width: 1.8)
+        }
+        c.outlined(Geo.roundRect(-20, -7, 40, 9, 4), Palette.butter, width: 2.6)
+        c.outlined(Geo.circle(CGPoint(x: 0, y: -2.5), 2.6), Palette.mint, width: 1.6)
     }
 }
