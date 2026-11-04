@@ -64,7 +64,11 @@ in your own terminal. The password cannot be supplied by this agent.
 - Marketing: https://unshrimp.vercel.app/
 - Support: https://unshrimp.vercel.app/support.html
 - Privacy: https://unshrimp.vercel.app/privacy.html
-- Terms: Apple's standard EULA, linked in `Billing.termsURL`.
+- Terms: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+  (Apple's standard EULA, also linked in `Billing.termsURL`). Include this URL as
+  "Terms of Use (EULA)" in the App Store description for every localization,
+  including future ones. The in-app link alone does not satisfy the metadata
+  requirement for auto-renewable subscriptions.
 
 Vercel's Root Directory must be `website`, with production branch `main`.
 The previous production deployment used `main` commit `b2df147` but the repository

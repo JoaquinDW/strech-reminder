@@ -20,3 +20,5 @@ Demonstrations are included in the app, so routines work offline. No account is 
 Unshrimp is made for desk workers, remote workers and anyone who gets so absorbed in a screen that they forget to take a movement break.
 
 Movement guidance is for general wellness. Move gently and skip anything uncomfortable. Unshrimp does not provide medical advice, diagnosis or treatment.
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
