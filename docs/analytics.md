@@ -39,6 +39,13 @@ The SDK supplies normal device/app metadata and queues offline events.
 | `daily_goal_reached` | A confirmed break first reaches today's goal; `daily_goal` |
 | `weekly_recap_viewed` | Weekly recap sheet opens; `minutes`, `breaks`, `is_current_week` |
 | `weekly_recap_share_tapped` | Share button on the recap; `minutes`, `breaks` (not whether it was sent) |
+| `streak_extended` | First confirmed break of a day; `streak`, `is_milestone` |
+| `streak_milestone` | A streak milestone is reached for the first time; `days` |
+| `streak_freeze_used` | Shell guards covered missed workdays; `days`, `streak`, `freezes_left` |
+| `streak_lost` | A streak ended on a missed workday; `previous`, `repair_offered` |
+| `streak_repaired` | Today's goal won back a missed day; `streak` |
+| `streak_freeze_bought` | A shell guard bought with energy; `freezes`, `streak` |
+| `streak_viewed` | Streak sheet opens; `streak`, `freezes` |
 | `app_error` | Persistence failure; operation, error domain/code only |
 
 All three break events share `break_id`, `duration_minutes` (planned duration, not
@@ -58,6 +65,9 @@ does not reliably emit abandonment; derive overall drop-off from the funnel too.
   Skip intentionally bypasses steps.
 - Retention: first-ever `break_completed` → returning `break_completed`, daily,
   inspect day 1 and day 7. Compare `source` / `duration_minutes` as useful.
+- Streaks: share of weekly active users with `streak` ≥ 7 on `streak_extended`, and
+  `streak_lost` by `previous` to see where streaks break. Compare day 7 / day 30
+  retention before and after the streak release.
 - Notifications: compare starts/completions with `source=reminder` vs `app`.
   `reminder_opened` records interactions, not delivery or impressions.
 

@@ -13,8 +13,28 @@ struct RewardView: View {
     @State private var revealUnlock = false
     /// When the new wearable drops onto Kip's head at the top of the screen.
     @State private var revealAt = Date().timeIntervalSinceReferenceDate + 0.9
+    /// The first break of the day (or a milestone, or a won-back streak) opens with the streak.
+    @State private var showStreak: Bool
+
+    init(result: BreakResult, done: @escaping () -> Void) {
+        self.result = result
+        self.done = done
+        _showStreak = State(initialValue: result.streak?.shouldCelebrate ?? false)
+    }
 
     var body: some View {
+        if showStreak, let update = result.streak {
+            StreakCelebrationView(update: update) {
+                revealAt = Date().timeIntervalSinceReferenceDate + 0.9
+                withAnimation(Motion.gentle) { showStreak = false }
+            }
+            .transition(.opacity)
+        } else {
+            rewardBody.transition(.opacity)
+        }
+    }
+
+    private var rewardBody: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: Space.l) {

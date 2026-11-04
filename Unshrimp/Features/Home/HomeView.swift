@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var showSettings = false
     @State private var showCollection = false
     @State private var showRecap = false
+    @State private var showStreak = false
     @State private var activeStand: StandMove?
     @State private var standSource: StandSource = .app
     @State private var now = Date()
@@ -19,6 +20,9 @@ struct HomeView: View {
             VStack(spacing: Space.l) {
                 header
                 scene
+                if let offer = model.repairOffer(now) {
+                    repairBanner(offer)
+                }
                 todayCard
                 if model.stiffnessCheckinDue(now) {
                     StiffnessCheckinCard(areas: model.prefs.focusAreas)
@@ -45,10 +49,13 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showSettings) { SettingsView() }
         .sheet(isPresented: $showCollection) { CollectionView() }
+        .sheet(isPresented: $showStreak) { StreakView() }
         .sheet(isPresented: $showRecap) {
             if let summary = model.weeklySummary(now) { WeeklyRecapView(summary: summary) }
         }
         .onReceive(Timer.publish(every: 30, on: .main, in: .common).autoconnect()) { now = $0 }
+        // Past midnight with the app open: check yesterday for the streak.
+        .onChange(of: model.day(now)) { model.reconcileStreak(now) }
         .onChange(of: model.breakRequestedFromNotification, initial: true) { _, requested in
             guard requested else { return }
             model.breakRequestedFromNotification = false
@@ -56,10 +63,11 @@ struct HomeView: View {
             model.skipBreakIntro = false
             // A break already on screen wins; otherwise close any sheet and go.
             guard activeRoutine == nil else { return }
-            let hadSheet = showSettings || showCollection || showRecap
+            let hadSheet = showSettings || showCollection || showRecap || showStreak
             showSettings = false
             showCollection = false
             showRecap = false
+            showStreak = false
             if hadSheet {
                 Task { try? await Task.sleep(for: .milliseconds(450)); startBreak(skippingIntro: skip, source: .reminder) }
             } else {
@@ -96,6 +104,7 @@ struct HomeView: View {
             let args = ProcessInfo.processInfo.arguments
             if args.contains("-testCollection") { showCollection = true }
             if args.contains("-testWeeklyRecap") { showRecap = true }
+            if args.contains("-testStreak") { showStreak = true }
         }
         #endif
     }
@@ -114,9 +123,35 @@ struct HomeView: View {
                     .foregroundStyle(Palette.petrolSoft)
             }
             Spacer()
+            StreakBadge(streak: model.streak(now), safe: model.streakSafeToday(now)) { showStreak = true }
+                .animation(Motion.snappy, value: model.streak(now))
             CircleIconButton(systemName: "bell.badge", label: "Reminder settings") { showSettings = true }
         }
         .padding(.top, Space.s)
+    }
+
+    private func repairBanner(_ offer: StreakRepairOffer) -> some View {
+        Button { showStreak = true } label: {
+            HStack(spacing: Space.m) {
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 17, weight: .heavy))
+                    .foregroundStyle(Palette.petrol)
+                    .frame(width: 40, height: 40)
+                    .background(Circle().fill(Palette.butter))
+                    .overlay(Circle().strokeBorder(Palette.petrol, lineWidth: 2))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Win back your \(offer.previous)-day streak")
+                        .font(.uCallout.weight(.bold)).foregroundStyle(Palette.petrol)
+                    Text("Reach today's goal and the missed day counts again.")
+                        .font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.uHeadline).foregroundStyle(Palette.petrolSoft)
+            }
+            .card(Palette.butterSoft)
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: Scene

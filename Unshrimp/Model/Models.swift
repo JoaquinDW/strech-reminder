@@ -155,6 +155,8 @@ struct AppData: Codable {
     var standSkipStreak = 0
     /// Last time the weekly stiffness check-in was answered or skipped.
     var lastStiffnessPrompt: Date?
+    /// Shell guards, misses and milestones. The streak itself is worked out from `breaks`.
+    var streak = StreakState()
 
     init() {}
 
@@ -173,5 +175,6 @@ struct AppData: Codable {
         avoidedMoves = try c.decodeIfPresent([String: Date].self, forKey: .avoidedMoves) ?? [:]
         standSkipStreak = try c.decodeIfPresent(Int.self, forKey: .standSkipStreak) ?? 0
         lastStiffnessPrompt = try c.decodeIfPresent(Date.self, forKey: .lastStiffnessPrompt)
+        streak = (try? c.decodeIfPresent(StreakState.self, forKey: .streak)) ?? StreakState()
     }
 }
