@@ -529,13 +529,14 @@ enum WearableArt {
 
     private static func headphones(_ ctx: GraphicsContext) {
         var band = Path()
-        band.move(to: CGPoint(x: -22, y: -24))
-        band.addCurve(to: CGPoint(x: 12, y: -10), control1: CGPoint(x: -16, y: -56), control2: CGPoint(x: 16, y: -50))
+        band.move(to: CGPoint(x: -28, y: -27))
+        band.addCurve(to: CGPoint(x: 18, y: -10), control1: CGPoint(x: -20, y: -58), control2: CGPoint(x: 24, y: -56))
         ctx.stroke(band, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 8.5, lineCap: .round))
         ctx.stroke(band, with: .color(Palette.mint), style: StrokeStyle(lineWidth: 4, lineCap: .round))
-        ctx.outlined(Geo.ellipse(CGPoint(x: -22, y: -22), w: 8, h: 11, angle: -30), Palette.mintDeep, width: 2.2)
-        ctx.outlined(Geo.ellipse(CGPoint(x: 13, y: -3), w: 19, h: 25, angle: 12), Palette.mint, width: 3)
-        ctx.outlined(Geo.ellipse(CGPoint(x: 12, y: -3), w: 10, h: 15, angle: 12), Palette.coralSoft, width: 2)
+        // The far cup only peeks out past the edge of the head, clear of the brow.
+        ctx.outlined(Geo.ellipse(CGPoint(x: -30, y: -24), w: 8, h: 12, angle: -35), Palette.mintDeep, width: 2.2)
+        ctx.outlined(Geo.ellipse(CGPoint(x: 19, y: -3), w: 19, h: 25, angle: 12), Palette.mint, width: 3)
+        ctx.outlined(Geo.ellipse(CGPoint(x: 18, y: -3), w: 10, h: 15, angle: 12), Palette.coralSoft, width: 2)
     }
 
     private static func captain(_ ctx: GraphicsContext) {
