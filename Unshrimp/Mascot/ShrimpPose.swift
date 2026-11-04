@@ -29,8 +29,8 @@ enum MovePose: String, Codable, Hashable {
 /// Every parameter the mascot rig understands. Poses are plain data so they can be
 /// interpolated for smooth transitions.
 struct ShrimpPose {
-    enum Eye { case dot, wide, happy, closed }
-    enum Mouth { case smile, open, flat }
+    enum Eye { case dot, wide, sparkle, sleepy, happy, closed, squint }
+    enum Mouth { case smile, open, grin, flat, tiny, tongue, wobbly, sad, yawn }
 
     /// Direction (degrees) from the head toward the body. ~10 = curled at a desk, ~70 = upright.
     var heading: Double = 8
@@ -53,6 +53,17 @@ struct ShrimpPose {
     var antennaSway: Double = 0
     var antennaPerk: Double = 0.5
     var blush: Double = 0.8
+    /// How much of the brow shows (0 hides it), how high it sits, and its tilt:
+    /// positive raises the front end (worried), negative lowers it (determined).
+    var brow: Double = 1
+    var browLift: Double = 0
+    var browTilt: Double = 0
+    /// Where the eye looks: x toward the face (+) or back (−), y up (+).
+    var lookX: Double = 0
+    var lookY: Double = 0
+    /// Little extras drawn around the head, 0...1.
+    var sweat: Double = 0
+    var sparkles: Double = 0
     var legWiggle: Double = 0
     var legPhase: Double = 0
     var breath: Double = 0
@@ -76,6 +87,13 @@ struct ShrimpPose {
         p.antennaSway = l(a.antennaSway, b.antennaSway)
         p.antennaPerk = l(a.antennaPerk, b.antennaPerk)
         p.blush = l(a.blush, b.blush)
+        p.brow = l(a.brow, b.brow)
+        p.browLift = l(a.browLift, b.browLift)
+        p.browTilt = l(a.browTilt, b.browTilt)
+        p.lookX = l(a.lookX, b.lookX)
+        p.lookY = l(a.lookY, b.lookY)
+        p.sweat = l(a.sweat, b.sweat)
+        p.sparkles = l(a.sparkles, b.sparkles)
         p.legWiggle = l(a.legWiggle, b.legWiggle)
         p.legPhase = l(a.legPhase, b.legPhase)
         p.breath = l(a.breath, b.breath)
@@ -111,13 +129,26 @@ enum ShrimpMotion {
             p.armFront = 26 + max(0, sin(t * 11)) * 7 * typing
             p.armBack = 30 + max(0, sin(t * 11 + 2.1)) * 7 * typing
             p.armBend = -34; p.armLength = 2.0
-            p.mouth = .flat
+            // Focused: brows down, eyes on the screen, tongue out while the typing flows.
+            p.brow = 1; p.browLift = -0.6; p.browTilt = -0.9 * typing
+            p.lookX = 1; p.lookY = -0.6
+            p.mouth = typing > 0.5 ? .tongue : .flat
+            p.blush = 0.4
+            // Every so often Kip glances up at you, then gets back to work.
+            let glance = glanceAmount(t) * k
+            if glance > 0 {
+                p.lookX = 1 - glance * 1.4; p.lookY = -0.6 + glance * 0.9
+                p.browLift = -0.6 + glance * 1.2; p.browTilt = 0
+                p.headTilt += glance * 6
+                if glance > 0.5 { p.mouth = .smile }
+            }
         case .inviting:
             // Front arm raised past the body so the hand waves clear of the silhouette.
             p.heading = 18; p.curl = 188; p.headTilt = 28 + sin(t * 1.6) * 3 * k
             p.armFront = 168 + sin(t * 3) * 4 * k; p.armBend = -75 + sin(t * 6.5) * 28 * k
             p.armBack = -60; p.armLength = 1.9; p.shoulderShift = 1
             p.eye = .wide; p.mouth = .open
+            p.browLift = 1; p.browTilt = 0.2; p.lookX = -0.3; p.lookY = 0.3
             p.antennaPerk = 1; p.antennaSway = 6 + sin(t * 2.4) * 9 * k
             p.bounce = abs(sin(t * 2.2)) * 2 * k
         case .stretching:
@@ -125,21 +156,27 @@ enum ShrimpMotion {
             // Fully upright, both arms straight overhead.
             p.heading = 80 - s * 4; p.curl = 85 + s * 14; p.headTilt = 30 + s * 6
             p.armFront = 104 + s * 5; p.armBack = 72 + s * 5; p.armBend = -4; p.armLength = 3.0; p.shoulderShift = 1
-            p.eye = .closed; p.mouth = .smile
+            // Relaxed: eyes shut, a soft "ahh".
+            p.eye = .closed; p.mouth = .tiny
+            p.browLift = 0.4; p.browTilt = 0.3; p.blush = 0.7
         case .celebrating:
             // Arms up in a V, hopping with hang time; the body straightens in the air.
             let hop = pow(abs(sin(t * 3.6)), 0.6) * k
             p.heading = 50 + hop * 15; p.curl = 160 - hop * 45; p.headTilt = 15 + hop * 8
-            p.armFront = 150 + sin(t * 9) * 8 * k; p.armBack = 62 + sin(t * 9 + 1) * 8 * k
+            p.armFront = 150 + sin(t * 9) * 8 * k; p.armBack = 40 + sin(t * 9 + 1) * 8 * k
             p.armBend = -25; p.armLength = 2.1; p.shoulderShift = 1
             p.bounce = hop * 18
-            p.eye = .happy; p.mouth = .open
+            p.eye = .sparkle; p.mouth = .grin
+            p.browLift = 1.2; p.blush = 1; p.sparkles = 1
             p.antennaPerk = 1; p.antennaSway = sin(t * 5) * 12 * k
             p.legWiggle = 12 * k; p.legPhase = t * 10
         case .resting:
             p.heading = 0; p.curl = 225 + sin(t * 0.9) * 3 * k; p.headTilt = 0
             p.armFront = -50; p.armBack = -60; p.armBend = -60
             p.eye = .closed; p.mouth = .smile
+            p.brow = 0.6; p.browLift = 0.3
+            // A slow yawn now and then.
+            if yawnAmount(t) * k > 0.3 { p.mouth = .yawn; p.brow = 0; p.headTilt += 4 }
             p.antennaSway = sin(t * 0.8) * 3 * k
             p.breath = sin(t * 1.2) * 1.6 * k
         case .exercise(let move):
@@ -172,6 +209,20 @@ enum ShrimpMotion {
         }
     }
 
+    /// 0 most of the time; eases to 1 for about a second every 9 s.
+    static func glanceAmount(_ t: Double) -> Double {
+        let c = t.truncatingRemainder(dividingBy: 9) - 6.5
+        guard c > 0, c < 1.4 else { return 0 }
+        return sin(c / 1.4 * .pi)
+    }
+
+    /// 0 most of the time; rises to 1 for a yawn every 12 s.
+    static func yawnAmount(_ t: Double) -> Double {
+        let c = t.truncatingRemainder(dividingBy: 12) - 8
+        guard c > 0, c < 1.8 else { return 0 }
+        return sin(c / 1.8 * .pi)
+    }
+
     static func blink(_ t: Double) -> Double {
         let cycle = t.truncatingRemainder(dividingBy: 4.3)
         let window = 0.16
@@ -185,6 +236,7 @@ enum ShrimpMotion {
         p.heading = 55; p.curl = 135; p.headTilt = 8
         p.armFront = -15; p.armBack = -25; p.armBend = -10
         p.eye = .dot; p.mouth = .smile
+        p.browLift = 0.2
         return p
     }
 
@@ -211,17 +263,23 @@ enum ShrimpMotion {
             p.armFront = -35 + up * 20; p.armBack = -45 + up * 20
             p.headTilt = 4 - up * 6
             p.eye = up > 0.5 ? .closed : .dot
+            p.browLift = up * 1.4
         case .crossBody:
             // One arm reaches across the body and the other hugs it in, with a slow breathing hold.
             let hold = (0.5 + 0.5 * sin(t * 0.7)) * k
             p.armFront = -5 + hold * 10; p.armBack = -5 + hold * 10; p.armBend = 35 + hold * 15
             p.headTilt = 8 + hold * 4
+            // The hold takes a little effort.
+            p.eye = hold > 0.6 ? .squint : .dot
+            p.mouth = hold > 0.6 ? .wobbly : .smile
+            p.sweat = Geo.smoothstep((hold - 0.6) / 0.3)
         case .chestOpener:
             let o = (0.5 + 0.5 * sin(t * 0.9)) * k
             p.heading = 62 + o * 8; p.curl = 120 - o * 30
             p.headTilt = 12 + o * 12
             p.armFront = -60 - o * 50; p.armBack = -70 - o * 50; p.armBend = 0
-            p.eye = .closed
+            p.eye = .closed; p.mouth = o > 0.6 ? .tiny : .smile
+            p.browLift = 0.4 + o * 0.6
         case .reachUp:
             let o = (0.5 + 0.5 * sin(t * 1.0)) * k
             p.heading = 68 + o * 4; p.curl = 110 - o * 20; p.headTilt = 22 + o * 8
@@ -243,7 +301,7 @@ enum ShrimpMotion {
             p.armBack = -20 - sin(t * 4) * 35 * k
             p.armBend = 20
             p.legWiggle = 25 * k; p.legPhase = t * 8
-            p.mouth = .open
+            p.mouth = .grin; p.browLift = 0.6
         case .sideReach:
             p.lean = sin(t * 0.8) * 12 * k
             p.armFront = 30 + sin(t * 0.8) * 15 * k; p.armBend = 20; p.armLength = 1.1
