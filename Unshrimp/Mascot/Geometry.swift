@@ -54,6 +54,52 @@ enum Geo {
     }
 
     static func lerp(_ a: Double, _ b: Double, _ t: Double) -> Double { a + (b - a) * t }
+
+    /// An ellipse whose edge drifts by a percent or two, like a shape inked by hand.
+    /// The same seed always gives the same wobble, so it never shimmers between frames.
+    static func wobblyEllipse(_ c: CGPoint, w: CGFloat, h: CGFloat, angle: Double = 0, seed: Double, amount: Double = 1) -> Path {
+        var p = Path()
+        let steps = 44
+        let r = rad(angle)
+        for k in 0...steps {
+            let a = Double(k) / Double(steps) * 2 * .pi
+            let j = 1 + amount * (0.012 * sin(3 * a + seed) + 0.008 * sin(5 * a + seed * 1.7))
+            let lx = Double(w) / 2 * j * cos(a), ly = Double(h) / 2 * j * sin(a)
+            let pt = CGPoint(x: c.x + CGFloat(lx * cos(r) - ly * sin(r)), y: c.y + CGFloat(lx * sin(r) + ly * cos(r)))
+            if k == 0 { p.move(to: pt) } else { p.addLine(to: pt) }
+        }
+        p.closeSubpath()
+        return p
+    }
+
+    static func wobblyCircle(_ c: CGPoint, _ r: CGFloat, seed: Double, amount: Double = 1) -> Path {
+        wobblyEllipse(c, w: r * 2, h: r * 2, seed: seed, amount: amount)
+    }
+
+    /// A four-point twinkle.
+    static func star(_ c: CGPoint, _ r: CGFloat) -> Path {
+        let pts = (0..<8).map { k -> CGPoint in
+            let rr = k.isMultiple(of: 2) ? r : r * 0.32
+            return c + dir(Double(k) * 45 - 90) * rr
+        }
+        return polyline(pts, closed: true)
+    }
+
+    static func bezier(_ a: CGPoint, _ b: CGPoint, _ c: CGPoint, _ d: CGPoint, _ t: Double) -> CGPoint {
+        let u = CGFloat(1 - t), v = CGFloat(t)
+        return a * (u * u * u) + b * (3 * u * u * v) + c * (3 * u * v * v) + d * (v * v * v)
+    }
+
+    static func quad(_ a: CGPoint, _ c: CGPoint, _ b: CGPoint, _ t: Double) -> CGPoint {
+        let u = CGFloat(1 - t), v = CGFloat(t)
+        return a * (u * u) + c * (2 * u * v) + b * (v * v)
+    }
+
+    /// Stable pseudo-random number in 0..<1.
+    static func hash(_ x: Double) -> Double {
+        let s = sin(x * 12.9898) * 43758.5453
+        return s - floor(s)
+    }
 }
 
 /// Fills a shape and draws the petrol outline used across all illustrations.
@@ -65,5 +111,23 @@ extension GraphicsContext {
 
     func line(_ path: Path, _ color: Color = Palette.petrol, width: CGFloat = 3) {
         stroke(path, with: .color(color), style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round))
+    }
+
+    /// A stroke that thins out along its length, like a brush or nib lifting off the paper.
+    func taperedLine(_ pts: [CGPoint], from w0: CGFloat, to w1: CGFloat, color: Color = Palette.petrol) {
+        guard pts.count > 1 else { return }
+        for i in 1..<pts.count {
+            let w = w0 + (w1 - w0) * CGFloat(i) / CGFloat(pts.count - 1)
+            line(Geo.polyline([pts[i - 1], pts[i]]), color, width: w)
+        }
+    }
+
+    /// Fills a shape and inks it, with a heavier line on the shadow side (down and right).
+    func inked(_ path: Path, _ color: Color, width: CGFloat = 2.8) {
+        var shadow = self
+        shadow.translateBy(x: 0.5, y: 0.9)
+        shadow.stroke(path, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: width + 1.2, lineCap: .round, lineJoin: .round))
+        fill(path, with: .color(color))
+        stroke(path, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round))
     }
 }

@@ -70,7 +70,8 @@ final class PoseBlender {
         p.lean += sin(e * 18) * 5 * decay
         p.antennaPerk = 1
         p.eye = .happy
-        p.mouth = .open
+        p.mouth = .grin
+        p.brow = 1; p.browLift = 1.2; p.browTilt = 0
         p.blush = 1
     }
 

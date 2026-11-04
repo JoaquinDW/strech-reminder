@@ -8,7 +8,7 @@ enum ShrimpRenderer {
     static let groundY: CGFloat = 232
     private static let radii: [CGFloat] = [35, 31, 30, 28.5, 26.5, 24, 21, 17.5, 14]
     private static let step: CGFloat = 19
-    private static let outline: CGFloat = 3.6
+    private static let outline: CGFloat = 3.1
 
     struct Rig {
         var points: [CGPoint]
@@ -60,133 +60,156 @@ enum ShrimpRenderer {
         let f = g.face
         let F = Geo.dir(f), U = Geo.dir(f + 90)
         let ow = outline
-        let round = StrokeStyle(lineWidth: 3.4, lineCap: .round, lineJoin: .round)
 
-        // Antennae (behind the head)
-        let base = head + U * (r0 * 0.78) + F * (r0 * 0.30)
+        // Antennae: one tapered stroke each, thick at the root, ending in a curl.
+        let base = head + U * (r0 * 0.74) + F * (r0 * 0.22)
         let len = 0.85 + 0.25 * pose.antennaPerk
-        func antenna(_ origin: CGPoint, up: Double, fwd: Double, sway: Double, curlDir: Double) {
+        func antenna(_ origin: CGPoint, up: Double, fwd: Double, sway: Double, curlDir: Double, width: CGFloat) {
             var end = origin + U * CGFloat(up * len) + F * CGFloat(fwd)
             end = end.rotated(by: sway, around: origin)
             let c1 = origin + U * CGFloat(up * 0.45 * len) + F * CGFloat(fwd * 0.1 + 12)
             let c2 = end + F * 18 - U * 18
-            var path = Path()
-            path.move(to: origin)
-            path.addCurve(to: end, control1: c1, control2: c2)
-            let tipDir = atan2(end.y - c2.y, end.x - c2.x) * 180 / .pi
-            let cc = end + Geo.dir(tipDir + 90 * curlDir) * 6.5
+            var stroke = (0...24).map { Geo.bezier(origin, c1, c2, end, Double($0) / 24) }
+            let tipDir = Double(atan2(end.y - c2.y, end.x - c2.x)) * 180 / .pi
+            let cc = end + Geo.dir(tipDir + 90 * curlDir) * 5.5
             let start = tipDir - 90 * curlDir
-            path.addArc(center: cc, radius: 6.5, startAngle: .degrees(start), endAngle: .degrees(start + curlDir * 270), clockwise: curlDir < 0)
-            ctx.stroke(path, with: .color(Palette.petrol), style: round)
+            for k in 1...14 {
+                let u = Double(k) / 14
+                stroke.append(cc + Geo.dir(start + curlDir * 250 * u) * CGFloat(5.5 * (1 - 0.25 * u)))
+            }
+            ctx.taperedLine(stroke, from: width, to: 1.3)
         }
-        antenna(base - F * 6, up: 74, fwd: -26, sway: pose.antennaSway, curlDir: 1)
-        antenna(base, up: 60, fwd: 10, sway: -pose.antennaSway * 0.7 + 4, curlDir: -1)
+        antenna(base - F * 6, up: 74, fwd: -26, sway: pose.antennaSway, curlDir: 1, width: 3.8)
+        antenna(base, up: 60, fwd: 10, sway: -pose.antennaSway * 0.7 + 4, curlDir: -1, width: 3.4)
 
-        // Arms
+        // Arms end in little pincers instead of bare sticks.
         let shoulder = Geo.mid(pts[2], pts[3]) + Geo.dir((hs[2] + hs[3]) / 2 + 90) * (rs[2] * 0.82 * CGFloat(1 - pose.shoulderShift))
-        func arm(_ sh: CGPoint, angle: Double, color: Color) {
+        func arm(_ sh: CGPoint, angle: Double, color: Color, seed: Double) {
             let a = 180 + angle + pose.lean
-            let el = sh + Geo.dir(a) * CGFloat(19 * pose.armLength)
-            let hand = el + Geo.dir(a + pose.armBend) * CGFloat(16 * pose.armLength)
-            let path = Geo.polyline([sh, el, hand])
-            ctx.stroke(path, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 6 + ow * 2, lineCap: .round, lineJoin: .round))
-            ctx.stroke(path, with: .color(color), style: StrokeStyle(lineWidth: 6, lineCap: .round, lineJoin: .round))
+            let L = CGFloat(pose.armLength)
+            let el = sh + Geo.dir(a) * (17 * L)
+            let fa = a + pose.armBend
+            let hand = el + Geo.dir(fa) * (13 * L)
+            let limb = Geo.polyline([sh, el, hand])
+            ctx.stroke(limb, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 7.5 + ow * 2, lineCap: .round, lineJoin: .round))
+            ctx.stroke(limb, with: .color(color), style: StrokeStyle(lineWidth: 7.5, lineCap: .round, lineJoin: .round))
+            ctx.line(Geo.polyline([el + Geo.dir(a + 90) * 3, el + Geo.dir(a - 90) * 3]), Palette.petrol.opacity(0.35), width: 1.6)
+            let tip = hand + Geo.dir(fa) * 5
+            ctx.inked(Geo.wobblyEllipse(tip, w: 15, h: 11, angle: fa, seed: seed), color, width: 2.6)
+            let c0 = tip + Geo.dir(fa) * 7.5, c1 = tip - Geo.dir(fa) * 1
+            var cut = Path()
+            cut.move(to: c0)
+            cut.addQuadCurve(to: c1, control: Geo.mid(c0, c1) + Geo.dir(fa + 90) * 1.5)
+            ctx.line(cut, width: 2.2)
+            ctx.fill(Geo.ellipse(tip + Geo.dir(fa - 90) * 2.6, w: 5, h: 1.8, angle: fa), with: .color(.white.opacity(0.5)))
         }
-        arm(shoulder + Geo.dir(hs[3]) * 9, angle: pose.armBack, color: Palette.shrimpDeep)
+        arm(shoulder + Geo.dir(hs[3]) * 9, angle: pose.armBack, color: Palette.shrimpShade, seed: 11)
 
-        // Little legs on the belly
+        // Swimmerets: small paddles under the belly
         for i in 3...7 {
             let N = Geo.dir(hs[i] + 90)
-            let root = pts[i] + N * (rs[i] * 0.72)
-            let tip = root + Geo.dir(hs[i] + 118 + sin(pose.legPhase + Double(i)) * pose.legWiggle) * 11
-            let path = Geo.polyline([root, tip])
-            ctx.stroke(path, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 4 + ow * 2, lineCap: .round))
-            ctx.stroke(path, with: .color(Palette.shrimp), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            let root = pts[i] + N * (rs[i] * 0.7)
+            let a = hs[i] + 112 + sin(pose.legPhase + Double(i)) * pose.legWiggle
+            ctx.inked(Geo.wobblyEllipse(root + Geo.dir(a) * 6, w: 12, h: 5.5, angle: a, seed: Double(i)), Palette.shrimpShade, width: 2.4)
         }
 
-        // Body silhouette: outlines first, then fills, so only the outer edge is outlined.
+        // Tail fan: five blades with midribs, the outer ones behind
         let last = pts[n - 1], hl = hs[n - 1]
-        let lobes = [-40.0, 0, 40].map { a in Geo.ellipse(last + Geo.dir(hl + a) * 15, w: 24, h: 13, angle: hl + a) }
-        let horn = Geo.polyline([
-            head + U * (r0 - 5) - F * 9,
-            head + U * (r0 + 11) + F * 9,
-            head + U * (r0 - 7) + F * 11
-        ], closed: true)
-        let headShape = Geo.ellipse(head + F * 3, w: r0 * 2.12, h: r0 * 1.86, angle: f)
-        var shapes: [Path] = [horn] + lobes
-        for i in 1..<n { shapes.append(Geo.circle(pts[i], rs[i])) }
-        shapes.append(headShape)
+        for a in [-50.0, 50, -25, 25, 0] {
+            let center = a == 0
+            let blade = Geo.wobblyEllipse(last + Geo.dir(hl + a) * 23, w: center ? 30 : 26, h: center ? 13.5 : 12, angle: hl + a, seed: a + 3)
+            ctx.inked(blade, center ? Palette.shrimp : Palette.shrimpShade, width: 2.6)
+            ctx.line(Geo.polyline([last + Geo.dir(hl + a) * 13, last + Geo.dir(hl + a) * 33]), Palette.shrimpPlate.opacity(0.8), width: 1.6)
+        }
 
+        // Body: a smooth tube (each segment sub-sampled into overlapping circles), so the
+        // silhouette reads as one shell rather than a string of beads.
+        var tube: [(c: CGPoint, r: CGFloat, i: Int)] = []
+        for i in 1..<(n - 1) {
+            for k in 0..<4 {
+                let u = CGFloat(k) / 4
+                tube.append((c: pts[i] + (pts[i + 1] - pts[i]) * u, r: rs[i] + (rs[i + 1] - rs[i]) * u, i: i))
+            }
+        }
+        tube.append((c: pts[n - 1], r: rs[n - 1], i: n - 1))
+        let tubeShapes = tube.enumerated().map { j, s in Geo.wobblyCircle(s.c, s.r, seed: Double(j) * 0.7, amount: 0.6) }
+
+        // Rostrum: the little spike over the eyes, in place of the old horn.
+        let rostrum = Geo.polyline([
+            head + U * (r0 * 0.62) + F * (r0 * 0.18),
+            head + U * (r0 * 0.98) + F * (r0 * 0.78),
+            head + U * (r0 * 0.90) + F * (r0 * 0.62),
+            head + U * (r0 * 1.00) + F * (r0 * 0.52),
+            head + U * (r0 * 0.66) + F * (r0 * 0.50)
+        ], closed: true)
+        let headShape = Geo.wobblyEllipse(head + F * 3, w: r0 * 2.18, h: r0 * 1.9, angle: f, seed: 5)
+        let shapes = [rostrum] + tubeShapes + [headShape]
+
+        // Ink: a heavier pass offset to the shadow side, the outline, then the fill on top,
+        // so only the outer edge stays inked.
+        var shadow = ctx
+        shadow.translateBy(x: 0.7, y: 1.3)
         let outlineStyle = StrokeStyle(lineWidth: ow * 2, lineCap: .round, lineJoin: .round)
+        let shadowStyle = StrokeStyle(lineWidth: ow * 2 + 1.2, lineCap: .round, lineJoin: .round)
+        for s in shapes { shadow.stroke(s, with: .color(Palette.petrol), style: shadowStyle) }
         for s in shapes { ctx.stroke(s, with: .color(Palette.petrol), style: outlineStyle) }
         for s in shapes { ctx.fill(s, with: .color(Palette.shrimp)) }
 
-        // Segment stripes, clipped to the body
-        var body = Path()
-        for i in 1..<n { body.addPath(Geo.circle(pts[i], rs[i])) }
-        var clipped = ctx
-        clipped.clip(to: body)
+        var tubePath = Path()
+        for s in tubeShapes { tubePath.addPath(s) }
+        var body = tubePath
+        body.addPath(headShape)
+        var inner = ctx
+        inner.clip(to: body)
+
+        // Volume: shade along the belly and under the head
+        for s in tube {
+            let N = Geo.dir(hs[min(s.i, n - 1)] + 90)
+            inner.fill(Geo.circle(s.c + N * (s.r * 0.98), s.r * 0.62), with: .color(Palette.shrimpShade))
+        }
+        var underHead = inner
+        underHead.clip(to: headShape)
+        underHead.fill(Geo.ellipse(head - F * 4 - U * (r0 * 1.05), w: r0 * 1.9, h: r0 * 0.75, angle: f), with: .color(Palette.shrimpShade))
+
+        // Shell plates, inked from the back and lifting off before the belly
         for i in 2..<n {
             let c = Geo.mid(pts[i - 1], pts[i])
             let h = (hs[i - 1] + hs[i]) / 2
             let N = Geo.dir(h + 90)
             let r = (rs[i - 1] + rs[i]) / 2
-            var stripe = Path()
-            stripe.move(to: c + N * (r * 1.3))
-            stripe.addQuadCurve(to: c - N * (r * 1.3), control: c + Geo.dir(h) * 7)
-            clipped.stroke(stripe, with: .color(Palette.shrimpDeep), style: StrokeStyle(lineWidth: 2.6, lineCap: .round))
+            let a = c - N * (r * 1.1), b = c + N * (r * 0.42), cp = c + Geo.dir(h) * 6
+            inner.taperedLine((0...12).map { Geo.quad(a, cp, b, Double($0) / 12) }, from: 2.8, to: 0.6, color: Palette.shrimpPlate)
         }
 
-        // Glossy highlights
-        let gloss = Color.white.opacity(0.55)
-        for i in 1...3 {
-            ctx.fill(Geo.ellipse(pts[i] + Geo.dir(hs[i] - 90) * (rs[i] * 0.58), w: 13, h: 4.5, angle: hs[i]), with: .color(gloss))
-        }
-        ctx.fill(Geo.ellipse(head + U * (r0 * 0.55) - F * (r0 * 0.35), w: 10, h: 4.5, angle: f + 60), with: .color(gloss))
+        // Carapace seam: the head's back edge where it overlaps the tail
+        var seam = inner
+        seam.clip(to: tubePath)
+        seam.stroke(headShape, with: .color(Palette.petrol.opacity(0.8)), lineWidth: 2)
 
-        // Face (kept close to screen-aligned so expressions stay readable)
-        let FF = Geo.dir(180 + pose.headTilt * 0.6 + pose.lean)
-        let UF = Geo.dir(270 + pose.headTilt * 0.6 + pose.lean)
-        let eye = head + FF * 14 + UF * 6
-        switch pose.eye {
-        case .dot, .wide:
-            let wide = pose.eye == .wide
-            let w: CGFloat = wide ? 8.5 : 7
-            let h: CGFloat = (wide ? 10.5 : 9) * CGFloat(max(0.12, pose.eyeOpen))
-            ctx.fill(Geo.ellipse(eye, w: w, h: h), with: .color(Palette.petrol))
-            if pose.eyeOpen > 0.5 {
-                ctx.fill(Geo.circle(eye + CGPoint(x: -1.4, y: -2.4), wide ? 2.2 : 1.8), with: .color(.white))
+        // Soft light along the back
+        let back = (2...4).map { pts[$0] - Geo.dir(hs[$0] + 90) * (rs[$0] * 0.6) }
+        var light = Path()
+        light.move(to: back[0])
+        for i in 1..<back.count {
+            light.addQuadCurve(to: Geo.mid(back[i - 1], back[i]), control: back[i - 1])
+        }
+        inner.stroke(light, with: .color(Palette.shrimpLight), style: StrokeStyle(lineWidth: 3.6, lineCap: .round, lineJoin: .round))
+
+        // Speckles, like a real shrimp shell
+        for i in 1..<(n - 1) {
+            let N = Geo.dir(hs[i] + 90)
+            for k in 0..<3 {
+                let seed = Double(i * 3 + k)
+                let q = pts[i] - N * (rs[i] * CGFloat(0.15 + Geo.hash(seed) * 0.5)) + Geo.dir(hs[i]) * CGFloat((Geo.hash(seed + 40) - 0.5) * 14)
+                inner.fill(Geo.circle(q, CGFloat(0.8 + Geo.hash(seed + 80) * 0.7)), with: .color(Palette.shrimpPlate.opacity(0.55)))
             }
-        case .happy:
-            var p = Path()
-            p.move(to: eye + CGPoint(x: -5, y: 2))
-            p.addQuadCurve(to: eye + CGPoint(x: 5, y: 2), control: eye + CGPoint(x: 0, y: -7))
-            ctx.stroke(p, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 3, lineCap: .round))
-        case .closed:
-            var p = Path()
-            p.move(to: eye + CGPoint(x: -5, y: -1))
-            p.addQuadCurve(to: eye + CGPoint(x: 5, y: -1), control: eye + CGPoint(x: 0, y: 6))
-            ctx.stroke(p, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 3, lineCap: .round))
         }
-        let blush = head + FF * 8 - UF * 7
-        ctx.fill(Geo.ellipse(blush, w: 10, h: 6), with: .color(Palette.blush.opacity(0.85 * pose.blush)))
 
-        let m = head + FF * 25 - UF * 3
-        switch pose.mouth {
-        case .smile:
-            var p = Path()
-            p.move(to: m + CGPoint(x: -4, y: -1))
-            p.addQuadCurve(to: m + CGPoint(x: 4, y: -1), control: m + CGPoint(x: 0, y: 4))
-            ctx.stroke(p, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 2.6, lineCap: .round))
-        case .open:
-            var p = Path()
-            p.move(to: m + CGPoint(x: -5, y: -1.5))
-            p.addQuadCurve(to: m + CGPoint(x: 5, y: -1.5), control: m + CGPoint(x: 0, y: 9))
-            p.closeSubpath()
-            ctx.fill(p, with: .color(Palette.petrol))
-        case .flat:
-            ctx.stroke(Geo.polyline([m + CGPoint(x: -3, y: 0.5), m + CGPoint(x: 3, y: 0.5)]), with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 2.6, lineCap: .round))
-        }
+        // One crisp highlight on the head
+        ctx.fill(Geo.ellipse(head + U * (r0 * 0.58) - F * (r0 * 0.28), w: 9, h: 3.6, angle: f + 60), with: .color(.white.opacity(0.7)))
+        ctx.fill(Geo.circle(head + U * (r0 * 0.5) - F * (r0 * 0.02), 1.6), with: .color(.white.opacity(0.7)))
+
+        drawFace(ctx, pose: pose, head: head)
 
         if let wearable = look.wearable {
             // Worn in the face's frame, which stays close to screen-aligned: up is up, the face looks left.
@@ -219,7 +242,136 @@ enum ShrimpRenderer {
             }
         }
 
-        arm(shoulder, angle: pose.armFront, color: Palette.shrimp)
+        arm(shoulder, angle: pose.armFront, color: Palette.shrimp, seed: 4)
+    }
+
+    /// Eyes, brows, cheeks, mouth and little extras, kept close to screen-aligned so they stay readable.
+    private static func drawFace(_ ctx: GraphicsContext, pose: ShrimpPose, head: CGPoint) {
+        let ang = pose.headTilt * 0.6 + pose.lean
+        let FF = Geo.dir(180 + ang), UF = Geo.dir(270 + ang)
+        func P(_ fx: CGFloat, _ uy: CGFloat) -> CGPoint { head + FF * fx + UF * uy }
+        func curve(_ a: CGPoint, _ c: CGPoint, _ b: CGPoint, width: CGFloat = 3, color: Color = Palette.petrol) {
+            var p = Path()
+            p.move(to: a)
+            p.addQuadCurve(to: b, control: c)
+            ctx.line(p, color, width: width)
+        }
+
+        // Eyes
+        let eye = P(15, 7) + CGPoint(x: -1.6 * pose.lookX, y: -1.4 * pose.lookY)
+        func e(_ x: CGFloat, _ y: CGFloat) -> CGPoint { eye + CGPoint(x: x, y: y) }
+        switch pose.eye {
+        case .dot, .wide, .sparkle, .sleepy:
+            let big = pose.eye == .wide || pose.eye == .sparkle
+            let w: CGFloat = big ? 10.5 : 9
+            let h: CGFloat = (big ? 13.5 : 11.5) * CGFloat(max(0.12, pose.eyeOpen))
+            ctx.fill(Geo.wobblyEllipse(eye, w: w, h: h, seed: 2), with: .color(Palette.petrol))
+            if pose.eyeOpen > 0.5 {
+                if pose.eye == .sparkle {
+                    ctx.fill(Geo.star(e(-1.2, -2.2), 4.2), with: .color(.white))
+                    ctx.fill(Geo.circle(e(2.4, 3.4), 1.2), with: .color(.white))
+                } else {
+                    ctx.fill(Geo.circle(e(-1.6, -2.8), big ? 2.8 : 2.3), with: .color(.white))
+                    ctx.fill(Geo.circle(e(1.8, 2.6), big ? 1.3 : 1), with: .color(.white))
+                }
+            }
+            if pose.eye == .sleepy {
+                ctx.fill(Geo.ellipse(e(0, -7), w: 14, h: 8, angle: -8), with: .color(Palette.shrimp))
+                curve(e(-6, -2), e(0, -0.8), e(6, -4), width: 2.6)
+            }
+        case .happy:
+            curve(e(-5.5, 2.5), e(0, -7.5), e(5.5, 2.5))
+        case .closed:
+            curve(e(-5.5, -1), e(0, 6), e(5.5, -1))
+        case .squint:
+            ctx.line(Geo.polyline([e(4.5, -4.5), e(-3.5, 0), e(4.5, 4.5)]), width: 3)
+        }
+
+        // Brow: lift moves it up; positive tilt raises the front end (worried), negative lowers it (determined).
+        if pose.brow > 0.01, pose.eye != .squint {
+            let c = e(0.5, CGFloat(-10.5 - 2.6 * pose.browLift))
+            let l = c + CGPoint(x: -5, y: -3.2 * pose.browTilt)
+            let r = c + CGPoint(x: 4.5, y: 1.2 * pose.browTilt)
+            curve(l, Geo.mid(l, r) + CGPoint(x: 0, y: -1.8 + abs(pose.browTilt) * 0.6), r, width: 2.3, color: Palette.petrol.opacity(pose.brow))
+        }
+
+        // Cheek: a soft blush with pencil hatching
+        let cheek = P(7, -7)
+        ctx.fill(Geo.ellipse(cheek, w: 11, h: 6.5), with: .color(Palette.blush.opacity(0.6 * pose.blush)))
+        for k in -1...1 {
+            let x = CGFloat(k) * 3
+            ctx.line(Geo.polyline([cheek + CGPoint(x: x - 1.5, y: 1.5), cheek + CGPoint(x: x + 1.5, y: -1.5)]), Palette.shrimpDeep.opacity(0.75 * pose.blush), width: 1.3)
+        }
+
+        // Mouth
+        let m = P(25, -3)
+        func q(_ x: CGFloat, _ y: CGFloat) -> CGPoint { m + CGPoint(x: x, y: y) }
+        switch pose.mouth {
+        case .smile:
+            curve(q(-4.5, -1.5), q(0, 4.5), q(4, -1), width: 2.4)
+        case .flat:
+            curve(q(-3.5, 0.6), q(0, -0.6), q(3, 1.2), width: 2.4)
+        case .sad:
+            curve(q(-4, 2), q(0, -2.5), q(4, 2), width: 2.4)
+        case .open, .grin:
+            let wide: CGFloat = pose.mouth == .grin ? 6.5 : 5
+            let deep: CGFloat = pose.mouth == .grin ? 11 : 9
+            var p = Path()
+            p.move(to: q(-wide, -1.5))
+            p.addQuadCurve(to: q(wide, -1.5), control: q(0, deep))
+            p.closeSubpath()
+            ctx.fill(p, with: .color(Palette.petrol))
+            ctx.line(p, width: 1.6)
+            var inside = ctx
+            inside.clip(to: p)
+            inside.fill(Geo.ellipse(q(0.5, deep * 0.42), w: wide * 0.95, h: deep * 0.38), with: .color(Palette.tongue))
+        case .tiny:
+            ctx.fill(Geo.wobblyEllipse(q(0, 1), w: 4.2, h: 5, seed: 1), with: .color(Palette.petrol))
+        case .yawn:
+            let p = Geo.wobblyEllipse(q(0.5, 2.5), w: 7, h: 10, seed: 4)
+            ctx.fill(p, with: .color(Palette.petrol))
+            var inside = ctx
+            inside.clip(to: p)
+            inside.fill(Geo.ellipse(q(0.5, 6), w: 5, h: 4), with: .color(Palette.tongue))
+        case .wobbly:
+            var p = Path()
+            p.move(to: q(-5, 1))
+            p.addQuadCurve(to: q(-1.6, 0.6), control: q(-3.3, -1.6))
+            p.addQuadCurve(to: q(1.6, 0.4), control: q(0, 2.6))
+            p.addQuadCurve(to: q(5, 1), control: q(3.3, -1.6))
+            ctx.line(p, width: 2.3)
+        case .tongue:
+            var t = Path()
+            t.move(to: q(-2.8, 0))
+            t.addQuadCurve(to: q(0, 6), control: q(-3, 6))
+            t.addQuadCurve(to: q(2.6, 0), control: q(3, 6))
+            ctx.fill(t, with: .color(Palette.tongue))
+            ctx.line(t, width: 1.8)
+            ctx.line(Geo.polyline([q(0, 1.5), q(0, 3.8)]), Palette.shrimpPlate.opacity(0.8), width: 1.1)
+            curve(q(-4.5, -0.8), q(0, 1.4), q(4, -0.6), width: 2.4)
+        }
+
+        // Extras
+        if pose.sweat > 0.01 {
+            let d = P(-14, 24)
+            var drop = Path()
+            drop.move(to: d + CGPoint(x: 0, y: -6))
+            drop.addQuadCurve(to: d + CGPoint(x: 0, y: 3.5), control: d + CGPoint(x: 5, y: 1))
+            drop.addQuadCurve(to: d + CGPoint(x: 0, y: -6), control: d + CGPoint(x: -5, y: 1))
+            var layer = ctx
+            layer.opacity = pose.sweat
+            layer.fill(drop, with: .color(Palette.sweat))
+            layer.line(drop, width: 1.8)
+        }
+        if pose.sparkles > 0.01 {
+            var layer = ctx
+            layer.opacity = pose.sparkles
+            for (x, y, r) in [(34.0, 22.0, 5.0), (40, 8, 3.2), (-6, 40, 3.8)] {
+                let s = Geo.star(P(CGFloat(x), CGFloat(y)), CGFloat(r))
+                layer.fill(s, with: .color(Palette.butter))
+                layer.line(s, width: 1.4)
+            }
+        }
     }
 }
 

@@ -52,6 +52,14 @@ enum Palette {
     // Illustration-only colors
     static let shrimp = Color(hex: 0xFF7A66)
     static let shrimpDeep = Color(hex: 0xE5543F)
+    /// Belly-side shading and the tail's outer blades.
+    static let shrimpShade = Color(hex: 0xF0624D)
+    /// The inked lines between shell plates, and the speckles.
+    static let shrimpPlate = Color(hex: 0xC94A36)
+    /// Soft light along the back.
+    static let shrimpLight = Color(hex: 0xFFBEAC, opacity: 0.85)
+    static let tongue = Color(hex: 0xFF8C8C)
+    static let sweat = Color(hex: 0xCFEFFF)
     static let wood = Color(hex: 0xF2C185)
     static let woodDeep = Color(hex: 0xD99B5B)
     static let floor = Color(hex: 0xF4E3C6)
