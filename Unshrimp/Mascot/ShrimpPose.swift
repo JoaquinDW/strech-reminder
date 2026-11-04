@@ -163,7 +163,7 @@ enum ShrimpMotion {
             // Arms up in a V, hopping with hang time; the body straightens in the air.
             let hop = pow(abs(sin(t * 3.6)), 0.6) * k
             p.heading = 50 + hop * 15; p.curl = 160 - hop * 45; p.headTilt = 15 + hop * 8
-            p.armFront = 150 + sin(t * 9) * 8 * k; p.armBack = 62 + sin(t * 9 + 1) * 8 * k
+            p.armFront = 150 + sin(t * 9) * 8 * k; p.armBack = 40 + sin(t * 9 + 1) * 8 * k
             p.armBend = -25; p.armLength = 2.1; p.shoulderShift = 1
             p.bounce = hop * 18
             p.eye = .sparkle; p.mouth = .grin

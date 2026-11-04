@@ -209,16 +209,19 @@ enum ShrimpRenderer {
         ctx.fill(Geo.ellipse(head + U * (r0 * 0.58) - F * (r0 * 0.28), w: 9, h: 3.6, angle: f + 60), with: .color(.white.opacity(0.7)))
         ctx.fill(Geo.circle(head + U * (r0 * 0.5) - F * (r0 * 0.02), 1.6), with: .color(.white.opacity(0.7)))
 
-        drawFace(ctx, pose: pose, head: head)
+        drawFace(ctx, pose: pose, head: head, showsBrow: !(look.wearable.map(WearableArt.hidesBrow) ?? false))
 
         if let wearable = look.wearable {
             // Worn in the face's frame, which stays close to screen-aligned: up is up, the face looks left.
             let faceAngle = pose.headTilt * 0.6 + pose.lean
+            let lift = WearableArt.lift(wearable)
             var worn = ctx
             worn.translateBy(x: head.x, y: head.y)
             worn.rotate(by: .degrees(faceAngle))
+            worn.translateBy(x: 0, y: -lift)
             let localHead = headShape.applying(CGAffineTransform(translationX: -head.x, y: -head.y)
-                .concatenating(CGAffineTransform(rotationAngle: -Geo.rad(faceAngle))))
+                .concatenating(CGAffineTransform(rotationAngle: -Geo.rad(faceAngle)))
+                .concatenating(CGAffineTransform(translationX: 0, y: lift)))
             var visible = true
             if animated, let reveal = look.revealAt {
                 // Unlock moment: the new piece drops in from above, lands with a squash, then sparkles.
@@ -246,7 +249,7 @@ enum ShrimpRenderer {
     }
 
     /// Eyes, brows, cheeks, mouth and little extras, kept close to screen-aligned so they stay readable.
-    private static func drawFace(_ ctx: GraphicsContext, pose: ShrimpPose, head: CGPoint) {
+    private static func drawFace(_ ctx: GraphicsContext, pose: ShrimpPose, head: CGPoint, showsBrow: Bool) {
         let ang = pose.headTilt * 0.6 + pose.lean
         let FF = Geo.dir(180 + ang), UF = Geo.dir(270 + ang)
         func P(_ fx: CGFloat, _ uy: CGFloat) -> CGPoint { head + FF * fx + UF * uy }
@@ -288,7 +291,7 @@ enum ShrimpRenderer {
         }
 
         // Brow: lift moves it up; positive tilt raises the front end (worried), negative lowers it (determined).
-        if pose.brow > 0.01, pose.eye != .squint {
+        if showsBrow, pose.brow > 0.01, pose.eye != .squint {
             let c = e(0.5, CGFloat(-10.5 - 2.6 * pose.browLift))
             let l = c + CGPoint(x: -5, y: -3.2 * pose.browTilt)
             let r = c + CGPoint(x: 4.5, y: 1.2 * pose.browTilt)
@@ -366,7 +369,8 @@ enum ShrimpRenderer {
         if pose.sparkles > 0.01 {
             var layer = ctx
             layer.opacity = pose.sparkles
-            for (x, y, r) in [(34.0, 22.0, 5.0), (40, 8, 3.2), (-6, 40, 3.8)] {
+            // In front of the face and below any brim, so nothing Kip wears covers them.
+            for (x, y, r) in [(47.0, 14.0, 5.0), (54, 3, 3.2), (47, -6, 3.8)] {
                 let s = Geo.star(P(CGFloat(x), CGFloat(y)), CGFloat(r))
                 layer.fill(s, with: .color(Palette.butter))
                 layer.line(s, width: 1.4)
@@ -377,6 +381,20 @@ enum ShrimpRenderer {
 
 /// Kip's wearables, drawn in the face frame: origin at the head's center, the face to the left.
 enum WearableArt {
+    /// How far up the head an item sits, so headwear stays clear of the eye.
+    static func lift(_ item: Wearable) -> CGFloat {
+        switch item {
+        case .sweatband: 10
+        case .beanie: 6
+        case .specs, .flower, .crown: 0
+        }
+    }
+
+    /// A brim on the brow line already reads as the brow, so the drawn one would only clutter it.
+    static func hidesBrow(_ item: Wearable) -> Bool {
+        item == .sweatband || item == .beanie
+    }
+
     static func draw(_ item: Wearable, in ctx: GraphicsContext, head: Path, t: Double, animated: Bool) {
         switch item {
         case .sweatband: sweatband(ctx, head: head, t: t, animated: animated)
@@ -391,7 +409,7 @@ enum WearableArt {
         let flutter = animated ? sin(t * 4) * 6 : 0
         // Tails tied at the back of the head
         var tails = ctx
-        tails.translateBy(x: 30, y: -18)
+        tails.translateBy(x: 18, y: -17)
         tails.rotate(by: .degrees(flutter))
         tails.outlined(Geo.ellipse(CGPoint(x: 10, y: 5), w: 18, h: 7, angle: 30), Palette.mint, width: 2.5)
         tails.outlined(Geo.ellipse(CGPoint(x: 11, y: -3), w: 16, h: 6, angle: -10), Palette.mint, width: 2.5)
