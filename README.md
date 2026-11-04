@@ -23,7 +23,7 @@ Useful launch arguments (Edit Scheme → Run → Arguments):
 
 - `-resetData` starts fresh (onboarding again).
 - `-seedWeek` fills earlier days of the current week with sample breaks.
-- `-testPaywall` forces the paywall in debug builds; `-skipPaywall` skips it (UI tests use it).
+- `-testStand` opens a quick stand; `-testPaywall` forces the paywall in debug builds; `-skipPaywall` skips it (UI tests use it).
 - Debug-only media previews: `-testTraining`, optionally `-testReduceMotion` or
   `-testLargeType`. These open a deterministic routine without resetting saved data.
 
@@ -69,7 +69,7 @@ remaining content limitations, and simulator verification. Session unit tests ar
 
 ### Rewards
 
-- Every confirmed break earns energy (+10), with bonuses for the first break, spreading
+- Every confirmed break earns energy (+10), each quick stand +3 (up to 30 a day), with bonuses for the first break, spreading
   breaks out (60+ minutes apart), returning after a couple of days away, and reaching
   the daily goal.
 - Energy totals unlock desk decor: sprout, mug, lamp, poster, fairy lights, snail.
@@ -78,12 +78,28 @@ remaining content limitations, and simulator verification. Session unit tests ar
 
 ### Reminders
 
-Local notifications are scheduled for the next 7 days inside working days and hours
-(max 60 pending), skipping slots that fall soon after a break you already took. They're
-rescheduled on every preference change, after each break, and when the app becomes
-active. Notifications offer "Start a break" and "In 15 minutes" actions. Permission is
-only requested after the user taps "Turn on reminders"; if denied, the app keeps working
-and Settings links to iOS notification settings.
+Two kinds of reminder, scheduled locally inside working days and hours:
+
+- **Breaks** every chosen interval (45 min to 2 h), with "Stretch with Kip now" and "In 10 minutes" actions.
+- **Quick stands** (on by default, every 30, 45 or 60 min) in between: one standing move of 20 to 60
+  seconds, named in the reminder, with "Done, I stood up" and "Not now" actions that work without opening
+  the app, plus "Show me" for a one-move screen. Never within 15 minutes of a break reminder. After three
+  stands skipped or ignored in a row, the next one comes 30 minutes later with a lighter line.
+- A **weekly recap** reminder an hour before the end of the last workday of the week.
+
+Slots that land soon after a break or stand are skipped. With stands on, the plan covers 4 days (7 without),
+under iOS's 64 pending-notification limit; it's rebuilt on every preference change, break, stand, and when the
+app becomes active. Permission is only requested after the user taps "Turn on reminders"; if denied, the app
+keeps working and Settings links to iOS notification settings.
+
+### How it feels
+
+- A break ends with "How does your body feel?": Looser, Same or Something bothered me (all count as a break),
+  or "I didn't get to it". "Something bothered me" asks which move, and that move sits out of routines for
+  two weeks. Breaks of 3 minutes or more always include one standing move.
+- Onboarding asks for an optional 0 to 10 stiffness score per focus area; a weekly check-in card on Home asks
+  again. The weekly recap shows quick stands, how many breaks left you looser, and each area's stiffness from
+  the first check-in to the latest (kept out of the shareable image).
 
 ## Subscriptions
 

@@ -1,7 +1,8 @@
 import Foundation
 import PostHog
 
-/// One anonymous installation identity; no account, health answers or work schedule is sent.
+/// One anonymous installation identity; no account, work schedule, focus areas or per-area
+/// stiffness is sent. How a break felt and a check-in's average score are, as the privacy page says.
 enum Analytics {
     private static var configured = false
 

@@ -50,6 +50,10 @@ final class AppModel {
     var breakRequestedFromNotification = false
     /// The reminder's "Start" button skips the overview and goes straight into the first move.
     var skipBreakIntro = false
+    /// Set when a stand reminder's "Show me" is tapped; Home opens that one move.
+    var standRequested: String?
+    /// Set when the weekly recap reminder is tapped; Home opens the recap.
+    var recapRequested = false
     /// Item to pop into the desk scene when Home appears after an unlock.
     var celebrateItem: DeskItem?
     var celebrateStart: Double = 0
@@ -69,6 +73,7 @@ final class AppModel {
             breakRequestedFromNotification = true
             skipBreakIntro = true
         }
+        if args.contains("-testStand") { standRequested = StandMove.all[0].id }
         #endif
     }
 
@@ -83,20 +88,31 @@ final class AppModel {
         if p.remindersEnabled != data.preferences.remindersEnabled {
             Analytics.capture("reminders_toggled", properties: ["enabled": p.remindersEnabled])
         }
+        if p.standsEnabled != data.preferences.standsEnabled {
+            Analytics.capture("stands_toggled", properties: ["enabled": p.standsEnabled])
+        }
         data.preferences = p
         save()
         Task { await rescheduleReminders() }
     }
 
-    func finishOnboarding(with prefs: Preferences) {
+    func finishOnboarding(with prefs: Preferences, baseline: [FocusArea: Int] = [:]) {
         guard !data.hasOnboarded else { return }
         data.preferences = prefs
         data.hasOnboarded = true
+        let now = Date()
+        // Only the areas the user actually rated; an untouched slider isn't an answer.
+        let scores = baseline.filter { prefs.focusAreas.contains($0.key) }
+        data.stiffness += scores.map { StiffnessRecord(date: now, area: $0.key, score: $0.value) }
+        if !scores.isEmpty { data.lastStiffnessPrompt = now }
         save()
         Analytics.capture("onboarding_completed", properties: [
             "duration_minutes": prefs.breakLength.minutes,
             "daily_goal": prefs.dailyGoal,
-            "reminders_enabled": prefs.remindersEnabled && notificationsAllowed
+            "reminders_enabled": prefs.remindersEnabled && notificationsAllowed,
+            "stands_enabled": prefs.standsEnabled,
+            "stand_interval_minutes": prefs.standIntervalMinutes,
+            "stiffness_baseline_given": !scores.isEmpty
         ])
         Task { await rescheduleReminders() }
     }
@@ -216,21 +232,22 @@ final class AppModel {
 
     /// The next break's routine. Moves it shows count as done, so the following break rotates on.
     func nextRoutine() -> Routine {
-        let routine = DemoLibrary.routine(length: prefs.breakLength, focus: prefs.focusAreas, recent: data.recentMoves)
+        let routine = DemoLibrary.routine(length: prefs.breakLength, focus: prefs.focusAreas, recent: data.recentMoves,
+                                          avoid: avoidedMoveIDs())
         data.recentMoves = Array((data.recentMoves + routine.moves.map(\.id)).suffix(DemoLibrary.historyLimit))
         save()
         return routine
     }
 
     @discardableResult
-    func recordBreak(minutes: Int, focus: Set<FocusArea>, at date: Date = Date()) -> BreakResult {
+    func recordBreak(minutes: Int, focus: Set<FocusArea>, feel: BreakFeel? = nil, at date: Date = Date()) -> BreakResult {
         let before = data.energy
         let todayBefore = breaksToday(date)
         let stopsBefore = adventureStops(date)
         let stageBefore = growth.stageIndex
         let lines = EnergyRules.award(at: date, history: data.breaks, breaksTodayBefore: todayBefore, goal: prefs.dailyGoal)
         let earned = lines.reduce(0) { $0 + $1.amount }
-        data.breaks.append(BreakRecord(date: date, minutes: minutes, focus: FocusArea.allCases.filter { focus.contains($0) }, energy: earned))
+        data.breaks.append(BreakRecord(date: date, minutes: minutes, focus: FocusArea.allCases.filter { focus.contains($0) }, energy: earned, feel: feel))
         data.energy += earned
         let newItems = DeskItem.allCases.filter { !data.unlocked.contains($0) && $0.cost <= data.energy }
         data.unlocked.append(contentsOf: newItems)
@@ -249,9 +266,86 @@ final class AppModel {
             reachedGoalNow: todayBefore + 1 == prefs.dailyGoal,
             adventureStop: stopsAfter > stopsBefore ? stopsAfter : 0,
             newStage: stageAfter > stageBefore ? stageAfter : nil,
-            newWearable: newWearable
+            newWearable: newWearable,
+            feel: feel
         )
     }
+
+    // MARK: Quick stands
+
+    func standsToday(_ now: Date = Date()) -> Int {
+        data.stands.filter { calendar.isDate($0.date, inSameDayAs: now) }.count
+    }
+
+    var lastStand: Date? { data.stands.map(\.date).max() }
+
+    /// Records a quick stand. Returns the energy it earned (capped per day).
+    @discardableResult
+    func recordStand(moveID: String, source: StandSource, at date: Date = Date()) async -> Int {
+        let todayEnergy = data.stands.filter { calendar.isDate($0.date, inSameDayAs: date) }.reduce(0) { $0 + $1.energy }
+        let earned = StandRules.energy(standsTodayEnergy: todayEnergy)
+        data.stands.append(StandRecord(date: date, moveID: moveID, energy: earned))
+        data.standSkipStreak = 0
+        data.energy += earned
+        let newItems = DeskItem.allCases.filter { !data.unlocked.contains($0) && $0.cost <= data.energy }
+        data.unlocked.append(contentsOf: newItems)
+        if let first = newItems.first { celebrateItem = first }
+        save()
+        Analytics.capture("stand_completed", properties: ["move_id": moveID, "source": source.rawValue,
+                                                          "stands_today": standsToday(date)])
+        await NotificationManager.clearDeliveredStands()
+        await rescheduleReminders()
+        return earned
+    }
+
+    func skipStand(moveID: String?) async {
+        data.standSkipStreak += 1
+        save()
+        Analytics.capture("stand_skipped", properties: ["move_id": moveID ?? "", "skip_streak": data.standSkipStreak])
+        await NotificationManager.clearDeliveredStands()
+        await rescheduleReminders()
+    }
+
+    // MARK: How it feels
+
+    /// Leaves a move out of routines for a while after the user said it bothered them.
+    func avoid(moveID: String, at date: Date = Date()) {
+        data.avoidedMoves[moveID] = date
+        save()
+        Analytics.capture("move_avoided", properties: ["move_id": moveID])
+    }
+
+    func avoidedMoveIDs(_ now: Date = Date()) -> Set<String> {
+        let limit = Double(StandRules.avoidDays) * 86_400
+        return Set(data.avoidedMoves.filter { now.timeIntervalSince($0.value) < limit }.keys)
+    }
+
+    /// The weekly "how stiff are you?" card shows once a week, after the first break.
+    func stiffnessCheckinDue(_ now: Date = Date()) -> Bool {
+        guard data.hasOnboarded, !data.breaks.isEmpty else { return false }
+        guard let last = data.lastStiffnessPrompt else { return true }
+        return now.timeIntervalSince(last) >= Double(StandRules.checkinDays) * 86_400
+    }
+
+    func recordStiffness(_ scores: [FocusArea: Int], at date: Date = Date()) {
+        data.stiffness += scores.sorted { $0.key.rawValue < $1.key.rawValue }
+            .map { StiffnessRecord(date: date, area: $0.key, score: $0.value) }
+        data.lastStiffnessPrompt = date
+        save()
+        if !scores.isEmpty {
+            let average = Double(scores.values.reduce(0, +)) / Double(scores.count)
+            Analytics.capture("stiffness_checkin", properties: ["areas_count": scores.count,
+                                                                "average_score": (average * 10).rounded() / 10])
+        }
+    }
+
+    func skipStiffnessCheckin(at date: Date = Date()) {
+        data.lastStiffnessPrompt = date
+        save()
+        Analytics.capture("stiffness_checkin_skipped")
+    }
+
+    var stiffnessTrends: [StiffnessTrend] { StiffnessTrend.trends(data.stiffness) }
 
     /// Progress toward `item` as (current, needed) relative to the previous unlock.
     func progress(toward item: DeskItem) -> (current: Int, needed: Int) {
@@ -283,7 +377,9 @@ final class AppModel {
         // Without a subscription Kip stays quiet: a reminder would only lead to the paywall.
         var preferences = prefs
         if !Subscription.shared.isActive { preferences.remindersEnabled = false }
-        await NotificationManager.reschedule(preferences: preferences, lastBreak: lastBreak, context: voiceContext)
+        let plan = NotificationManager.History(lastBreak: lastBreak, lastStand: lastStand,
+                                            standSkipStreak: data.standSkipStreak, hasBreaks: !data.breaks.isEmpty)
+        await NotificationManager.reschedule(preferences: preferences, history: plan, context: voiceContext)
     }
 
     func snooze() async {

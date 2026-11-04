@@ -79,7 +79,7 @@ final class TrainingMediaUITests: XCTestCase {
             screenshot("training-step-\(index + 1)")
             tap(index == 7 ? "Finish" : "Next move")
         }
-        XCTAssertTrue(app.buttons["Yes, I moved"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Looser"].waitForExistence(timeout: 5))
     }
 
     func testReducedMotionKeepsAReadableMovementGuide() {

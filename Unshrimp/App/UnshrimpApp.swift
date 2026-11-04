@@ -103,7 +103,20 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard response.notification.request.content.categoryIdentifier == NotificationManager.categoryID else { return }
+        let category = response.notification.request.content.categoryIdentifier
+        if category == NotificationManager.standCategoryID {
+            await handleStand(response)
+            return
+        }
+        if category == NotificationManager.recapCategoryID {
+            await MainActor.run {
+                Analytics.capture("weekly_recap_reminder_opened")
+                let model = AppModel.shared
+                if model.data.hasOnboarded { model.recapRequested = true }
+            }
+            return
+        }
+        guard category == NotificationManager.categoryID else { return }
         let action = response.actionIdentifier
         await MainActor.run {
             let model = AppModel.shared
@@ -124,6 +137,32 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
             default:
                 break
             }
+        }
+    }
+
+    /// "Done, I stood up" and "Not now" run in the background and finish before returning, so the
+    /// stand is saved and reminders are replanned even though the app never comes forward.
+    private func handleStand(_ response: UNNotificationResponse) async {
+        let moveID = response.notification.request.content.userInfo[NotificationManager.standMoveKey] as? String
+        switch response.actionIdentifier {
+        case NotificationManager.standDoneActionID:
+            await Task { @MainActor in
+                await AppModel.shared.recordStand(moveID: moveID ?? "", source: .reminderAction)
+                Analytics.flush()
+            }.value
+        case NotificationManager.standSkipActionID:
+            await Task { @MainActor in
+                await AppModel.shared.skipStand(moveID: moveID)
+                Analytics.flush()
+            }.value
+        case NotificationManager.standShowActionID, UNNotificationDefaultActionIdentifier:
+            await MainActor.run {
+                let model = AppModel.shared
+                Analytics.capture("stand_reminder_opened")
+                if model.data.hasOnboarded { model.standRequested = moveID ?? StandMove.all[0].id }
+            }
+        default:
+            break
         }
     }
 }

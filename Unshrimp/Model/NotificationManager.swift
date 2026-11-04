@@ -9,6 +9,20 @@ enum NotificationManager {
     static let snoozeMinutes: Double = 10
     static let idPrefix = "unshrimp.reminder."
 
+    static let standCategoryID = "STAND_REMINDER"
+    static let standDoneActionID = "STAND_DONE"
+    static let standShowActionID = "STAND_SHOW"
+    static let standSkipActionID = "STAND_SKIP"
+    static let standIDPrefix = "unshrimp.reminder.stand."
+    static let standMoveKey = "standMove"
+
+    static let recapCategoryID = "WEEKLY_RECAP"
+    static let recapID = "unshrimp.reminder.weekly"
+
+    /// iOS keeps at most 64 pending requests per app; leave room for the trial heads-up, the weekly
+    /// recap and a snooze or two.
+    static let pendingLimit = 58
+
     static var center: UNUserNotificationCenter { .current() }
 
     static func registerCategories() {
@@ -17,7 +31,18 @@ enum NotificationManager {
         let snooze = UNNotificationAction(identifier: snoozeActionID, title: String(localized: "In 10 minutes"),
                                           options: [], icon: UNNotificationActionIcon(systemImageName: "clock.arrow.circlepath"))
         let category = UNNotificationCategory(identifier: categoryID, actions: [start, snooze], intentIdentifiers: [], options: [])
-        center.setNotificationCategories([category])
+
+        // A quick stand is done from the reminder itself: no unlocking, no opening the app.
+        let standDone = UNNotificationAction(identifier: standDoneActionID, title: String(localized: "Done, I stood up"),
+                                             options: [], icon: UNNotificationActionIcon(systemImageName: "checkmark.circle"))
+        let standShow = UNNotificationAction(identifier: standShowActionID, title: String(localized: "Show me"),
+                                             options: [.foreground], icon: UNNotificationActionIcon(systemImageName: "figure.stand"))
+        let standSkip = UNNotificationAction(identifier: standSkipActionID, title: String(localized: "Not now"),
+                                             options: [], icon: UNNotificationActionIcon(systemImageName: "moon.zzz"))
+        let standCategory = UNNotificationCategory(identifier: standCategoryID, actions: [standDone, standShow, standSkip],
+                                                   intentIdentifiers: [], options: [])
+        let recapCategory = UNNotificationCategory(identifier: recapCategoryID, actions: [], intentIdentifiers: [], options: [])
+        center.setNotificationCategories([category, standCategory, recapCategory])
     }
 
     static func status() async -> UNAuthorizationStatus {
@@ -29,8 +54,17 @@ enum NotificationManager {
         (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
     }
 
-    /// Replaces all pending Unshrimp reminders with a fresh plan.
-    static func reschedule(preferences: Preferences, lastBreak: Date?, context: KipVoice.Context, now: Date = Date()) async {
+    /// What reschedule needs beyond preferences: recent movement and how stands have been going.
+    struct History {
+        var lastBreak: Date?
+        var lastStand: Date?
+        var standSkipStreak: Int = 0
+        var hasBreaks: Bool = false
+    }
+
+    /// Replaces all pending Unshrimp reminders with a fresh plan: break reminders, quick stands
+    /// between them, and the weekly recap.
+    static func reschedule(preferences: Preferences, history plan: History, context: KipVoice.Context, now: Date = Date()) async {
         let pending = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(idPrefix) && !$0.contains(".oneoff.") }
         center.removePendingNotificationRequests(withIdentifiers: pending)
 
@@ -38,19 +72,78 @@ enum NotificationManager {
         let status = await status()
         guard status == .authorized || status == .provisional || status == .ephemeral else { return }
 
-        let dates = ReminderPlanner.upcoming(from: now, lastBreak: lastBreak, schedule: preferences.schedule)
+        let schedule = preferences.schedule
+        let standsOn = preferences.standsEnabled
+        // With stands on there are many more reminders a day, so plan fewer days ahead. The app
+        // plans again every time it opens and after every break or stand.
+        let days = standsOn ? 4 : 7
+        let breakDates = ReminderPlanner.upcoming(from: now, lastBreak: plan.lastBreak, schedule: schedule, days: days, limit: pendingLimit)
+
+        var standDates: [Date] = []
+        var slowedDown = false
+        if standsOn {
+            let lastMove = [plan.lastBreak, plan.lastStand].compactMap { $0 }.max()
+            let ignored = await ignoredStandCount(since: plan.lastStand)
+            slowedDown = plan.standSkipStreak + ignored >= StandRules.backoffAfter
+            let notBefore = slowedDown
+                ? now.addingTimeInterval(Double(preferences.standIntervalMinutes + StandRules.backoffMinutes) * 60)
+                : nil
+            standDates = ReminderPlanner.upcomingStands(from: now, lastMove: lastMove, schedule: schedule,
+                                                        intervalMinutes: preferences.standIntervalMinutes,
+                                                        notBefore: notBefore, days: days)
+        }
+
         let portrait = await KipPortrait.file(for: context.look)
         let calendar = Calendar.current
-        for date in dates {
-            let daySlots = ReminderPlanner.slots(on: date, schedule: preferences.schedule)
-            let slot = KipVoice.Slot(date: date, index: daySlots.firstIndex(of: date) ?? 0, count: daySlots.count,
-                                     isToday: calendar.isDate(date, inSameDayAs: now))
-            let content = makeContent(KipVoice.reminder(slot: slot, context: context), portrait: portrait)
+        let all = (breakDates.map { ($0, false) } + standDates.map { ($0, true) })
+            .sorted { $0.0 < $1.0 }
+            .prefix(pendingLimit)
+        var firstStand = true
+        for (date, isStand) in all {
             let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-            let request = UNNotificationRequest(identifier: idPrefix + "\(Int(date.timeIntervalSince1970))", content: content, trigger: trigger)
+            let request: UNNotificationRequest
+            if isStand {
+                let daySlots = ReminderPlanner.standSlots(on: date, schedule: schedule, intervalMinutes: preferences.standIntervalMinutes)
+                let day = calendar.ordinality(of: .day, in: .era, for: date) ?? 0
+                let move = StandMove.pick(seed: day &* 3 &+ (daySlots.firstIndex(of: date) ?? 0))
+                let content = makeContent(KipVoice.stand(move, slowedDown: slowedDown && firstStand), portrait: portrait)
+                content.categoryIdentifier = standCategoryID
+                content.userInfo = [standMoveKey: move.id]
+                firstStand = false
+                request = UNNotificationRequest(identifier: standIDPrefix + "\(Int(date.timeIntervalSince1970))", content: content, trigger: trigger)
+            } else {
+                let daySlots = ReminderPlanner.slots(on: date, schedule: schedule)
+                let slot = KipVoice.Slot(date: date, index: daySlots.firstIndex(of: date) ?? 0, count: daySlots.count,
+                                         isToday: calendar.isDate(date, inSameDayAs: now))
+                let content = makeContent(KipVoice.reminder(slot: slot, context: context), portrait: portrait)
+                request = UNNotificationRequest(identifier: idPrefix + "\(Int(date.timeIntervalSince1970))", content: content, trigger: trigger)
+            }
             try? await center.add(request)
         }
+
+        // The weekly recap, once there's something to recap.
+        if plan.hasBreaks, let date = ReminderPlanner.weeklyRecapDate(after: now, schedule: schedule) {
+            let content = makeContent(KipVoice.weeklyRecap(), portrait: portrait)
+            content.categoryIdentifier = recapCategoryID
+            let comps = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+            try? await center.add(UNNotificationRequest(identifier: recapID, content: content, trigger: trigger))
+        }
+    }
+
+    /// Stand reminders still sitting in Notification Center since the last stand: shown, not acted on.
+    /// Acting on a reminder removes it, so what's left was ignored.
+    static func ignoredStandCount(since lastStand: Date?) async -> Int {
+        await center.deliveredNotifications()
+            .filter { $0.request.identifier.hasPrefix(standIDPrefix) && $0.date > (lastStand ?? .distantPast) }
+            .count
+    }
+
+    /// Clears stand reminders from Notification Center once a stand is done or declined.
+    static func clearDeliveredStands() async {
+        let ids = await center.deliveredNotifications().map(\.request.identifier).filter { $0.hasPrefix(standIDPrefix) }
+        center.removeDeliveredNotifications(withIdentifiers: ids)
     }
 
     enum OneOff { case snoozed, test }
@@ -192,6 +285,32 @@ enum KipVoice {
                               body: String(localized: "That's our breaks doing that. Another one?")))
         }
         return pick(seed, lines)
+    }
+
+    /// A stand reminder names the move, so it can be done without opening the app.
+    static func stand(_ move: StandMove, slowedDown: Bool = false) -> Line {
+        if slowedDown {
+            return Line(title: String(localized: "Busy day, huh? I'll keep it short"),
+                        body: String(localized: "\(move.name), \(move.seconds) seconds: \(move.cue)"))
+        }
+        let title: String
+        switch move.id {
+        case "stand-water": title = String(localized: "I'm off to refill my water. Coming?")
+        case "stand-march": title = String(localized: "My legs fell asleep. March with me?")
+        case "stand-reach": title = String(localized: "Stand up and reach with me")
+        case "stand-backbend": title = String(localized: "I've been curled for a while. Lean back with me?")
+        case "stand-sit-to-stand": title = String(localized: "Up, down, up. Five times?")
+        case "stand-wall-pushup": title = String(localized: "Wall push-ups. I'll count, you push")
+        case "stand-blade-squeeze": title = String(localized: "Quick posture check, standing")
+        case "stand-look-far": title = String(localized: "Eyes off the screen for 20 seconds?")
+        default: title = String(localized: "Quick stand with me?")
+        }
+        return Line(title: title, body: String(localized: "\(move.seconds) seconds: \(move.cue)"))
+    }
+
+    static func weeklyRecap() -> Line {
+        Line(title: String(localized: "Your week with \(Brand.mascotName) is ready"),
+             body: String(localized: "See how much we moved, and tell me how you're feeling."))
     }
 
     static func snoozed(context c: Context, seed: Int) -> Line {

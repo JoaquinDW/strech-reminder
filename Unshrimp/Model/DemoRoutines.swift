@@ -73,12 +73,16 @@ enum DemoLibrary {
 
     static var availableMoves: [Move] { moves.filter { $0.media != nil } }
 
+    /// Moves done standing. Every break of three minutes or more includes one, so breaks also get
+    /// people out of the chair.
+    static let standingMoveIDs: Set<String> = ["march"]
+
     /// How many past move ids are kept for rotation.
     static let historyLimit = 40
 
     /// Builds a routine from the chosen areas, taking turns between them and starting with the moves
     /// that came up least recently, so consecutive breaks don't feel the same.
-    static func routine(length: BreakLength, focus: Set<FocusArea>, recent: [String] = []) -> Routine {
+    static func routine(length: BreakLength, focus: Set<FocusArea>, recent: [String] = [], avoid: Set<String> = []) -> Routine {
         let count: Int
         switch length {
         case .two: count = 4
@@ -88,7 +92,10 @@ enum DemoLibrary {
         let areas = focus.isEmpty ? Set(FocusArea.allCases) : focus
         // Never-seen moves first, then the ones seen longest ago; catalog order breaks ties.
         func lastSeen(_ move: Move) -> Int { recent.lastIndex(of: move.id) ?? -1 }
-        var remaining = availableMoves.enumerated()
+        // Moves that bothered someone sit out; if that empties the catalog, everything comes back.
+        let allowed = availableMoves.filter { !avoid.contains($0.id) }
+        let pool = allowed.isEmpty ? availableMoves : allowed
+        var remaining = pool.enumerated()
             .sorted { (lastSeen($0.element), $0.offset) < (lastSeen($1.element), $1.offset) }
             .map(\.element)
 
@@ -111,6 +118,11 @@ enum DemoLibrary {
         let firstRound = picked
         while picked.count < count, !firstRound.isEmpty {
             picked.append(firstRound[picked.count % firstRound.count])
+        }
+        // Three minutes or more: make sure one move is done standing, in place of the last one.
+        if length != .two, !picked.contains(where: { standingMoveIDs.contains($0.id) }),
+           let standing = pool.first(where: { standingMoveIDs.contains($0.id) }), !picked.isEmpty {
+            picked[picked.count - 1] = standing
         }
         return Routine(moves: picked, secondsPerMove: length.minutes * 60 / count, minutes: length.minutes, focus: areas)
     }

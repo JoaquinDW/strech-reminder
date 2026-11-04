@@ -113,6 +113,7 @@ struct SettingsView: View {
                     SectionLabel(text: "Nudge every")
                     IntervalPicker(minutes: binding(\.schedule.intervalMinutes))
                 }
+                StandsControl(enabled: binding(\.standsEnabled), minutes: binding(\.standIntervalMinutes))
                 if let next = model.nextReminder() {
                     Text("Next nudge \(ReminderPlanner.describe(next))")
                         .font(.uCallout.weight(.semibold)).foregroundStyle(Palette.petrolSoft)
