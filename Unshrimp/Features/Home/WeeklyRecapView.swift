@@ -25,6 +25,9 @@ struct WeeklyRecapView: View {
                     .frame(width: geo.size.width, height: geo.size.height)
             }
 
+            if summary.hasFeeling {
+                FeelingCard(summary: summary)
+            }
             if let image {
                 ShareLink(item: image,
                           message: Text("This week I moved \(summary.minutes) minutes with \(Brand.mascotName) in \(Brand.appName)."),
@@ -183,4 +186,50 @@ struct WeekShareCard: View {
         .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Palette.paper))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).strokeBorder(Palette.petrol, lineWidth: 2))
     }
+}
+
+/// How the week felt, below the share card. Kept out of the shared image: it's about the body.
+private struct FeelingCard: View {
+    let summary: WeeklySummary
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            if summary.stands > 0 {
+                row("figure.stand", summary.stands == 1
+                    ? String(localized: "You stood up once between breaks")
+                    : String(localized: "You stood up \(summary.stands) times between breaks"))
+            }
+            if let share = summary.looserShare {
+                row("face.smiling", String(localized: "\(share.looser) of \(share.of) breaks left you looser"))
+            }
+            ForEach(summary.trends) { trend in
+                row(trend.area.symbol, trendText(trend))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .card()
+        .accessibilityElement(children: .combine)
+    }
+
+    private func trendText(_ t: StiffnessTrend) -> String {
+        if t.change < 0 {
+            return String(localized: "\(t.area.title): \(t.first) → \(t.latest) since we started")
+        }
+        if t.change == 0 {
+            return String(localized: "\(t.area.title): steady at \(t.latest)")
+        }
+        return String(localized: "\(t.area.title): \(t.first) → \(t.latest). Go gently, and if it keeps bothering you, check with a professional.")
+    }
+
+    private func row(_ icon: String, _ text: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: Space.s) {
+            Image(systemName: icon).font(.system(size: 14, weight: .bold)).foregroundStyle(Palette.petrol).frame(width: 22)
+            Text(text).font(.uCallout.weight(.semibold)).foregroundStyle(Palette.petrol)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+extension WeeklySummary {
+    var hasFeeling: Bool { stands > 0 || looserShare != nil || !trends.isEmpty }
 }

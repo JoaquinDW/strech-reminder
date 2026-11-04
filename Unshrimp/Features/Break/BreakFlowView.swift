@@ -44,7 +44,7 @@ struct BreakFlowView: View {
 
     let routine: Routine
 
-    enum Stage: Equatable { case intro, moving, confirm, reward(BreakResult), notThisTime }
+    enum Stage: Equatable { case intro, moving, confirm, whichMove, reward(BreakResult), notThisTime }
 
     @State private var stage: Stage = .intro
     @State private var session: ExerciseSession
@@ -71,6 +71,7 @@ struct BreakFlowView: View {
                 case .intro: intro
                 case .moving: moving
                 case .confirm: confirm
+                case .whichMove: whichMove
                 case .reward(let result): RewardView(result: result) { dismiss() }
                 case .notThisTime: notThisTime
                 }
@@ -280,10 +281,11 @@ struct BreakFlowView: View {
         VStack(spacing: Space.l) {
             Spacer(minLength: 0)
             ShrimpStage(state: .stretching, backdrop: Palette.butterSoft)
-                .frame(maxHeight: 260)
+                .frame(maxHeight: 240)
             VStack(spacing: Space.s) {
-                Text("Did you move with \(Brand.mascotName)?")
+                Text("How does your body feel?")
                     .font(.uTitle).foregroundStyle(Palette.petrol)
+                    .accessibilityAddTraits(.isHeader)
                 Text("You decide what counts. Partial breaks are welcome.")
                     .font(.uBody).foregroundStyle(Palette.petrolSoft)
             }
@@ -291,26 +293,94 @@ struct BreakFlowView: View {
             .padding(.horizontal, Space.page)
             Spacer(minLength: 0)
             VStack(spacing: Space.xs) {
-                Button("Yes, I moved") {
-                    guard !analytics.hasEnded else { return }
-                    let result = model.recordBreak(minutes: routine.minutes, focus: routine.focus)
-                    analytics.complete(routineReachedEnd: session.isComplete,
-                                       isFirstBreak: model.data.breaks.count == 1, breaksToday: result.breaksToday)
-                    if result.reachedGoalNow {
-                        Analytics.capture("daily_goal_reached", properties: ["daily_goal": result.goal])
-                    }
-                    stage = .reward(result)
+                HStack(spacing: Space.s) {
+                    feelButton(.looser, String(localized: "Looser"), "face.smiling")
+                    feelButton(.same, String(localized: "Same"), "minus.circle")
+                    feelButton(.bothered, String(localized: "Something bothered me"), "exclamationmark.bubble")
                 }
-                .buttonStyle(.chunky)
-                Button("Not this time") {
+                Button("I didn't get to it") {
                     analytics.abandon(reason: "not_confirmed")
                     stage = .notThisTime
                 }
-                    .buttonStyle(.chunky(.quiet))
+                .buttonStyle(.chunky(.quiet))
             }
             .padding(.horizontal, Space.page)
             .padding(.bottom, Space.s)
         }
+    }
+
+    private func feelButton(_ feel: BreakFeel, _ title: String, _ icon: String) -> some View {
+        Button {
+            if feel == .bothered { stage = .whichMove } else { complete(feel: feel) }
+        } label: {
+            VStack(spacing: Space.xs) {
+                Image(systemName: icon).font(.system(size: 24, weight: .bold))
+                Text(title).font(.uCallout.weight(.bold))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+            .foregroundStyle(Palette.petrol)
+            .frame(maxWidth: .infinity, minHeight: 96)
+            .padding(.horizontal, Space.xs)
+            .background(RoundedRectangle(cornerRadius: Radius.tile, style: .continuous)
+                .fill(feel == .looser ? Palette.coralSoft : Palette.paper))
+            .overlay(RoundedRectangle(cornerRadius: Radius.tile, style: .continuous)
+                .strokeBorder(Palette.petrol, lineWidth: Stroke.control))
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityLabel(Text(title))
+    }
+
+    /// "Something bothered me": which move? That one sits out of routines for a while.
+    private var whichMove: some View {
+        VStack(spacing: Space.l) {
+            ScrollView {
+                VStack(spacing: Space.l) {
+                    ShrimpStage(state: .resting)
+                        .frame(height: 180)
+                    VStack(spacing: Space.s) {
+                        Text("Which one bothered you?")
+                            .font(.uTitle).foregroundStyle(Palette.petrol)
+                            .accessibilityAddTraits(.isHeader)
+                        Text("Thanks for telling me. I'll leave it out for a couple of weeks. If something hurts, stop and check with a health professional.")
+                            .font(.uBody).foregroundStyle(Palette.petrolSoft)
+                    }
+                    .multilineTextAlignment(.center)
+                    VStack(spacing: Space.s) {
+                        ForEach(uniqueMoves) { m in
+                            OptionCard(title: m.name, isSelected: false, action: {
+                                model.avoid(moveID: m.id)
+                                complete(feel: .bothered)
+                            })
+                        }
+                    }
+                }
+                .padding(.horizontal, Space.page)
+                .padding(.top, Space.l)
+            }
+            Button("Not sure, just save the break") { complete(feel: .bothered) }
+                .buttonStyle(.chunky(.quiet))
+                .padding(.horizontal, Space.page)
+                .padding(.bottom, Space.s)
+        }
+    }
+
+    private var uniqueMoves: [Move] {
+        var seen = Set<String>()
+        return routine.moves.filter { seen.insert($0.id).inserted }
+    }
+
+    private func complete(feel: BreakFeel) {
+        guard !analytics.hasEnded else { return }
+        let result = model.recordBreak(minutes: routine.minutes, focus: routine.focus, feel: feel)
+        analytics.complete(routineReachedEnd: session.isComplete,
+                           isFirstBreak: model.data.breaks.count == 1, breaksToday: result.breaksToday)
+        Analytics.capture("break_feel", properties: ["feel": feel.rawValue, "duration_minutes": routine.minutes])
+        if result.reachedGoalNow {
+            Analytics.capture("daily_goal_reached", properties: ["daily_goal": result.goal])
+        }
+        stage = .reward(result)
     }
 
     private var notThisTime: some View {

@@ -37,6 +37,11 @@ struct RewardView: View {
                     }
                     .accessibilityElement(children: .combine)
 
+                    if let line = feelLine {
+                        SpeechBubble(text: line)
+                            .frame(maxWidth: 300)
+                    }
+
                     VStack(spacing: Space.s) {
                         ForEach(Array(result.lines.enumerated()), id: \.element.id) { i, line in
                             if i < shownLines {
@@ -101,6 +106,16 @@ struct RewardView: View {
         .sensoryFeedback(.success, trigger: shownEnergy > 0)
         .sensoryFeedback(.impact(weight: .heavy), trigger: revealUnlock && result.newStage != nil)
         .task { await play() }
+    }
+
+    /// Kip answers how the break felt: cheers for looser, no drama for the same, care for bothered.
+    private var feelLine: String? {
+        switch result.feel {
+        case .looser: String(localized: "Me too! Look how far I uncurl.")
+        case .same: String(localized: "Some days are like that. We still got up, and that counts.")
+        case .bothered: String(localized: "Thanks for telling me. Go gently, and skip anything that doesn't feel right.")
+        case nil: nil
+        }
     }
 
     private var stageLook: KipLook {

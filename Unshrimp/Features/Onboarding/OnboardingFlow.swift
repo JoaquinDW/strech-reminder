@@ -7,6 +7,8 @@ struct OnboardingFlow: View {
     @State private var forward = true
     @State private var draft = Preferences()
     @State private var loadedDraft = false
+    /// Stiffness scores from the focus step: the "before" for the weekly recap.
+    @State private var baseline: [FocusArea: Int] = [:]
 
     static let stepCount = 8
 
@@ -69,13 +71,18 @@ struct OnboardingFlow: View {
     @ViewBuilder private var page: some View {
         switch step {
         case 0: WelcomeStep(next: next)
-        case 1: FrictionStep(friction: $draft.friction, next: next)
-        case 2: FocusStep(areas: $draft.focusAreas, next: next)
+        case 1: FrictionStep(friction: $draft.friction, next: {
+            // Use the answer: it sets the quick-stand rhythm (still editable on the schedule step).
+            draft.standIntervalMinutes = Preferences.suggestedStandInterval(for: draft.friction)
+            next()
+        })
+        case 2: FocusStep(areas: $draft.focusAreas, baseline: $baseline, next: next)
         case 3: DemoStep(next: next)
         case 4: RhythmStep(length: $draft.breakLength, goal: $draft.dailyGoal, next: next)
-        case 5: ScheduleStep(schedule: $draft.schedule, next: next)
+        case 5: ScheduleStep(schedule: $draft.schedule, standsEnabled: $draft.standsEnabled,
+                             standInterval: $draft.standIntervalMinutes, next: next)
         case 6: RemindersStep(enabled: $draft.remindersEnabled, minutes: draft.breakLength.minutes, next: next)
-        default: PlanStep(prefs: draft) { model.finishOnboarding(with: draft) }
+        default: PlanStep(prefs: draft) { model.finishOnboarding(with: draft, baseline: baseline) }
         }
     }
 
@@ -208,6 +215,7 @@ private struct FrictionStep: View {
 
 private struct FocusStep: View {
     @Binding var areas: Set<FocusArea>
+    @Binding var baseline: [FocusArea: Int]
     var next: () -> Void
 
     var body: some View {
@@ -228,6 +236,19 @@ private struct FocusStep: View {
                             if areas.contains(area) { areas.remove(area) } else { areas.insert(area) }
                         }
                     }
+                }
+                if !areas.isEmpty {
+                    VStack(alignment: .leading, spacing: Space.m) {
+                        Text("How much does each bother you today? Optional. It lets you see change over the weeks.")
+                            .font(.uCallout.weight(.semibold))
+                            .foregroundStyle(Palette.petrol)
+                            .fixedSize(horizontal: false, vertical: true)
+                        ForEach(FocusArea.allCases.filter(areas.contains)) { area in
+                            StiffnessScale(area: area, score: Binding(get: { baseline[area] }, set: { baseline[area] = $0 }))
+                        }
+                    }
+                    .card()
+                    .padding(.top, Space.xs)
                 }
                 Text("\(Brand.mascotName) is a movement buddy, not a clinician. If something hurts or worries you, check in with a health professional.")
                     .font(.uCaption.weight(.medium))
@@ -357,6 +378,8 @@ private struct RhythmStep: View {
 
 private struct ScheduleStep: View {
     @Binding var schedule: WorkSchedule
+    @Binding var standsEnabled: Bool
+    @Binding var standInterval: Int
     var next: () -> Void
 
     private var valid: Bool { !schedule.workdays.isEmpty && schedule.endMinute > schedule.startMinute }
@@ -380,9 +403,12 @@ private struct ScheduleStep: View {
                     SectionLabel(text: "Nudge me every")
                     IntervalPicker(minutes: $schedule.intervalMinutes)
                 }
+                StandsControl(enabled: $standsEnabled, minutes: $standInterval)
                 Group {
                     if valid {
-                        Text("That's about \(ReminderPlanner.nudgesPerDay(schedule)) nudges each workday.")
+                        Text(standsEnabled
+                             ? String(localized: "That's about \(ReminderPlanner.nudgesPerDay(schedule)) breaks and \(ReminderPlanner.standsPerDay(schedule, intervalMinutes: standInterval)) quick stands each workday.")
+                             : String(localized: "That's about \(ReminderPlanner.nudgesPerDay(schedule)) nudges each workday."))
                     } else if schedule.workdays.isEmpty {
                         Text("Pick at least one workday.")
                     } else {
@@ -485,6 +511,10 @@ private struct PlanStep: View {
                 row(remindersOn ? "bell.fill" : "bell.slash", remindersOn
                     ? String(localized: "A nudge every \(prefs.schedule.intervalMinutes) minutes")
                     : String(localized: "Reminders off for now"))
+                if remindersOn && prefs.standsEnabled {
+                    Divider().overlay(Palette.line)
+                    row("figure.stand", String(localized: "A quick stand every \(prefs.standIntervalMinutes) minutes in between"))
+                }
                 Divider().overlay(Palette.line)
                 row("leaf.fill", String(localized: "Each break grows \(Brand.mascotName)'s desk"))
             }

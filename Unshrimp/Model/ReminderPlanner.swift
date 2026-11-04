@@ -37,6 +37,71 @@ enum ReminderPlanner {
         return result
     }
 
+    // MARK: Quick stands
+
+    /// Stand reminder times on a day: every stand interval from the start of work, before the end,
+    /// leaving room around break reminders so the two never pile up.
+    static func standSlots(on day: Date, schedule: WorkSchedule, intervalMinutes: Int, calendar: Calendar = .current) -> [Date] {
+        guard intervalMinutes > 0 else { return [] }
+        let breaks = slots(on: day, schedule: schedule, calendar: calendar)
+        let weekday = calendar.component(.weekday, from: day)
+        guard schedule.workdays.contains(weekday), schedule.endMinute > schedule.startMinute else { return [] }
+        let start = calendar.startOfDay(for: day)
+        let gap = Double(StandRules.gapAroundBreakMinutes) * 60
+        var result: [Date] = []
+        var minute = schedule.startMinute + intervalMinutes
+        while minute < schedule.endMinute {
+            if let d = calendar.date(byAdding: .minute, value: minute, to: start),
+               !breaks.contains(where: { abs($0.timeIntervalSince(d)) <= gap }) {
+                result.append(d)
+            }
+            minute += intervalMinutes
+        }
+        return result
+    }
+
+    static func standsPerDay(_ schedule: WorkSchedule, intervalMinutes: Int) -> Int {
+        let day = Calendar.current.startOfDay(for: Date())
+        var plain = schedule
+        plain.workdays = Set(1...7)
+        return standSlots(on: day, schedule: plain, intervalMinutes: intervalMinutes).count
+    }
+
+    /// Upcoming stand reminders. Skips any that land soon after the last movement (a break or a
+    /// stand), and any before `notBefore`, which is how the rhythm slows after ignored reminders.
+    static func upcomingStands(from now: Date, lastMove: Date?, schedule: WorkSchedule, intervalMinutes: Int,
+                               notBefore: Date? = nil, days: Int = 4, calendar: Calendar = .current) -> [Date] {
+        var result: [Date] = []
+        let quiet = Double(intervalMinutes) * 60 * 0.6
+        for offset in 0..<days {
+            guard let day = calendar.date(byAdding: .day, value: offset, to: now) else { continue }
+            for slot in standSlots(on: day, schedule: schedule, intervalMinutes: intervalMinutes, calendar: calendar) where slot > now {
+                if let lastMove, slot > lastMove, slot.timeIntervalSince(lastMove) < quiet { continue }
+                if let notBefore, slot < notBefore { continue }
+                result.append(slot)
+            }
+        }
+        return result
+    }
+
+    /// When the weekly recap reminder goes out: an hour before the end of the last workday of the
+    /// week containing `now`, or next week's if that has passed.
+    static func weeklyRecapDate(after now: Date, schedule: WorkSchedule, calendar: Calendar = .current) -> Date? {
+        guard !schedule.workdays.isEmpty else { return nil }
+        for weekOffset in 0..<2 {
+            guard let anchor = calendar.date(byAdding: .weekOfYear, value: weekOffset, to: now),
+                  let week = calendar.dateInterval(of: .weekOfYear, for: anchor) else { continue }
+            let days = (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: week.start) }
+                .filter { schedule.workdays.contains(calendar.component(.weekday, from: $0)) }
+            guard let last = days.last else { continue }
+            let minute = max(schedule.startMinute, schedule.endMinute - 60)
+            if let date = calendar.date(byAdding: .minute, value: minute, to: calendar.startOfDay(for: last)), date > now {
+                return date
+            }
+        }
+        return nil
+    }
+
     static func isWithinWorkHours(_ date: Date, schedule: WorkSchedule, calendar: Calendar = .current) -> Bool {
         let weekday = calendar.component(.weekday, from: date)
         guard schedule.workdays.contains(weekday) else { return false }

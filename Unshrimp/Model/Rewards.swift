@@ -65,6 +65,8 @@ struct BreakResult: Equatable {
     /// Set when this break moved Kip to a new growth stage.
     var newStage: Int? = nil
     var newWearable: Wearable? = nil
+    /// How the person said the break felt, so Kip can answer on the reward screen.
+    var feel: BreakFeel? = nil
 
     var earned: Int { energyAfter - energyBefore }
 }

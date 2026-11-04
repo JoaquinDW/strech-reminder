@@ -182,3 +182,33 @@ struct FocusPicker: View {
         }
     }
 }
+
+/// Quick stands between breaks: on/off and how often. Shared by onboarding and settings.
+struct StandsControl: View {
+    @Binding var enabled: Bool
+    @Binding var minutes: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s) {
+            Toggle(isOn: $enabled.animation(Motion.snappy)) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Quick stands in between").font(.uHeadline).foregroundStyle(Palette.petrol)
+                    Text("Under a minute on your feet, done right from the reminder. Recommended.")
+                        .font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .tint(Palette.coral)
+            if enabled {
+                HStack(spacing: Space.s) {
+                    ForEach(Preferences.standIntervalOptions, id: \.self) { m in
+                        Chip(title: String(localized: "Every \(m) min"), isSelected: minutes == m, stretch: true) {
+                            withAnimation(Motion.snappy) { minutes = m }
+                        }
+                    }
+                }
+            }
+        }
+        .card()
+    }
+}

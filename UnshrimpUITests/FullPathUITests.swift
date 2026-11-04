@@ -114,7 +114,7 @@ final class FullPathUITests: XCTestCase {
         tapButton("Finish")
         sleep(1)
         snap("12-confirm")
-        tapButton("Yes, I moved")
+        tapButton("Looser")
         sleep(3)
         snap("13-reward")
         tapButton("Back to work")

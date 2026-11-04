@@ -8,6 +8,8 @@ struct HomeView: View {
     @State private var showSettings = false
     @State private var showCollection = false
     @State private var showRecap = false
+    @State private var activeStand: StandMove?
+    @State private var standSource: StandSource = .app
     @State private var now = Date()
     @State private var popItem: DeskItem?
     @State private var popStart: Double = 0
@@ -18,6 +20,9 @@ struct HomeView: View {
                 header
                 scene
                 todayCard
+                if model.stiffnessCheckinDue(now) {
+                    StiffnessCheckinCard(areas: model.prefs.focusAreas)
+                }
                 startSection
                 weekCard
                 growthCard
@@ -34,6 +39,9 @@ struct HomeView: View {
         .background(Palette.ivory.ignoresSafeArea())
         .fullScreenCover(item: $activeRoutine, onDismiss: afterBreak) { routine in
             BreakFlowView(routine: routine, skipIntro: skipIntro, source: breakSource)
+        }
+        .fullScreenCover(item: $activeStand, onDismiss: afterBreak) { move in
+            StandView(move: move, source: standSource)
         }
         .sheet(isPresented: $showSettings) { SettingsView() }
         .sheet(isPresented: $showCollection) { CollectionView() }
@@ -57,6 +65,30 @@ struct HomeView: View {
             } else {
                 startBreak(skippingIntro: skip, source: .reminder)
             }
+        }
+        .onChange(of: model.standRequested, initial: true) { _, requested in
+            guard let id = requested else { return }
+            model.standRequested = nil
+            // A break or stand already on screen wins.
+            guard activeRoutine == nil, activeStand == nil, let move = StandMove.move(id) else { return }
+            let hadSheet = showSettings || showCollection || showRecap
+            showSettings = false
+            showCollection = false
+            showRecap = false
+            standSource = .reminderScreen
+            if hadSheet {
+                Task { try? await Task.sleep(for: .milliseconds(450)); activeStand = move }
+            } else {
+                activeStand = move
+            }
+        }
+        .onChange(of: model.recapRequested, initial: true) { _, requested in
+            guard requested else { return }
+            model.recapRequested = false
+            guard activeRoutine == nil, activeStand == nil, model.weeklySummary(now) != nil else { return }
+            showSettings = false
+            showCollection = false
+            Task { try? await Task.sleep(for: .milliseconds(300)); showRecap = true }
         }
         .task { await model.refreshNotificationStatus() }
         #if DEBUG
@@ -125,9 +157,25 @@ struct HomeView: View {
             }
             .accessibilityElement(children: .combine)
             ProgressPills(done: done, total: goal)
+            standsLine
             reminderLine
         }
         .card()
+    }
+
+    /// Quick stands sit beside the goal, not inside it, so the daily goal stays about breaks.
+    @ViewBuilder private var standsLine: some View {
+        let stands = model.standsToday(now)
+        if model.prefs.standsEnabled || stands > 0 {
+            HStack(spacing: Space.s) {
+                Image(systemName: "figure.stand")
+                Text(stands == 1 ? String(localized: "1 quick stand today") : String(localized: "\(stands) quick stands today"))
+                Spacer()
+            }
+            .font(.uCallout.weight(.semibold))
+            .foregroundStyle(Palette.petrol)
+            .accessibilityElement(children: .combine)
+        }
     }
 
     @ViewBuilder private var reminderLine: some View {
@@ -185,6 +233,17 @@ struct HomeView: View {
             .buttonStyle(.chunky)
             .accessibilityLabel(Text("Start a break"))
             .accessibilityHint(Text("\(model.prefs.breakLength.minutes) minutes, focused on \(FocusArea.summary(model.prefs.focusAreas))"))
+
+            Button {
+                standSource = .app
+                activeStand = StandMove.pick(seed: model.data.stands.count &* 5 &+ Calendar.current.component(.hour, from: now))
+            } label: {
+                HStack(spacing: Space.s) {
+                    Image(systemName: "figure.stand")
+                    Text("Quick stand, under a minute")
+                }
+            }
+            .buttonStyle(.chunky(.secondary))
 
             VStack(alignment: .leading, spacing: Space.s) {
                 HStack(spacing: Space.s) {
