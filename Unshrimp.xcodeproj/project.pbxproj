@@ -40,6 +40,7 @@
 		6DC2B8EE8844082A37A77485 /* StiffnessCheckin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A118BC5866E4C139223A70A /* StiffnessCheckin.swift */; };
 		70FE9C03B69178E6AB928852 /* exercise-shoulder-roll.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 5D435A496F5B90EADB3A0D5A /* exercise-shoulder-roll.mp4 */; };
 		72DAEFEBA5B0AE92549972DB /* StreakCelebrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C0208DEA97BC3BEDC3CB26F /* StreakCelebrationView.swift */; };
+		785F642A1597970066CA6345 /* StreakTierViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6432C6E66D1E5EEE8400061 /* StreakTierViews.swift */; };
 		7A94C71DE5EC6060C1B554DA /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 20F3FA871C4B49738716EF81 /* RevenueCat */; };
 		7E254E9475CAA4ECE68A9FCE /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27EA265764F4F49DDD83619 /* AppModel.swift */; };
 		803A9C103459F15421C3D78B /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010F25F9F7DCB22423D9E3BB /* NotificationManager.swift */; };
@@ -65,6 +66,7 @@
 		DD23AF5AF690F937C282CC19 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = 537C3CBBF0715FC36AB33755 /* PostHog */; };
 		DE4624A223E21B83D6A2C28B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7027F2F158F3BAC0BA350E55 /* SettingsView.swift */; };
 		DF4BAF528B089DF243E87923 /* exercise-side-reach.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9FD7CB5606757EC09A03FD0E /* exercise-side-reach.mp4 */; };
+		E5958CD534FFD5BF9924AA99 /* streak-chime.wav in Resources */ = {isa = PBXBuildFile; fileRef = 4D27AC7DD6B5AF84EA5AEA2C /* streak-chime.wav */; };
 		E79FBFE30EBC5EEDAE06CF20 /* StandsAndFeelingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07FBFBEFD62C8A84D53FC5B /* StandsAndFeelingTests.swift */; };
 		EBE0965D52FA050B3F5E2481 /* WeeklySummaryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421B7FA243E5A029298BAEAA /* WeeklySummaryTests.swift */; };
 		FF13323CE017ABAC102F6387 /* ExerciseSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CEF336C55CEFD82DDB78208 /* ExerciseSessionTests.swift */; };
@@ -111,6 +113,7 @@
 		421B7FA243E5A029298BAEAA /* WeeklySummaryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummaryTests.swift; sourceTree = "<group>"; };
 		4A118BC5866E4C139223A70A /* StiffnessCheckin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StiffnessCheckin.swift; sourceTree = "<group>"; };
 		4CEF336C55CEFD82DDB78208 /* ExerciseSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSessionTests.swift; sourceTree = "<group>"; };
+		4D27AC7DD6B5AF84EA5AEA2C /* streak-chime.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "streak-chime.wav"; sourceTree = "<group>"; };
 		52120CB9FDF00B91644E4D88 /* Rewards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rewards.swift; sourceTree = "<group>"; };
 		5244DFDCA85C9B33C74BCEA7 /* ShrimpPose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShrimpPose.swift; sourceTree = "<group>"; };
 		571379B911A8AB4E47BA1B0B /* exercise-twist.mp4 */ = {isa = PBXFileReference; path = "exercise-twist.mp4"; sourceTree = "<group>"; };
@@ -130,6 +133,7 @@
 		A05B239793BD1A4B12ECAC38 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
 		A32C36E6BE77F0AF7B8A7FAB /* WeeklyRecapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyRecapView.swift; sourceTree = "<group>"; };
 		A530FB8875A1FE9916A88C38 /* DeskScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeskScene.swift; sourceTree = "<group>"; };
+		A6432C6E66D1E5EEE8400061 /* StreakTierViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakTierViews.swift; sourceTree = "<group>"; };
 		ADB1071C709C71CFBAE3FE5D /* WeeklySummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklySummary.swift; sourceTree = "<group>"; };
 		B1089D58B5C49F2BD2A2B9FD /* ReminderPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderPlanner.swift; sourceTree = "<group>"; };
 		B707B2EAF60B4C8896B98B15 /* AnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsTests.swift; sourceTree = "<group>"; };
@@ -172,6 +176,7 @@
 				2F497A95543C12048B3244D5 /* Assets.xcassets */,
 				9C8C29CBE887B2EE5E6D2791 /* Localizable.xcstrings */,
 				EBA7363F5987B6A1B1EAF982 /* PrivacyInfo.xcprivacy */,
+				4D27AC7DD6B5AF84EA5AEA2C /* streak-chime.wav */,
 				D4AD5D5B4DB3C8872AFB1CDC /* ExerciseVideos */,
 			);
 			path = Resources;
@@ -268,6 +273,7 @@
 			children = (
 				2C0208DEA97BC3BEDC3CB26F /* StreakCelebrationView.swift */,
 				3FDAB92AE54DD7862124779D /* StreakComponents.swift */,
+				A6432C6E66D1E5EEE8400061 /* StreakTierViews.swift */,
 				ED96ABC07478DB20589BA9A7 /* StreakView.swift */,
 			);
 			path = Streak;
@@ -514,6 +520,7 @@
 				294EB62453CC7E5CD656967B /* exercise-shrug.mp4 in Resources */,
 				DF4BAF528B089DF243E87923 /* exercise-side-reach.mp4 in Resources */,
 				0C9F688595D43B4728C1F6B3 /* exercise-twist.mp4 in Resources */,
+				E5958CD534FFD5BF9924AA99 /* streak-chime.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -567,6 +574,7 @@
 				4A3228E5031DD43B85671D3C /* Streak.swift in Sources */,
 				72DAEFEBA5B0AE92549972DB /* StreakCelebrationView.swift in Sources */,
 				AC60B67697EFB1D550B5909D /* StreakComponents.swift in Sources */,
+				785F642A1597970066CA6345 /* StreakTierViews.swift in Sources */,
 				1B4D78C5E98318210F8C8DFA /* StreakView.swift in Sources */,
 				6B60897866DBD84CFBDDD00A /* Subscription.swift in Sources */,
 				A3A9EBD61E58CE6F33A9146C /* Theme.swift in Sources */,

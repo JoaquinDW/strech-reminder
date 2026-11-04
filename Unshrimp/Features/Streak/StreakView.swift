@@ -7,12 +7,14 @@ struct StreakView: View {
     @State private var month = Date()
     @State private var now = Date()
     @State private var bought = 0
+    @State private var shareImage: Image?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Space.l) {
                     hero
+                    StreakTierStrip(streak: model.streak(now))
                     stats
                     if let offer = model.repairOffer(now) { repairCard(offer) }
                     calendarCard
@@ -30,6 +32,14 @@ struct StreakView: View {
             .navigationTitle("Streak")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                if let shareImage {
+                    ToolbarItem(placement: .cancellationAction) {
+                        StreakShareButton(image: shareImage, streak: model.streak(now)) {
+                            Image(systemName: "square.and.arrow.up").font(.uHeadline)
+                        }
+                        .tint(Palette.petrol)
+                    }
+                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }.font(.uHeadline).tint(Palette.petrol)
                 }
@@ -38,6 +48,8 @@ struct StreakView: View {
         .sensoryFeedback(.success, trigger: bought)
         .task {
             Analytics.capture("streak_viewed", properties: ["streak": model.streak(now), "freezes": model.streakFreezes])
+            let streak = model.streak(now)
+            if streak > 0 { shareImage = StreakShareCard.render(streak: streak, look: model.look) }
         }
     }
 
@@ -48,9 +60,7 @@ struct StreakView: View {
         let safe = model.streakSafeToday(now)
         return VStack(spacing: Space.s) {
             HStack(spacing: Space.s) {
-                Image(systemName: StreakSymbol.name)
-                    .font(.system(size: 36, weight: .heavy))
-                    .foregroundStyle(safe ? Palette.coralDeep : Palette.petrolSoft)
+                StreakMark(tier: StreakTier(streak: streak), lit: safe, size: 60)
                 Text("\(streak)")
                     .font(.system(size: 72, weight: .heavy, design: .rounded))
                     .monospacedDigit()
@@ -64,12 +74,13 @@ struct StreakView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, Space.l)
-        .card(safe ? Palette.coralSoft : Palette.paper)
+        .card(safe ? StreakTier(streak: streak).softColor : Palette.paper)
         .accessibilityElement(children: .combine)
     }
 
     private func statusLine(streak: Int, safe: Bool) -> String {
         if safe { return String(localized: "Safe for today. See you next workday.") }
+        if model.repairOffer(now) != nil { return String(localized: "Reach today's goal and the missed day counts again.") }
         if streak == 0 { return String(localized: "Take a break today to start a streak.") }
         if model.streakAtRisk(now) { return String(localized: "One break today keeps it going.") }
         return String(localized: "Day off. Your streak waits for you.")
@@ -92,7 +103,7 @@ struct StreakView: View {
                 .overlay(Circle().strokeBorder(Palette.petrol, lineWidth: 2))
             VStack(alignment: .leading, spacing: 0) {
                 Text(value).font(.uTitle2).monospacedDigit().foregroundStyle(Palette.petrol)
-                Text(label).font(.uCaption).foregroundStyle(Palette.petrolSoft)
+                Text(label).font(.uCaption).foregroundStyle(Palette.petrolSoft).lineLimit(1).minimumScaleFactor(0.75)
             }
             Spacer(minLength: 0)
         }

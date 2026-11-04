@@ -123,7 +123,7 @@ struct HomeView: View {
                     .foregroundStyle(Palette.petrolSoft)
             }
             Spacer()
-            StreakBadge(streak: model.streak(now), safe: model.streakSafeToday(now)) { showStreak = true }
+            StreakBadge(streak: model.streak(now), safe: model.streakSafeToday(now), lastCall: model.streakLastCall(now)) { showStreak = true }
                 .animation(Motion.snappy, value: model.streak(now))
             CircleIconButton(systemName: "bell.badge", label: "Reminder settings") { showSettings = true }
         }

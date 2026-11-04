@@ -75,6 +75,9 @@ final class AppModel {
         }
         if args.contains("-testStand") { standRequested = StandMove.all[0].id }
         if let i = args.firstIndex(of: "-seedStreak"), args.indices.contains(i + 1), let n = Int(args[i + 1]) { seedStreak(n) }
+        if let i = args.firstIndex(of: "-seedStreakMiss"), args.indices.contains(i + 1), let n = Int(args[i + 1]) {
+            seedStreakMiss(n, guards: args.contains("-seedGuard") ? 1 : 0, goalAlmost: args.contains("-seedGoalAlmost"))
+        }
         #endif
         reconcileStreak()
     }
@@ -237,6 +240,9 @@ final class AppModel {
             return String(localized: "Hey, you're back! I kept your desk warm.")
         }
         if goalMet(now) { return String(localized: "Goal done. I'm just going to sit here and feel nice.") }
+        if streakLastCall(now) {
+            return String(localized: "\(streak(now)) days strong. One quick stretch?")
+        }
         if !ReminderPlanner.isWithinWorkHours(now, schedule: prefs.schedule) && today == 0 {
             return String(localized: "Off the clock? A stretch still counts.")
         }
@@ -319,6 +325,13 @@ final class AppModel {
 
     /// A workday with a streak going and no break yet.
     func streakAtRisk(_ now: Date = Date()) -> Bool { streakEngine.atRisk(today: day(now), state: data.streak) }
+
+    /// The streak is at risk and the workday is nearly over.
+    func streakLastCall(_ now: Date = Date()) -> Bool {
+        let c = calendar.dateComponents([.hour, .minute], from: now)
+        let minute = (c.hour ?? 0) * 60 + (c.minute ?? 0)
+        return streakAtRisk(now) && StreakRules.isLastCall(minuteOfDay: minute, schedule: prefs.schedule)
+    }
 
     var streakFreezes: Int { data.streak.freezes }
 
@@ -578,6 +591,33 @@ final class AppModel {
         data.streak = StreakState()
         data.streak.checkedThrough = day(now).adding(-1, calendar: calendar)
         data.streak.milestones = StreakRules.milestones.filter { $0 < days }
+        save()
+    }
+
+    /// Debug: a `days`-long streak that ended before the last workday, which has no break, so the
+    /// launch sees a missed day. With `guards` it's covered; without, it's lost and can be won back.
+    private func seedStreakMiss(_ days: Int, guards: Int, goalAlmost: Bool) {
+        guard data.breaks.isEmpty else { return }
+        data.hasOnboarded = true
+        let now = Date()
+        let engine = StreakEngine(active: [], workdays: prefs.schedule.workdays, calendar: calendar)
+        var missed = day(now).adding(-1, calendar: calendar)
+        while !engine.isWorkday(missed) { missed = missed.adding(-1, calendar: calendar) }
+        for offset in stride(from: max(1, days), to: 0, by: -1) {
+            let d = missed.adding(-offset, calendar: calendar).date(calendar)
+            data.breaks.append(BreakRecord(date: d, minutes: 3, focus: [.neck], energy: EnergyRules.base))
+            data.energy += EnergyRules.base
+        }
+        if goalAlmost {
+            for i in 0..<max(0, prefs.dailyGoal - 1) {
+                let at = now.addingTimeInterval(Double(-3600 * (i + 1)))
+                data.breaks.append(BreakRecord(date: at, minutes: 3, focus: [.neck], energy: EnergyRules.base))
+            }
+        }
+        data.streak = StreakState()
+        data.streak.checkedThrough = missed.adding(-1, calendar: calendar)
+        data.streak.milestones = StreakRules.milestones.filter { $0 <= days }
+        data.streak.freezes = guards
         save()
     }
 

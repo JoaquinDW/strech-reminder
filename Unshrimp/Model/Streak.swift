@@ -56,6 +56,47 @@ enum StreakRules {
     }
 
     static func nextMilestone(after streak: Int) -> Int? { milestones.first { $0 > streak } }
+
+    /// Minutes before the end of work when an untouched streak starts asking for attention.
+    static let lastCallMinutes = 120
+
+    /// Late enough in the day that a streak with no break yet should say so.
+    static func isLastCall(minuteOfDay: Int, schedule: WorkSchedule) -> Bool {
+        minuteOfDay >= max(schedule.startMinute, schedule.endMinute - lastCallMinutes)
+    }
+}
+
+/// How big the streak has grown. Each level is a bigger wave, reached on a milestone.
+enum StreakTier: Int, CaseIterable, Comparable {
+    case ripple, wave, tide, swell, tsunami
+
+    init(streak: Int) {
+        self = Self.allCases.last { streak >= $0.minDays } ?? .ripple
+    }
+
+    var minDays: Int {
+        switch self {
+        case .ripple: 0
+        case .wave: 7
+        case .tide: 30
+        case .swell: 100
+        case .tsunami: 365
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .ripple: String(localized: "Ripple")
+        case .wave: String(localized: "Wave")
+        case .tide: String(localized: "Tide")
+        case .swell: String(localized: "Swell")
+        case .tsunami: String(localized: "Tsunami")
+        }
+    }
+
+    var next: StreakTier? { StreakTier(rawValue: rawValue + 1) }
+
+    static func < (a: StreakTier, b: StreakTier) -> Bool { a.rawValue < b.rawValue }
 }
 
 /// How a missed workday was kept from breaking the streak.
@@ -328,6 +369,12 @@ struct StreakUpdate: Equatable {
     var week: [StreakWeekDay] = []
 
     var shouldCelebrate: Bool { extended || repaired || milestone != nil }
+
+    /// The level this update just climbed to, if any.
+    var tierUp: StreakTier? {
+        let new = StreakTier(streak: after)
+        return new > StreakTier(streak: before) ? new : nil
+    }
 }
 
 struct StreakWeekDay: Equatable, Identifiable {

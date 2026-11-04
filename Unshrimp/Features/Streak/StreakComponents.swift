@@ -6,33 +6,47 @@ enum StreakSymbol {
     static let freeze = "shield.lefthalf.filled"
 }
 
-/// The streak counter at the top of Home. Coral once today has a break, quiet until then.
+/// The streak counter at the top of Home. In its level's colors once today has a break, quiet
+/// until then, and gently pulsing when the workday is nearly over with no break yet.
 struct StreakBadge: View {
     var streak: Int
     var safe: Bool
+    var lastCall = false
     var action: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var tier: StreakTier { StreakTier(streak: streak) }
 
     var body: some View {
         Button(action: action) {
             HStack(spacing: 5) {
-                Image(systemName: StreakSymbol.name)
-                    .font(.system(size: 15, weight: .heavy))
-                    .symbolEffect(.bounce, value: safe)
+                StreakMark(tier: tier, lit: safe, size: 24)
                 Text("\(streak)")
                     .font(.system(size: 18, weight: .heavy, design: .rounded))
                     .monospacedDigit()
                     .contentTransition(.numericText(value: Double(streak)))
             }
-            .foregroundStyle(safe ? Palette.petrol : Palette.petrolSoft)
-            .padding(.horizontal, 14)
+            .foregroundStyle(safe || lastCall ? Palette.petrol : Palette.petrolSoft)
+            .padding(.horizontal, 12)
             .frame(minWidth: 64, minHeight: 44)
-            .background(Capsule().fill(safe ? Palette.coral : Palette.paper))
-            .overlay(Capsule().strokeBorder(safe ? Palette.petrol : Palette.petrol.opacity(0.45), lineWidth: 2))
+            .background(Capsule().fill(safe ? tier.softColor : Palette.paper))
+            .overlay(Capsule().strokeBorder(borderColor, lineWidth: lastCall ? 2.5 : 2))
+            .phaseAnimator(lastCall && !reduceMotion ? [1.0, 1.07] : [1.0]) { view, scale in
+                view.scaleEffect(scale)
+            } animation: { _ in
+                .easeInOut(duration: 0.8)
+            }
         }
         .buttonStyle(PressableStyle())
         .accessibilityLabel(Text(streak == 1 ? String(localized: "1-day streak") : String(localized: "\(streak)-day streak")))
         .accessibilityValue(Text(safe ? String(localized: "Safe for today") : String(localized: "No break yet today")))
         .accessibilityHint(Text("Shows your streak calendar"))
+    }
+
+    private var borderColor: Color {
+        if lastCall { return Palette.coralDeep }
+        return safe ? Palette.petrol : Palette.petrol.opacity(0.45)
     }
 }
 

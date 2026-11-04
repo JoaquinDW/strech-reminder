@@ -118,7 +118,7 @@ enum Adventure {
 /// Either way they come from showing up over time rather than from energy.
 enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
     case sweatband, specs, beanie, flower, crown
-    case cap, starfish, headphones, captain
+    case cap, starfish, headphones, captain, shades, coralCrown
     var id: String { rawValue }
 
     /// The streak length that brings this one, or nil for growth-stage wearables.
@@ -128,6 +128,8 @@ enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
         case .starfish: 14
         case .headphones: 30
         case .captain: 100
+        case .shades: 200
+        case .coralCrown: 365
         default: nil
         }
     }
@@ -143,6 +145,8 @@ enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
         case .starfish: String(localized: "Starfish clip")
         case .headphones: String(localized: "Focus headphones")
         case .captain: String(localized: "Captain's hat")
+        case .shades: String(localized: "Surf shades")
+        case .coralCrown: String(localized: "Coral crown")
         }
     }
 
@@ -157,6 +161,8 @@ enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
         case .starfish: String(localized: "Two weeks of showing up. The starfish says hi.")
         case .headphones: String(localized: "A whole month. Plays nothing but ocean sounds.")
         case .captain: String(localized: "A hundred days. \(Brand.mascotName) now runs this ship.")
+        case .shades: String(localized: "Two hundred days. The future's bright, and so is the screen.")
+        case .coralCrown: String(localized: "A whole year of showing up. The reef bows.")
         }
     }
 }

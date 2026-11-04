@@ -162,6 +162,8 @@ final class StreakTests: XCTestCase {
         XCTAssertEqual(state.freezes, StreakRules.maxFreezes, "Never more than the cap")
         XCTAssertEqual(StreakRules.wearable(forMilestone: 7), .cap)
         XCTAssertNil(StreakRules.wearable(forMilestone: 3))
+        XCTAssertEqual(StreakRules.wearable(forMilestone: 200), .shades)
+        XCTAssertEqual(StreakRules.wearable(forMilestone: 365), .coralCrown)
         XCTAssertEqual(StreakRules.nextMilestone(after: 7), 14)
     }
 
@@ -207,5 +209,38 @@ final class StreakTests: XCTestCase {
         XCTAssertEqual(calendar.component(.hour, from: pending[0]), 17)
         let safe = ReminderPlanner.streakSaveDates(after: fridayMorning, schedule: schedule, skipToday: true, calendar: calendar)
         XCTAssertEqual(safe.map { calendar.component(.day, from: $0) }, [9, 10])
+    }
+
+    func testTiersFollowTheStreak() {
+        XCTAssertEqual(StreakTier(streak: 0), .ripple)
+        XCTAssertEqual(StreakTier(streak: 6), .ripple)
+        XCTAssertEqual(StreakTier(streak: 7), .wave)
+        XCTAssertEqual(StreakTier(streak: 30), .tide)
+        XCTAssertEqual(StreakTier(streak: 99), .tide)
+        XCTAssertEqual(StreakTier(streak: 100), .swell)
+        XCTAssertEqual(StreakTier(streak: 400), .tsunami)
+        XCTAssertNil(StreakTier.tsunami.next)
+        for tier in StreakTier.allCases where tier != .ripple {
+            XCTAssertTrue(StreakRules.milestones.contains(tier.minDays))
+        }
+    }
+
+    func testTierUpOnlyWhenCrossingALevel() {
+        var update = StreakUpdate(before: 6, after: 7, extended: true, best: 7, isNewBest: true)
+        XCTAssertEqual(update.tierUp, .wave)
+        update.before = 7
+        update.after = 8
+        XCTAssertNil(update.tierUp)
+    }
+
+    func testLastCallStartsBeforeTheEndOfWork() {
+        var schedule = WorkSchedule()
+        schedule.startMinute = 9 * 60
+        schedule.endMinute = 18 * 60
+        XCTAssertFalse(StreakRules.isLastCall(minuteOfDay: 15 * 60 + 59, schedule: schedule))
+        XCTAssertTrue(StreakRules.isLastCall(minuteOfDay: 16 * 60, schedule: schedule))
+        XCTAssertTrue(StreakRules.isLastCall(minuteOfDay: 21 * 60, schedule: schedule))
+        schedule.endMinute = 10 * 60
+        XCTAssertFalse(StreakRules.isLastCall(minuteOfDay: 8 * 60, schedule: schedule))
     }
 }

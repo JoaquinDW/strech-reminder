@@ -386,7 +386,7 @@ enum WearableArt {
         switch item {
         case .sweatband: 10
         case .beanie, .cap, .captain: 6
-        case .specs, .flower, .crown, .starfish, .headphones: 0
+        case .specs, .flower, .crown, .starfish, .headphones, .shades, .coralCrown: 0
         }
     }
 
@@ -406,6 +406,8 @@ enum WearableArt {
         case .starfish: starfish(ctx, t: t, animated: animated)
         case .headphones: headphones(ctx)
         case .captain: captain(ctx)
+        case .shades: shades(ctx)
+        case .coralCrown: coralCrown(ctx)
         }
     }
 
@@ -561,5 +563,39 @@ enum WearableArt {
         hook.move(to: CGPoint(x: -9, y: -39))
         hook.addQuadCurve(to: CGPoint(x: -3, y: -39), control: CGPoint(x: -6, y: -35.5))
         ctx.line(hook, width: 1.4)
+    }
+
+    private static func shades(_ ctx: GraphicsContext) {
+        let eye = CGPoint(x: -14, y: -6)
+        ctx.line(Geo.polyline([eye + CGPoint(x: 9, y: -3), CGPoint(x: 20, y: -11)]), width: 3)
+        ctx.line(Geo.polyline([eye + CGPoint(x: -11, y: -3), eye + CGPoint(x: -17, y: -4)]), width: 3)
+        ctx.outlined(Geo.roundRect(eye.x - 12, eye.y - 9, 24, 17, 7), Palette.petrol, width: 2.4)
+        ctx.line(Geo.polyline([eye + CGPoint(x: -6, y: 1), eye + CGPoint(x: 0, y: -5)]), Palette.mint, width: 2.6)
+        ctx.line(Geo.polyline([eye + CGPoint(x: 0, y: 3), eye + CGPoint(x: 4, y: -1)]), Palette.mint.opacity(0.7), width: 2)
+    }
+
+    private static func coralCrown(_ ctx: GraphicsContext) {
+        var c = ctx
+        c.translateBy(x: -2, y: -29)
+        c.rotate(by: .degrees(-8))
+        c.scaleBy(x: 1.25, y: 1.25)
+        var branches = Path()
+        for (root, tip, fork, forkTip) in [
+            (CGPoint(x: 0, y: -4), CGPoint(x: 0, y: -27), CGPoint(x: 0, y: -15), CGPoint(x: 7, y: -22)),
+            (CGPoint(x: -12, y: -4), CGPoint(x: -17, y: -22), CGPoint(x: -14, y: -13), CGPoint(x: -8, y: -19)),
+            (CGPoint(x: 12, y: -4), CGPoint(x: 17, y: -22), CGPoint(x: 14, y: -13), CGPoint(x: 20, y: -15))
+        ] {
+            branches.move(to: root)
+            branches.addLine(to: tip)
+            branches.move(to: fork)
+            branches.addLine(to: forkTip)
+        }
+        c.stroke(branches, with: .color(Palette.petrol), style: StrokeStyle(lineWidth: 7.5, lineCap: .round))
+        c.stroke(branches, with: .color(Palette.coralSoft), style: StrokeStyle(lineWidth: 3.2, lineCap: .round))
+        for tip in [CGPoint(x: 0, y: -27), CGPoint(x: -17, y: -22), CGPoint(x: 17, y: -22)] {
+            c.outlined(Geo.circle(tip, 3.2), Palette.paper, width: 1.8)
+        }
+        c.outlined(Geo.roundRect(-20, -7, 40, 9, 4), Palette.butter, width: 2.6)
+        c.outlined(Geo.circle(CGPoint(x: 0, y: -2.5), 2.6), Palette.mint, width: 1.6)
     }
 }

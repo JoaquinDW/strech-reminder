@@ -46,6 +46,7 @@ The SDK supplies normal device/app metadata and queues offline events.
 | `streak_repaired` | Today's goal won back a missed day; `streak` |
 | `streak_freeze_bought` | A shell guard bought with energy; `freezes`, `streak` |
 | `streak_viewed` | Streak sheet opens; `streak`, `freezes` |
+| `streak_share_tapped` | Share button on the celebration or streak sheet; `streak` (not whether it was sent) |
 | `app_error` | Persistence failure; operation, error domain/code only |
 
 All three break events share `break_id`, `duration_minutes` (planned duration, not
