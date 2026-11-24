@@ -1,1 +1,1 @@
-timer,stretching,exercise,stand,up,neck,shoulder,lower,back,5,minute,mobility,office,sitting,move
+timer,stretching,exercise,stand,up,neck,shoulder,lower,back,mobility,office,sitting,move,posture
