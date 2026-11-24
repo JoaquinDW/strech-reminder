@@ -64,7 +64,7 @@ struct CollectionView: View {
     }
 
     private func wearTile(_ wearable: Wearable?) -> some View {
-        let owned = wearable.map { model.growth.wearables.contains($0) } ?? true
+        let owned = wearable.map { model.ownedWearables.contains($0) } ?? true
         let worn = model.data.outfit == wearable
         let stage = wearable.map(KipGrowth.stageWearable) ?? 0
         return Button {
@@ -84,7 +84,8 @@ struct CollectionView: View {
                     .font(.uCaption).foregroundStyle(Palette.petrol)
                     .lineLimit(2).multilineTextAlignment(.center).minimumScaleFactor(0.8)
                 Text(owned ? (worn ? String(localized: "Wearing") : String(localized: "Tap to wear"))
-                           : String(localized: "At \(KipGrowth.title(stage).lowercased())"))
+                           : wearable?.streakMilestone.map { String(localized: "\($0)-day streak") }
+                             ?? String(localized: "At \(KipGrowth.title(stage).lowercased())"))
                     .font(.uMicro)
                     .foregroundStyle(worn ? Palette.mintDeep : Palette.petrolSoft)
                     .lineLimit(2).multilineTextAlignment(.center)

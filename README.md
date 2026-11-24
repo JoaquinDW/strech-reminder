@@ -76,6 +76,26 @@ remaining content limitations, and simulator verification. Session unit tests ar
   The next item shows as a faint silhouette in the scene. Nothing is ever taken away.
 - Each day the goal is met moves Kip one stop along the weekly Tide Pool Trail.
 
+### Streak
+
+- The streak counts days in a row with at least one break. Only the workdays chosen in
+  onboarding can break it: a break on a day off still adds a day, skipping one never hurts.
+  It is worked out from the break history, so existing users keep the streak they built.
+- The first break of the day opens with a streak screen before the energy screen. Home
+  shows the count next to the greeting; tapping it opens a month calendar.
+- Shell guards (up to 2) cover a missed workday automatically. Each milestone (3, 7, 14,
+  30, 50, 100, 200, 365 days) gives one, and one costs 150 energy. Spending energy never
+  takes anything off the desk: desk unlocks still follow total energy earned.
+- Miss a single workday after a streak of 3 or more and meeting the next workday's goal
+  wins it back, once every 30 days.
+- The 7, 14, 30 and 100-day milestones bring a wearable: cap, starfish clip, headphones,
+  captain's hat.
+- With a streak going, one friendly nudge goes out an hour before the end of the next
+  workday or two without a break, unless a break reminder already lands near it.
+- Debug: `-seedStreak 6` adds six days of breaks, so the next break hits the 7-day
+  milestone; `-testStreak` opens the streak sheet. Logic and tests: `Model/Streak.swift`,
+  `UnshrimpTests/StreakTests.swift`.
+
 ### Reminders
 
 Two kinds of reminder, scheduled locally inside working days and hours:

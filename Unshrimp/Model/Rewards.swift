@@ -67,6 +67,8 @@ struct BreakResult: Equatable {
     var newWearable: Wearable? = nil
     /// How the person said the break felt, so Kip can answer on the reward screen.
     var feel: BreakFeel? = nil
+    /// What the streak did, when there's a streak to talk about.
+    var streak: StreakUpdate? = nil
 
     var earned: Int { energyAfter - energyBefore }
 }
@@ -112,11 +114,25 @@ enum Adventure {
     ]
 }
 
-/// Things Kip can wear. Each one arrives with a growth stage, so they come from showing up
-/// over time rather than from energy.
+/// Things Kip can wear. Most arrive with a growth stage; the rest come from streak milestones.
+/// Either way they come from showing up over time rather than from energy.
 enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
     case sweatband, specs, beanie, flower, crown
+    case cap, starfish, headphones, captain, shades, coralCrown
     var id: String { rawValue }
+
+    /// The streak length that brings this one, or nil for growth-stage wearables.
+    var streakMilestone: Int? {
+        switch self {
+        case .cap: 7
+        case .starfish: 14
+        case .headphones: 30
+        case .captain: 100
+        case .shades: 200
+        case .coralCrown: 365
+        default: nil
+        }
+    }
 
     var title: String {
         switch self {
@@ -125,6 +141,12 @@ enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
         case .beanie: String(localized: "Bobble beanie")
         case .flower: String(localized: "Antenna flower")
         case .crown: String(localized: "Tiny crown")
+        case .cap: String(localized: "Sporty cap")
+        case .starfish: String(localized: "Starfish clip")
+        case .headphones: String(localized: "Focus headphones")
+        case .captain: String(localized: "Captain's hat")
+        case .shades: String(localized: "Surf shades")
+        case .coralCrown: String(localized: "Coral crown")
         }
     }
 
@@ -135,6 +157,12 @@ enum Wearable: String, Codable, CaseIterable, Identifiable, Hashable {
         case .beanie: String(localized: "Cozy, slightly too big, very bouncy.")
         case .flower: String(localized: "Grows a little every time \(Brand.mascotName) reaches up.")
         case .crown: String(localized: "Royalty of the uncurled. Earned, not given.")
+        case .cap: String(localized: "A week in a row. Worn slightly sideways, on purpose.")
+        case .starfish: String(localized: "Two weeks of showing up. The starfish says hi.")
+        case .headphones: String(localized: "A whole month. Plays nothing but ocean sounds.")
+        case .captain: String(localized: "A hundred days. \(Brand.mascotName) now runs this ship.")
+        case .shades: String(localized: "Two hundred days. The future's bright, and so is the screen.")
+        case .coralCrown: String(localized: "A whole year of showing up. The reef bows.")
         }
     }
 }

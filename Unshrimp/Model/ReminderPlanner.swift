@@ -102,6 +102,23 @@ enum ReminderPlanner {
         return nil
     }
 
+    /// When the end-of-day streak nudge goes out: an hour before the end of work, on the next
+    /// `count` workdays (today included unless it already has a break).
+    static func streakSaveDates(after now: Date, schedule: WorkSchedule, skipToday: Bool, count: Int = 2, calendar: Calendar = .current) -> [Date] {
+        guard schedule.endMinute > schedule.startMinute else { return [] }
+        var result: [Date] = []
+        for offset in 0..<8 {
+            guard result.count < count, let day = calendar.date(byAdding: .day, value: offset, to: now) else { continue }
+            if offset == 0 && skipToday { continue }
+            guard schedule.workdays.contains(calendar.component(.weekday, from: day)) else { continue }
+            let minute = max(schedule.startMinute, schedule.endMinute - 60)
+            if let date = calendar.date(byAdding: .minute, value: minute, to: calendar.startOfDay(for: day)), date > now {
+                result.append(date)
+            }
+        }
+        return result
+    }
+
     static func isWithinWorkHours(_ date: Date, schedule: WorkSchedule, calendar: Calendar = .current) -> Bool {
         let weekday = calendar.component(.weekday, from: date)
         guard schedule.workdays.contains(weekday) else { return false }

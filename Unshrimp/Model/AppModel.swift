@@ -74,7 +74,12 @@ final class AppModel {
             skipBreakIntro = true
         }
         if args.contains("-testStand") { standRequested = StandMove.all[0].id }
+        if let i = args.firstIndex(of: "-seedStreak"), args.indices.contains(i + 1), let n = Int(args[i + 1]) { seedStreak(n) }
+        if let i = args.firstIndex(of: "-seedStreakMiss"), args.indices.contains(i + 1), let n = Int(args[i + 1]) {
+            seedStreakMiss(n, guards: args.contains("-seedGuard") ? 1 : 0, goalAlmost: args.contains("-seedGoalAlmost"))
+        }
         #endif
+        reconcileStreak()
     }
 
     // MARK: Preferences
@@ -134,9 +139,14 @@ final class AppModel {
     var growth: KipGrowth { KipGrowth(breaks: data.breaks.count) }
     var look: KipLook { KipLook(uncurl: growth.uncurl, wearable: data.outfit) }
 
+    /// Everything Kip has earned to wear: growth stages first, then streak milestones.
+    var ownedWearables: [Wearable] {
+        growth.wearables + Wearable.allCases.filter { w in w.streakMilestone.map { data.streak.milestones.contains($0) } ?? false }
+    }
+
     /// Puts on (or takes off, with nil) one of the wearables Kip has earned.
     func wear(_ wearable: Wearable?) {
-        guard wearable == nil || growth.wearables.contains(wearable!) else { return }
+        guard wearable == nil || ownedWearables.contains(wearable!) else { return }
         data.outfit = wearable
         save()
         Task { await rescheduleReminders() }
@@ -213,14 +223,34 @@ final class AppModel {
     func speech(_ now: Date = Date()) -> String {
         let today = breaksToday(now)
         if isFirstDay { return String(localized: "First break together? I'll stretch too.") }
+        if today == 0, let notice = streakNotice(now) {
+            switch notice {
+            case .frozen(let days, let streak):
+                return days == 1
+                    ? String(localized: "I used a shell guard. Our \(streak)-day streak is safe.")
+                    : String(localized: "I used \(days) shell guards. Our \(streak)-day streak is safe.")
+            case .lost(let previous):
+                if let offer = repairOffer(now) {
+                    return String(localized: "Hit today's goal and we win back our \(offer.previous)-day streak.")
+                }
+                return String(localized: "Our streak starts fresh, but I remember all \(previous) days. Let's go again?")
+            }
+        }
         if today == 0 && daysAway(now) >= EnergyRules.absenceDays {
             return String(localized: "Hey, you're back! I kept your desk warm.")
         }
         if goalMet(now) { return String(localized: "Goal done. I'm just going to sit here and feel nice.") }
+        if streakLastCall(now) {
+            return String(localized: "\(streak(now)) days strong. One quick stretch?")
+        }
         if !ReminderPlanner.isWithinWorkHours(now, schedule: prefs.schedule) && today == 0 {
             return String(localized: "Off the clock? A stretch still counts.")
         }
         if isBreakDue(now) {
+            let run = streak(now)
+            if today == 0, run >= 2, streakAtRisk(now) {
+                return String(localized: "One stretch makes it \(run + 1) days in a row. Break with me?")
+            }
             return today == 0
                 ? String(localized: "I've been typing for ages. Break with me?")
                 : String(localized: "My antennae say it's stretch time.")
@@ -241,6 +271,9 @@ final class AppModel {
 
     @discardableResult
     func recordBreak(minutes: Int, focus: Set<FocusArea>, feel: BreakFeel? = nil, at date: Date = Date()) -> BreakResult {
+        reconcileStreak(date)
+        let streakBefore = streak(date)
+        let bestBefore = bestStreak(date)
         let before = data.energy
         let todayBefore = breaksToday(date)
         let stopsBefore = adventureStops(date)
@@ -254,6 +287,8 @@ final class AppModel {
         let stageAfter = growth.stageIndex
         let newWearable = stageAfter > stageBefore ? KipGrowth.stages[stageAfter].wearable : nil
         if let newWearable { data.outfit = newWearable }
+        let streakUpdate = updateStreak(at: date, before: streakBefore, bestBefore: bestBefore,
+                                        firstToday: todayBefore == 0, goalMet: todayBefore + 1 >= prefs.dailyGoal)
         save()
         if let first = newItems.first {
             celebrateItem = first
@@ -267,8 +302,135 @@ final class AppModel {
             adventureStop: stopsAfter > stopsBefore ? stopsAfter : 0,
             newStage: stageAfter > stageBefore ? stageAfter : nil,
             newWearable: newWearable,
-            feel: feel
+            feel: feel,
+            streak: streakUpdate
         )
+    }
+
+    // MARK: Streak
+
+    private var streakEngine: StreakEngine {
+        StreakEngine(breaks: data.breaks, workdays: prefs.schedule.workdays, calendar: calendar)
+    }
+
+    func day(_ date: Date = Date()) -> DayKey { DayKey(date, calendar: calendar) }
+
+    /// Days in a row with a break. Until today's first break it shows the run up to yesterday.
+    func streak(_ now: Date = Date()) -> Int { streakEngine.current(asOf: day(now), state: data.streak) }
+
+    func bestStreak(_ now: Date = Date()) -> Int { max(data.streak.best, streak(now)) }
+
+    /// Today has a break, so the streak is safe until tomorrow.
+    func streakSafeToday(_ now: Date = Date()) -> Bool { breaksToday(now) > 0 }
+
+    /// A workday with a streak going and no break yet.
+    func streakAtRisk(_ now: Date = Date()) -> Bool { streakEngine.atRisk(today: day(now), state: data.streak) }
+
+    /// The streak is at risk and the workday is nearly over.
+    func streakLastCall(_ now: Date = Date()) -> Bool {
+        let c = calendar.dateComponents([.hour, .minute], from: now)
+        let minute = (c.hour ?? 0) * 60 + (c.minute ?? 0)
+        return streakAtRisk(now) && StreakRules.isLastCall(minuteOfDay: minute, schedule: prefs.schedule)
+    }
+
+    var streakFreezes: Int { data.streak.freezes }
+
+    /// Energy that can go on shell guards. Spending it never takes anything off the desk.
+    var spendableEnergy: Int { max(0, data.energy - data.streak.energySpent) }
+
+    var canBuyFreeze: Bool { data.streak.freezes < StreakRules.maxFreezes && spendableEnergy >= StreakRules.freezeCost }
+
+    func buyFreeze() {
+        guard canBuyFreeze else { return }
+        data.streak.energySpent += StreakRules.freezeCost
+        data.streak.freezes += 1
+        save()
+        Analytics.capture("streak_freeze_bought", properties: ["freezes": data.streak.freezes, "streak": streak()])
+    }
+
+    func repairOffer(_ now: Date = Date()) -> StreakRepairOffer? {
+        guard let offer = data.streak.repair, day(now) <= offer.expires else { return nil }
+        return offer
+    }
+
+    /// Something to mention today, until the first break.
+    func streakNotice(_ now: Date = Date()) -> StreakNotice? {
+        guard data.streak.noticeDay == day(now) else { return nil }
+        return data.streak.notice
+    }
+
+    /// Checks the days since the last look: spends shell guards on missed workdays, or records the miss.
+    func reconcileStreak(_ now: Date = Date()) {
+        let before = data.streak
+        var state = data.streak
+        let engine = streakEngine
+        let events = engine.reconcile(&state, today: day(now))
+        state.best = engine.longest(through: day(now), state: state)
+        guard state != before else { return }
+        data.streak = state
+        save()
+        for event in events {
+            switch event {
+            case .frozen(let days, let streak):
+                Analytics.capture("streak_freeze_used", properties: ["days": days, "streak": streak, "freezes_left": state.freezes])
+            case .lost(let previous):
+                Analytics.capture("streak_lost", properties: ["previous": previous, "repair_offered": state.repair != nil])
+            case .repaired:
+                break
+            }
+        }
+    }
+
+    /// The streak calendar for the month containing `date`, padded to whole weeks.
+    func streakMonth(_ date: Date, now: Date = Date()) -> [StreakWeekDay?] {
+        guard let interval = calendar.dateInterval(of: .month, for: date) else { return [] }
+        let first = day(interval.start)
+        let lead = (first.weekday(calendar) - calendar.firstWeekday + 7) % 7
+        let count = calendar.range(of: .day, in: .month, for: date)?.count ?? 30
+        return Array(repeating: nil, count: lead) + (0..<count).map { streakDay(first.adding($0, calendar: calendar), now: now) }
+    }
+
+    func streakWeek(_ now: Date = Date()) -> [StreakWeekDay] {
+        let today = day(now)
+        return (0..<7).reversed().map { streakDay(today.adding(-$0, calendar: calendar), now: now) }
+    }
+
+    private func streakDay(_ d: DayKey, now: Date) -> StreakWeekDay {
+        let today = day(now)
+        let engine = streakEngine
+        let kind = engine.kind(of: d, today: today, state: data.streak) { key in
+            data.breaks.filter { DayKey($0.date, calendar: calendar) == key }.count >= prefs.dailyGoal
+        }
+        return StreakWeekDay(day: d, kind: kind, isToday: d == today)
+    }
+
+    /// After a break is saved: repairs, milestones and what to celebrate.
+    private func updateStreak(at date: Date, before: Int, bestBefore: Int, firstToday: Bool, goalMet: Bool) -> StreakUpdate {
+        let engine = streakEngine
+        let today = day(date)
+        var state = data.streak
+        let repaired = engine.applyRepair(&state, today: today, goalMet: goalMet) != nil
+        let after = engine.current(asOf: today, state: state)
+        let freezesBefore = state.freezes
+        let reached = engine.reachMilestones(&state, streak: after)
+        state.best = max(engine.longest(through: today, state: state), after)
+        let wearable = reached.compactMap(StreakRules.wearable(forMilestone:)).last
+        data.streak = state
+        if let wearable { data.outfit = wearable }
+
+        let milestone = reached.last
+        if firstToday {
+            Analytics.capture("streak_extended", properties: ["streak": after, "is_milestone": milestone != nil])
+        }
+        if repaired { Analytics.capture("streak_repaired", properties: ["streak": after]) }
+        for m in reached { Analytics.capture("streak_milestone", properties: ["days": m]) }
+
+        let weekDays = streakWeek(date)
+        return StreakUpdate(before: before, after: after, extended: firstToday && after > before,
+                            milestone: milestone, newWearable: wearable,
+                            freezesEarned: state.freezes - freezesBefore, repaired: repaired,
+                            best: state.best, isNewBest: after > bestBefore && bestBefore >= StreakRules.milestones[0],
+                            week: weekDays)
     }
 
     // MARK: Quick stands
@@ -378,7 +540,8 @@ final class AppModel {
         var preferences = prefs
         if !Subscription.shared.isActive { preferences.remindersEnabled = false }
         let plan = NotificationManager.History(lastBreak: lastBreak, lastStand: lastStand,
-                                            standSkipStreak: data.standSkipStreak, hasBreaks: !data.breaks.isEmpty)
+                                            standSkipStreak: data.standSkipStreak, hasBreaks: !data.breaks.isEmpty,
+                                            streak: streak(), streakSafeToday: streakSafeToday())
         await NotificationManager.reschedule(preferences: preferences, history: plan, context: voiceContext)
     }
 
@@ -411,6 +574,51 @@ final class AppModel {
         // One just now, so Home shows Kip back at work.
         if count > 0 { recordBreak(minutes: 3, focus: [.neck], at: now.addingTimeInterval(-600)) }
         celebrateItem = nil
+    }
+
+    /// Debug: one break a day for the `days` days before today, so the next break extends the
+    /// streak (-seedStreak 6 lands on the 7-day milestone).
+    private func seedStreak(_ days: Int) {
+        guard data.breaks.isEmpty else { return }
+        data.hasOnboarded = true
+        let now = Date()
+        for offset in stride(from: max(0, days), to: 0, by: -1) {
+            guard let d = calendar.date(byAdding: .day, value: -offset, to: now),
+                  let at = calendar.date(bySettingHour: 11, minute: 0, second: 0, of: d) else { continue }
+            data.breaks.append(BreakRecord(date: at, minutes: 3, focus: [.neck], energy: EnergyRules.base))
+            data.energy += EnergyRules.base
+        }
+        data.streak = StreakState()
+        data.streak.checkedThrough = day(now).adding(-1, calendar: calendar)
+        data.streak.milestones = StreakRules.milestones.filter { $0 < days }
+        save()
+    }
+
+    /// Debug: a `days`-long streak that ended before the last workday, which has no break, so the
+    /// launch sees a missed day. With `guards` it's covered; without, it's lost and can be won back.
+    private func seedStreakMiss(_ days: Int, guards: Int, goalAlmost: Bool) {
+        guard data.breaks.isEmpty else { return }
+        data.hasOnboarded = true
+        let now = Date()
+        let engine = StreakEngine(active: [], workdays: prefs.schedule.workdays, calendar: calendar)
+        var missed = day(now).adding(-1, calendar: calendar)
+        while !engine.isWorkday(missed) { missed = missed.adding(-1, calendar: calendar) }
+        for offset in stride(from: max(1, days), to: 0, by: -1) {
+            let d = missed.adding(-offset, calendar: calendar).date(calendar)
+            data.breaks.append(BreakRecord(date: d, minutes: 3, focus: [.neck], energy: EnergyRules.base))
+            data.energy += EnergyRules.base
+        }
+        if goalAlmost {
+            for i in 0..<max(0, prefs.dailyGoal - 1) {
+                let at = now.addingTimeInterval(Double(-3600 * (i + 1)))
+                data.breaks.append(BreakRecord(date: at, minutes: 3, focus: [.neck], energy: EnergyRules.base))
+            }
+        }
+        data.streak = StreakState()
+        data.streak.checkedThrough = missed.adding(-1, calendar: calendar)
+        data.streak.milestones = StreakRules.milestones.filter { $0 <= days }
+        data.streak.freezes = guards
+        save()
     }
 
     /// Debug: fills earlier days of this week with sample breaks (launch argument -seedWeek).
